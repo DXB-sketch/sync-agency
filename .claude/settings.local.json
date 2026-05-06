@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Content src\\\\App.jsx | Measure-Object -Line\\).Lines)",
+      "PowerShell(npm install react-router-dom 2>&1)",
+      "PowerShell(npm run build 2>&1)",
+      "PowerShell(Get-ChildItem -Recurse -File src | Where-Object { $_.Extension -in '.jsx','.js','.css' } | Select-Object @{n='RelPath';e={$_.FullName.Substring\\(\\(Resolve-Path .\\).Path.Length+1\\)}} | Format-Table -AutoSize)"
+    ]
+  }
+}
