@@ -134,7 +134,7 @@ export default function Pricing() {
                   <span className="price-currency">$</span>
                   <span className="price-amount">{tier.price}</span>
                 </div>
-                <div className="price-period">AUD — one-time payment</div>
+                <div className="price-period">AUD/month — 3-day free trial</div>
                 <div className="price-outcome">
                   <strong style={{ color: "var(--gold)", fontWeight: 600, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>Outcome: </strong>
                   {tier.outcome}
@@ -187,9 +187,9 @@ export default function Pricing() {
                   <thead>
                     <tr>
                       <th>Feature</th>
-                      <th>Pro Accelerator — $125</th>
-                      <th>Elite Scale — $270</th>
-                      <th>VIP Inner Circle — $690</th>
+                      <th>Pro Accelerator — $79/mo</th>
+                      <th>Elite Scale — $127/mo</th>
+                      <th>VIP Inner Circle — $349/mo</th>
                     </tr>
                   </thead>
                   <tbody>
