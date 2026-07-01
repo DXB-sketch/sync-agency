@@ -32,6 +32,13 @@ $priceId  = $input['priceId'];
 $mode     = $input['mode'];
 $tierName = isset($input['tierName']) ? $input['tierName'] : '';
 
+// Affiliate code captured from a ?aff= visit. Re-sanitize to the chars Stripe's
+// client_reference_id accepts (alphanumeric, dash, underscore; max 200).
+$affiliate = '';
+if (isset($input['affiliate']) && is_string($input['affiliate'])) {
+    $affiliate = substr(preg_replace('/[^A-Za-z0-9_-]/', '', $input['affiliate']), 0, 200);
+}
+
 require_once __DIR__ . '/vendor/autoload.php';
 
 $secretKey = getenv('STRIPE_SECRET_KEY');
@@ -55,6 +62,10 @@ try {
         'success_url' => $requestOrigin . '/?checkout=success&tier=' . urlencode($tierName),
         'cancel_url'  => $requestOrigin . '/#pricing',
     ];
+
+    if ($affiliate !== '') {
+        $params['client_reference_id'] = $affiliate;
+    }
 
     if ($mode === 'subscription') {
         $params['allow_promotion_codes'] = true;

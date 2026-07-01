@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAffiliate } from "../utils/affiliate.js";
 
 function trackEvent(name, props) {
   if (typeof window.trackEvent === "function") window.trackEvent(name, props);
@@ -42,7 +43,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
       const res = await fetch("/checkout.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId, mode, tierName: tier.name }),
+        body: JSON.stringify({ priceId, mode, tierName: tier.name, affiliate: getAffiliate() }),
       });
       const data = await res.json();
       if (data.url) {
@@ -119,7 +120,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
               </div>
               <div className="checkout-price-period">AUD · 3 years access · renew after 3 years</div>
               <div className="checkout-savings-badge">
-                ✦ Save {tier.savingsPct}% vs monthly — ${tier.monthlyTotal36} over 3 years
+                ✦ Save {tier.savingsPct}% vs monthly, ${tier.monthlyTotal36} over 3 years
               </div>
             </>
           )}
