@@ -41,7 +41,12 @@ if (isset($input['affiliate']) && is_string($input['affiliate'])) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Apache prefixes env vars with REDIRECT_ after mod_rewrite internal redirects,
+// so check both forms.
 $secretKey = getenv('STRIPE_SECRET_KEY');
+if (!$secretKey && isset($_SERVER['REDIRECT_STRIPE_SECRET_KEY'])) {
+    $secretKey = $_SERVER['REDIRECT_STRIPE_SECRET_KEY'];
+}
 if (!$secretKey) {
     http_response_code(500);
     echo json_encode(['error' => 'Stripe secret key not configured']);
@@ -59,7 +64,7 @@ try {
             'quantity' => 1,
         ]],
         'mode'        => $mode,
-        'success_url' => $requestOrigin . '/?checkout=success&tier=' . urlencode($tierName),
+        'success_url' => $requestOrigin . '/signup?session_id={CHECKOUT_SESSION_ID}&tier=' . urlencode($tierName),
         'cancel_url'  => $requestOrigin . '/#pricing',
     ];
 

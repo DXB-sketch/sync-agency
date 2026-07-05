@@ -54,7 +54,6 @@ export const TIERS = [
       "Automation workflows",
       "Performance monitoring",
       "Priority message access",
-      "Store run for you",
       "Product research & selection",
       "Listings created & optimised",
       "Pricing & strategy adjustments",

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sync Agency — Member Portal Mockup</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Syne:wght@400;500;600;700;800&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-lt:#E8C97A;--gold-dk:#8A6820;
+  --gold-glow:rgba(201,168,76,0.18);--gold-subtle:rgba(201,168,76,0.07);
+  --black:#080808;--ink:#0F0F0F;--card:#111111;--card2:#181818;--card3:#1E1E1E;
+  --text:#F0EDE6;--text-md:#B8B0A0;--text-dim:#6A6258;
+  --border:rgba(201,168,76,0.12);--border-md:rgba(201,168,76,0.28);
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-body:'Syne',system-ui,sans-serif;
+}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);font-size:13px;overflow:hidden;height:100vh;display:flex;flex-direction:column}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:0.35}
+.wrap{position:relative;z-index:1;display:flex;flex-direction:column;height:100vh}
+
+/* TOP NAV */
+.nav{height:52px;background:rgba(8,8,8,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+.logo{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--gold);letter-spacing:.06em}
+.nav-r{display:flex;align-items:center;gap:12px}
+.tier-badge{padding:4px 12px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid;cursor:pointer}
+.tier-elite{background:rgba(201,168,76,.12);color:var(--gold);border-color:var(--border-md)}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gold-dk),var(--gold));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#000;border:1px solid var(--gold)}
+
+/* LAYOUT */
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:176px;flex-shrink:0;background:rgba(8,8,8,.7);border-right:1px solid var(--border);padding:14px 0;display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px}
+
+/* SIDEBAR */
+.s-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim);padding:12px 16px 5px}
+.s-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12px;color:var(--text-dim);cursor:pointer;transition:all .18s;border-left:2px solid transparent}
+.s-item:hover{color:var(--text);background:var(--gold-subtle)}
+.s-item.active{color:var(--gold);background:var(--gold-subtle);border-left-color:var(--gold)}
+.s-item .ico{font-size:13px;width:16px;text-align:center}
+.s-item .lock{font-size:9px;margin-left:auto;opacity:.4}
+.s-bottom{margin-top:auto;padding:12px;border-top:1px solid var(--border)}
+.up-box{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(168,85,247,.08));border:1px solid var(--border-md);border-radius:10px;padding:11px;text-align:center}
+.up-box p{font-size:10px;color:var(--text-dim);margin-bottom:8px;line-height:1.5}
+.up-box button{width:100%;padding:6px;background:var(--gold);color:#000;border:none;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font-body)}
+
+/* SCREENS */
+.screen{display:none;animation:fi .3s ease}
+.screen.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* COMMON */
+.ph{margin-bottom:18px}
+.ph h2{font-family:var(--font-display);font-size:24px;font-weight:700;line-height:1.2}
+.ph h2 em{color:var(--gold);font-style:italic}
+.ph p{font-size:11px;color:var(--text-dim);margin-top:3px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.card-t{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.card-t em{color:var(--gold);font-style:normal}
+
+/* DASHBOARD */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:13px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);opacity:.55}
+.stat-l{font-size:9px;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.stat-v{font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--gold)}
+.stat-s{font-size:10px;color:var(--text-dim);margin-top:1px}
+.dash-g{display:grid;grid-template-columns:1.4fr 1fr;gap:11px;margin-bottom:11px}
+.today{background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(201,168,76,.03));border:1px solid var(--border-md);border-radius:10px;padding:13px;margin-bottom:11px}
+.today-ph{font-size:9px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase;margin-bottom:3px}
+.today-ti{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.step{font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:5px;padding:2px 0}
+.done{color:var(--gold)}
+.todo{opacity:.35}
+.streak-row{display:flex;gap:3px;margin-top:8px}
+.day{width:19px;height:19px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700}
+.day.on{background:rgba(201,168,76,.2);color:var(--gold);border:1px solid var(--border-md)}
+.day.off{background:var(--card2);color:var(--text-dim);border:1px solid rgba(255,255,255,.04)}
+.ring-row{display:flex;align-items:center;gap:12px}
+.r-item{text-align:center}
+.r-item svg{display:block;margin:0 auto 3px}
+.r-l{font-size:10px;color:var(--text-dim)}
+.r-v{font-size:12px;font-weight:700;color:var(--text);margin-top:1px}
+.win-item{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid rgba(201,168,76,.05);font-size:11px;color:var(--text-dim)}
+.win-item:last-child{border:none}
+.w-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.wn{color:var(--text);font-weight:600}
+.wt{margin-left:auto;font-size:10px;opacity:.4}
+
+/* SKILL TREE */
+.tl{display:flex;gap:14px;margin-bottom:13px;flex-wrap:wrap}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-dim)}
+.ld{width:7px;height:7px;border-radius:50%}
+.tree-c{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;position:relative}
+.n-tip{position:absolute;background:#1a1a1a;border:1px solid var(--border-md);border-radius:8px;padding:9px 11px;font-size:11px;pointer-events:none;z-index:100;max-width:170px;display:none;box-shadow:0 8px 20px rgba(0,0,0,.6)}
+.n-tip.show{display:block}
+.n-tip-t{font-weight:700;color:var(--gold);margin-bottom:2px;font-size:11px}
+.n-tip-d{color:var(--text-dim);line-height:1.5;font-size:10px}
+.n-tip-b{font-size:9px;margin-top:4px;padding:2px 5px;border-radius:100px;display:inline-block}
+.up-strip{margin-top:11px;background:linear-gradient(135deg,rgba(201,168,76,.07),rgba(168,85,247,.05));border:1px solid var(--border-md);border-radius:9px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.up-strip button{padding:7px 15px;background:var(--gold);color:#000;border:none;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font-body);white-space:nowrap}
+
+/* CATALOGUE */
+.cat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fb{padding:4px 12px;border-radius:100px;font-size:11px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.fb.active,.fb:hover{background:var(--gold-subtle);border-color:var(--border-md);color:var(--gold)}
+.pgg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pc{background:var(--card);border:1px solid var(--border);border-radius:9px;overflow:hidden;cursor:pointer;transition:all .22s;position:relative}
+.pc:hover{border-color:var(--border-md);transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.pi{height:90px;display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--card2);position:relative}
+.pl-ov{position:absolute;inset:0;background:rgba(8,8,8,.75);display:flex;align-items:center;justify-content:center;font-size:18px}
+.pb{padding:9px}
+.pn{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+.pm{display:flex;justify-content:space-between;align-items:center;margin-top:5px}
+.pg{font-size:11px;color:#22c55e;font-weight:700}
+.pcs{font-size:10px;color:var(--text-dim)}
+.pbadge{position:absolute;top:5px;right:5px;padding:2px 6px;border-radius:100px;font-size:8px;font-weight:800;background:rgba(201,168,76,.9);color:#000;letter-spacing:.05em}
+.pt-badge{position:absolute;top:5px;left:5px;padding:2px 6px;border-radius:100px;font-size:8px;font-weight:700;letter-spacing:.05em}
+
+/* ORDERS */
+.o-top{display:flex;align-items:center;gap:8px;margin-bottom:13px;flex-wrap:wrap}
+.o-stat{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px 14px;font-size:12px}
+.ot{background:var(--card);border:1px solid var(--border);border-radius:9px;overflow:hidden}
+.oh{display:grid;grid-template-columns:2fr 0.6fr 1fr 1fr 1fr;padding:9px 14px;background:var(--card2);border-bottom:1px solid var(--border);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+.or{display:grid;grid-template-columns:2fr 0.6fr 1fr 1fr 1fr;padding:11px 14px;border-bottom:1px solid rgba(201,168,76,.04);align-items:center;transition:background .12s}
+.or:hover{background:var(--gold-subtle)}
+.or:last-child{border:none}
+.op{display:flex;align-items:center;gap:7px}
+.oe{font-size:16px}
+.on2{font-size:11px;color:var(--text);font-weight:600}
+.osk{font-size:10px;color:var(--text-dim)}
+.os{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:100px;font-size:9px;font-weight:700}
+.s-ship{background:rgba(34,197,94,.1);color:#22c55e;border:1px solid rgba(34,197,94,.2)}
+.s-pend{background:rgba(234,179,8,.1);color:#eab308;border:1px solid rgba(234,179,8,.2)}
+.s-del{background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.2)}
+.ov{font-size:11px;color:var(--text);font-weight:600}
+.omg{font-size:11px;color:#22c55e;font-weight:700}
+
+/* ACHIEVEMENTS */
+.ag{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:16px}
+.bc{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:12px;text-align:center;transition:all .22s;cursor:pointer}
+.bc.earned{border-color:var(--border-md);background:linear-gradient(135deg,rgba(201,168,76,.08),var(--card))}
+.bc.locked-b{opacity:.38;filter:grayscale(1)}
+.bi{font-size:26px;margin-bottom:5px}
+.bn{font-size:11px;font-weight:700;color:var(--text);margin-bottom:1px}
+.bd{font-size:10px;color:var(--text-dim)}
+.bea{font-size:9px;color:var(--gold);margin-top:3px}
+
+/* UPGRADE */
+.ptog{display:flex;background:var(--card2);border:1px solid var(--border);border-radius:100px;padding:3px;gap:2px;margin-bottom:16px;width:fit-content}
+.pt{padding:5px 16px;border-radius:100px;font-size:11px;cursor:pointer;transition:all .2s;border:none;font-family:var(--font-body);background:transparent;color:var(--text-dim)}
+.pt.active{background:var(--gold);color:#000;font-weight:700}
+.ug-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ug-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:18px;position:relative;overflow:hidden;transition:all .22s}
+.ug-card.feat{border-color:var(--border-md);background:linear-gradient(135deg,rgba(201,168,76,.07),var(--card))}
+.ug-top-bar{position:absolute;top:0;left:0;right:0;height:2px}
+.ug-tag{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;display:block}
+.ug-name{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);margin-bottom:2px}
+.ug-price-was{text-decoration:line-through;color:var(--text-dim);font-size:11px;margin-bottom:1px}
+.ug-price{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--gold);line-height:1}
+.ug-note{font-size:10px;color:var(--text-dim);margin-bottom:12px;margin-top:2px}
+.ug-feats{margin-bottom:12px}
+.ug-feat{font-size:11px;color:var(--text-dim);padding:2px 0;display:flex;align-items:center;gap:5px}
+.ug-feat .tk{color:var(--gold);font-size:10px}
+.ug-cta{width:100%;padding:9px;background:var(--gold);color:#000;border:none;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.05em;font-family:var(--font-body);transition:all .2s}
+.ug-cta:hover{background:var(--gold-lt)}
+.ug-cta.sec{background:transparent;border:1px solid var(--border-md)!important;color:var(--gold);border:none}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.mo.open{display:flex}
+.mo-inner{background:var(--ink);border:1px solid var(--border-md);border-radius:13px;width:440px;max-width:92vw;overflow:hidden;animation:fi .2s ease}
+.mo-img{height:140px;display:flex;align-items:center;justify-content:center;font-size:54px;background:var(--card2);position:relative}
+.mo-close{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);border:1px solid var(--border);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-dim);font-size:13px}
+.mo-body{padding:18px}
+.mo-ti{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--text);margin-bottom:2px}
+.mo-sub{font-size:11px;color:var(--text-dim);margin-bottom:13px}
+.mo-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:13px}
+.ms{background:var(--card);border:1px solid var(--border);border-radius:7px;padding:9px;text-align:center}
+.ms-l{font-size:9px;color:var(--text-dim);margin-bottom:2px}
+.ms-v{font-size:15px;font-weight:800;color:var(--gold);font-family:var(--font-display)}
+.mo-btns{display:flex;gap:7px}
+.mo-btn{flex:1;padding:9px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s;border:none}
+.mb-p{background:var(--gold);color:#000}
+.mb-s{background:transparent;border:1px solid var(--border-md)!important;color:var(--gold);border:none}
+
+/* TOAST */
+.toast-c{position:fixed;bottom:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:5px;pointer-events:none}
+.toast{background:var(--card2);border:1px solid var(--border-md);border-radius:9px;padding:9px 13px;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text);animation:tsi .3s ease;box-shadow:0 8px 20px rgba(0,0,0,.5);min-width:210px}
+@keyframes tsi{from{opacity:0;transform:translateX(15px)}to{opacity:1;transform:none}}
+@keyframes tso{from{opacity:1;transform:none}to{opacity:0;transform:translateX(15px)}}
+.toast.out{animation:tso .3s ease forwards}
+.toast em{color:var(--gold);font-style:normal;font-weight:700}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.18);border-radius:4px}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="wrap">
+  <!-- NAV -->
+  <div class="nav">
+    <div class="logo">SYNC</div>
+    <div class="nav-r">
+      <div class="tier-badge tier-elite">★ Elite Scale</div>
+      <div style="font-size:11px;color:var(--text-dim)">Tyler K.</div>
+      <div class="avatar">TK</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="s-label">Main</div>
+      <div class="s-item active" onclick="go('dashboard',this)"><span class="ico">⌂</span> Dashboard</div>
+      <div class="s-item" onclick="go('pathway',this)"><span class="ico">◎</span> My Pathway</div>
+      <div class="s-item" onclick="go('catalogue',this)"><span class="ico">⊞</span> Products</div>
+      <div class="s-item" onclick="go('orders',this)"><span class="ico">⬡</span> My Orders</div>
+      <div class="s-label">Account</div>
+      <div class="s-item" onclick="go('achievements',this)"><span class="ico">◈</span> Achievements</div>
+      <div class="s-item" onclick="go('upgrade',this)"><span class="ico">↑</span> Upgrade</div>
+      <div class="s-item"><span class="ico">✉</span> Support</div>
+      <div class="s-bottom">
+        <div class="up-box">
+          <p>Unlock <strong style="color:var(--gold)">VIP Inner Circle</strong> for full store ops + private supplier</p>
+          <button onclick="go('upgrade',null)">Upgrade — $342</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="s-dashboard" class="screen active">
+        <div class="ph">
+          <h2>Good evening, <em>Tyler.</em></h2>
+          <p>Your store is live — keep the momentum going. 🔥</p>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-l">This Month</div><div class="stat-v">$1,240</div><div class="stat-s">↑ 18% vs last</div></div>
+          <div class="stat"><div class="stat-l">Active Listings</div><div class="stat-v" style="color:var(--text)">47</div><div class="stat-s">Target: 80</div></div>
+          <div class="stat"><div class="stat-l">Sales This Week</div><div class="stat-v" style="color:#22c55e">12</div><div class="stat-s">3 pending dispatch</div></div>
+          <div class="stat"><div class="stat-l">Day Streak</div><div class="stat-v" style="color:#c084fc">11</div><div class="stat-s">Personal best 🏆</div></div>
+        </div>
+        <div class="today">
+          <div class="today-ph">Today's Focus · Phase 4</div>
+          <div class="today-ti">Fulfil your 3 pending orders</div>
+          <div class="step"><span class="done">✦</span> Check Depop notifications</div>
+          <div class="step"><span class="done">✦</span> Confirm buyer addresses</div>
+          <div class="step"><span class="todo">○</span> Place supplier orders for #47, #48, #49</div>
+          <div class="step"><span class="todo">○</span> Mark dispatched with tracking</div>
+          <div style="margin-top:8px">
+            <span style="font-size:10px;color:var(--text-dim)">Active streak:</span>
+            <div class="streak-row">
+              <div class="day on">M</div><div class="day on">T</div><div class="day on">W</div><div class="day on">T</div><div class="day on">F</div><div class="day on">S</div><div class="day on">S</div><div class="day on">M</div><div class="day on">T</div><div class="day on">W</div><div class="day on">T</div><div class="day off">F</div><div class="day off">S</div>
+            </div>
+          </div>
+        </div>
+        <div class="dash-g">
+          <div class="card">
+            <div class="card-t"><em>◎</em> Progress Rings</div>
+            <div class="ring-row">
+              <div class="r-item">
+                <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="rgba(201,168,76,.1)" stroke-width="5"/><circle cx="34" cy="34" r="26" fill="none" stroke="#C9A84C" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="41" stroke-linecap="round" transform="rotate(-90 34 34)"/><text x="34" y="38" text-anchor="middle" fill="#C9A84C" font-size="12" font-family="Syne" font-weight="800">75%</text></svg>
+                <div class="r-l">Monthly Goal</div><div class="r-v">$1,240/$1,600</div>
+              </div>
+              <div class="r-item">
+                <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="rgba(192,132,252,.1)" stroke-width="5"/><circle cx="34" cy="34" r="26" fill="none" stroke="#c084fc" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="82" stroke-linecap="round" transform="rotate(-90 34 34)"/><text x="34" y="38" text-anchor="middle" fill="#c084fc" font-size="12" font-family="Syne" font-weight="800">50%</text></svg>
+                <div class="r-l">Listings</div><div class="r-v">47 / 80</div>
+              </div>
+              <div class="r-item">
+                <svg width="68" height="68" viewBox="0 0 68 68"><circle cx="34" cy="34" r="26" fill="none" stroke="rgba(34,197,94,.1)" stroke-width="5"/><circle cx="34" cy="34" r="26" fill="none" stroke="#22c55e" stroke-width="5" stroke-dasharray="163.4" stroke-dashoffset="20" stroke-linecap="round" transform="rotate(-90 34 34)"/><text x="34" y="38" text-anchor="middle" fill="#22c55e" font-size="12" font-family="Syne" font-weight="800">88%</text></svg>
+                <div class="r-l">Phase Progress</div><div class="r-v">Phase 4 of 6</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-t"><em>◈</em> Live Win Feed</div>
+            <div class="win-item"><div class="w-dot" style="background:#22c55e"></div><span><span class="wn">Jordan M.</span> made first sale</span><span class="wt">2m</span></div>
+            <div class="win-item"><div class="w-dot" style="background:var(--gold)"></div><span><span class="wn">Aisha R.</span> hit $1,000/week</span><span class="wt">8m</span></div>
+            <div class="win-item"><div class="w-dot" style="background:#c084fc"></div><span><span class="wn">Lachlan B.</span> upgraded to VIP 👑</span><span class="wt">15m</span></div>
+            <div class="win-item"><div class="w-dot" style="background:#22c55e"></div><span><span class="wn">Mia F.</span> listed 50 products 🎯</span><span class="wt">23m</span></div>
+            <div class="win-item"><div class="w-dot" style="background:var(--gold)"></div><span><span class="wn">Hayden S.</span> $800 this month</span><span class="wt">32m</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PATHWAY -->
+      <div id="s-pathway" class="screen">
+        <div class="ph">
+          <h2>Your <em>Pathway</em></h2>
+          <p>Unlock each node to progress. Phase 5+ requires Elite Scale or VIP.</p>
+        </div>
+        <div class="tl">
+          <div class="li"><div class="ld" style="background:#22c55e"></div> Complete</div>
+          <div class="li"><div class="ld" style="background:var(--gold)"></div> In Progress</div>
+          <div class="li"><div class="ld" style="background:var(--text-md)"></div> Available</div>
+          <div class="li"><div class="ld" style="background:rgba(255,255,255,.15)"></div> Locked</div>
+        </div>
+        <div class="tree-c" style="position:relative">
+          <svg id="tree-svg" viewBox="0 0 740 460" width="100%" style="display:block">
+            <!-- CONNECTORS -->
+            <line x1="78" y1="100" x2="78" y2="170" stroke="rgba(34,197,94,.35)" stroke-width="2"/>
+            <line x1="78" y1="218" x2="78" y2="290" stroke="rgba(34,197,94,.35)" stroke-width="2"/>
+            <line x1="78" y1="218" x2="195" y2="290" stroke="rgba(34,197,94,.35)" stroke-width="2"/>
+            <line x1="78" y1="218" x2="330" y2="290" stroke="rgba(201,168,76,.25)" stroke-width="2" stroke-dasharray="4"/>
+            <line x1="78" y1="338" x2="78" y2="405" stroke="rgba(201,168,76,.4)" stroke-width="2"/>
+            <line x1="195" y1="336" x2="195" y2="405" stroke="rgba(34,197,94,.3)" stroke-width="2"/>
+            <line x1="78" y1="430" x2="195" y2="430" stroke="rgba(201,168,76,.3)" stroke-width="1.5"/>
+            <!-- LOCKED LINES -->
+            <line x1="330" y1="338" x2="490" y2="405" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="4"/>
+            <line x1="330" y1="338" x2="610" y2="405" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="4"/>
+            <line x1="330" y1="338" x2="330" y2="405" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="4"/>
+
+            <!-- PHASE LABELS -->
+            <text x="28" y="55" fill="rgba(201,168,76,.45)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 1</text>
+            <text x="28" y="183" fill="rgba(201,168,76,.45)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 2</text>
+            <text x="28" y="305" fill="rgba(201,168,76,.45)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 3</text>
+            <text x="28" y="418" fill="rgba(201,168,76,.45)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 4</text>
+            <text x="437" y="305" fill="rgba(255,255,255,.18)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 5 — ELITE+</text>
+            <text x="437" y="418" fill="rgba(255,255,255,.12)" font-size="8" font-family="Syne" letter-spacing="2">PHASE 6 — VIP ONLY</text>
+
+            <!-- DONE NODES -->
+            <g style="cursor:pointer" onclick="tip(event,'Store Setup','Create account, choose niche, optimise profile.','✓ Complete — All Tiers','#22c55e')">
+              <circle cx="78" cy="78" r="24" fill="rgba(34,197,94,.11)" stroke="#22c55e" stroke-width="2"/>
+              <text x="78" y="73" text-anchor="middle" fill="#22c55e" font-size="15">⚙</text>
+              <text x="78" y="87" text-anchor="middle" fill="#22c55e" font-size="7" font-family="Syne" font-weight="700">SETUP</text>
+            </g>
+            <g style="cursor:pointer" onclick="tip(event,'Product Research','Frameworks, margin calc, first 5 products selected.','✓ Complete — All Tiers','#22c55e')">
+              <circle cx="78" cy="195" r="24" fill="rgba(34,197,94,.11)" stroke="#22c55e" stroke-width="2"/>
+              <text x="78" y="190" text-anchor="middle" fill="#22c55e" font-size="15">🔍</text>
+              <text x="78" y="204" text-anchor="middle" fill="#22c55e" font-size="7" font-family="Syne" font-weight="700">RESEARCH</text>
+            </g>
+            <!-- IN PROGRESS -->
+            <g style="cursor:pointer" onclick="tip(event,'First Listings','Photo guide, copy frameworks, posting schedule.','⧗ In Progress — All Tiers','#C9A84C')">
+              <circle cx="78" cy="313" r="24" fill="rgba(201,168,76,.11)" stroke="#C9A84C" stroke-width="2.5"/>
+              <circle cx="78" cy="313" r="18" fill="none" stroke="#C9A84C" stroke-width="1" stroke-dasharray="3"/>
+              <text x="78" y="308" text-anchor="middle" fill="#C9A84C" font-size="15">📸</text>
+              <text x="78" y="322" text-anchor="middle" fill="#C9A84C" font-size="7" font-family="Syne" font-weight="700">LISTINGS</text>
+            </g>
+            <g style="cursor:pointer" onclick="tip(event,'Niche Selection','Competitor analysis and niche quiz completed.','✓ Complete — All Tiers','#22c55e')">
+              <circle cx="195" cy="313" r="20" fill="rgba(34,197,94,.1)" stroke="#22c55e" stroke-width="1.5"/>
+              <text x="195" y="308" text-anchor="middle" fill="#22c55e" font-size="13">🎯</text>
+              <text x="195" y="321" text-anchor="middle" fill="#22c55e" font-size="7" font-family="Syne" font-weight="700">NICHE</text>
+            </g>
+            <!-- AVAILABLE -->
+            <g style="cursor:pointer" onclick="tip(event,'First Sales','Fulfil orders, manage supplier, track income.','Available — All Tiers','#B8B0A0')">
+              <circle cx="78" cy="428" r="24" fill="rgba(180,170,150,.07)" stroke="rgba(180,170,150,.35)" stroke-width="2"/>
+              <text x="78" y="423" text-anchor="middle" fill="#B8B0A0" font-size="15">💸</text>
+              <text x="78" y="437" text-anchor="middle" fill="#B8B0A0" font-size="7" font-family="Syne" font-weight="700">SALES</text>
+            </g>
+            <g style="cursor:pointer" onclick="tip(event,'Customer Systems','Auto-reply templates, dispute handling.','Available — All Tiers','#B8B0A0')">
+              <circle cx="195" cy="428" r="20" fill="rgba(180,170,150,.06)" stroke="rgba(180,170,150,.25)" stroke-width="1.5"/>
+              <text x="195" y="423" text-anchor="middle" fill="#B8B0A0" font-size="13">💬</text>
+              <text x="195" y="436" text-anchor="middle" fill="#B8B0A0" font-size="7" font-family="Syne" font-weight="700">COMMS</text>
+            </g>
+            <!-- LOCKED (need Elite) -->
+            <g style="cursor:pointer" onclick="upToast()">
+              <circle cx="330" cy="313" r="24" fill="rgba(255,255,255,.03)" stroke="rgba(255,255,255,.11)" stroke-width="2" stroke-dasharray="4"/>
+              <text x="330" y="307" text-anchor="middle" fill="rgba(255,255,255,.2)" font-size="13">📈</text>
+              <text x="330" y="318" text-anchor="middle" fill="rgba(255,255,255,.2)" font-size="7" font-family="Syne">SCALE</text>
+              <text x="330" y="330" text-anchor="middle" fill="rgba(255,255,255,.2)" font-size="9">🔒</text>
+            </g>
+            <!-- LOCKED phase 6 -->
+            <g style="cursor:pointer" onclick="upToast()">
+              <circle cx="490" cy="428" r="20" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="3"/>
+              <text x="490" y="424" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="12">⚡</text>
+              <text x="490" y="436" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="7" font-family="Syne">AUTO</text>
+              <text x="490" y="446" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="9">🔒</text>
+            </g>
+            <g style="cursor:pointer" onclick="upToast()">
+              <circle cx="610" cy="428" r="20" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="3"/>
+              <text x="610" y="424" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="12">🏭</text>
+              <text x="610" y="436" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="7" font-family="Syne">SUPPLY</text>
+              <text x="610" y="446" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="9">🔒</text>
+            </g>
+            <g style="cursor:pointer" onclick="upToast()">
+              <circle cx="330" cy="428" r="20" fill="rgba(255,255,255,.02)" stroke="rgba(255,255,255,.07)" stroke-width="1.5" stroke-dasharray="3"/>
+              <text x="330" y="424" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="12">👑</text>
+              <text x="330" y="436" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="7" font-family="Syne">VIP OPS</text>
+              <text x="330" y="446" text-anchor="middle" fill="rgba(255,255,255,.14)" font-size="9">🔒</text>
+            </g>
+          </svg>
+          <div class="n-tip" id="ntip">
+            <div class="n-tip-t" id="nt-t"></div>
+            <div class="n-tip-d" id="nt-d"></div>
+            <div class="n-tip-b" id="nt-b"></div>
+          </div>
+        </div>
+        <div class="up-strip">
+          <div>
+            <div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:1px">🔒 5 nodes locked — Phase 5 & 6 require Elite or VIP</div>
+            <div style="font-size:11px;color:var(--text-dim)">Upgrade for $342 (your Elite credit already applied)</div>
+          </div>
+          <button onclick="go('upgrade',null)">Upgrade Now →</button>
+        </div>
+      </div>
+
+      <!-- CATALOGUE -->
+      <div id="s-catalogue" class="screen">
+        <div class="ph">
+          <h2><em>Product</em> Catalogue</h2>
+          <p>Daily winning products. Click any to view margin, listing template & supplier link.</p>
+        </div>
+        <div class="cat-top">
+          <div class="filters">
+            <button class="fb active">All</button>
+            <button class="fb">Fashion</button>
+            <button class="fb">Tech</button>
+            <button class="fb">Home</button>
+            <button class="fb">⭐ Featured</button>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim)">Next drop in <span style="color:var(--gold);font-weight:700">3h 22m</span></div>
+        </div>
+        <div class="pgg">
+          <div class="pc" onclick="modal('Vintage Corduroy Jacket','Trending on Depop — high margin fashion staple.','🧥','$8.40','$42','$33.60','View on AliExpress')">
+            <div class="pi">🧥<div class="pbadge">HOT</div></div>
+            <div class="pb"><div class="pn">Vintage Corduroy Jacket</div><div style="font-size:10px;color:var(--text-dim)">Fashion · High demand</div><div class="pm"><div class="pg">+$33.60</div><div class="pcs">Cost: $8.40</div></div></div>
+          </div>
+          <div class="pc" onclick="modal('Y2K Butterfly Sunglasses','Viral product. Reorders daily.','🕶️','$3.20','$22','$18.80','View on AliExpress')">
+            <div class="pi">🕶️</div>
+            <div class="pb"><div class="pn">Y2K Butterfly Sunglasses</div><div style="font-size:10px;color:var(--text-dim)">Accessories · Trending</div><div class="pm"><div class="pg">+$18.80</div><div class="pcs">Cost: $3.20</div></div></div>
+          </div>
+          <div class="pc" onclick="modal('Minimalist Canvas Tote','Evergreen seller. High volume.','👜','$4.10','$24','$19.90','View on AliExpress')">
+            <div class="pi">👜</div>
+            <div class="pb"><div class="pn">Minimalist Canvas Tote</div><div style="font-size:10px;color:var(--text-dim)">Bags · Evergreen</div><div class="pm"><div class="pg">+$19.90</div><div class="pcs">Cost: $4.10</div></div></div>
+          </div>
+          <div class="pc" onclick="upToast()">
+            <div class="pi" style="background:var(--card2)">💿<div class="pl-ov">🔒</div></div>
+            <div class="pt-badge" style="background:rgba(201,168,76,.85);color:#000">VIP EXCLUSIVE</div>
+            <div class="pb"><div class="pn" style="color:var(--text-dim)">Private Sourced Item</div><div style="font-size:10px;color:var(--text-dim)">Custom sourcing · VIP only</div><div class="pm"><div style="font-size:10px;color:var(--text-dim)">Upgrade to unlock</div></div></div>
+          </div>
+          <div class="pc" onclick="modal('Chunky Platform Boots','Consistent seller with repeat buyers.','👢','$14.90','$58','$43.10','View on AliExpress')">
+            <div class="pi">👢</div>
+            <div class="pb"><div class="pn">Chunky Platform Boots</div><div style="font-size:10px;color:var(--text-dim)">Footwear · Volume seller</div><div class="pm"><div class="pg">+$43.10</div><div class="pcs">Cost: $14.90</div></div></div>
+          </div>
+          <div class="pc" onclick="upToast()">
+            <div class="pi" style="background:var(--card2)">⌚<div class="pl-ov">🔒</div></div>
+            <div class="pt-badge" style="background:rgba(168,85,247,.75);color:#fff">VIP ONLY</div>
+            <div class="pb"><div class="pn" style="color:var(--text-dim)">VIP Sourced Product</div><div style="font-size:10px;color:var(--text-dim)">Order through Sync · VIP only</div><div class="pm"><div style="font-size:10px;color:var(--text-dim)">Upgrade to unlock</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div id="s-orders" class="screen">
+        <div class="ph">
+          <h2>My <em>Orders</em></h2>
+          <p>Supplier orders placed through Sync — track status and margins in real time.</p>
+        </div>
+        <div class="o-top">
+          <div class="o-stat"><span style="color:var(--text-dim)">Total Ordered:</span> <strong style="color:var(--gold)">$312.40</strong></div>
+          <div class="o-stat"><span style="color:var(--text-dim)">Est. Margin:</span> <strong style="color:#22c55e">$147.20</strong></div>
+          <button style="margin-left:auto;padding:7px 14px;background:var(--gold);color:#000;border:none;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font-body)">+ New Order</button>
+        </div>
+        <div class="ot">
+          <div class="oh"><div>Product</div><div>Qty</div><div>You Paid</div><div>Margin</div><div>Status</div></div>
+          <div class="or">
+            <div class="op"><div class="oe">🧥</div><div><div class="on2">Corduroy Jacket</div><div class="osk">#ORD-4819</div></div></div>
+            <div class="ov">2</div><div class="ov">$16.80</div><div class="omg">+$67.20</div>
+            <div><span class="os s-ship">↑ Shipped</span></div>
+          </div>
+          <div class="or">
+            <div class="op"><div class="oe">🕶️</div><div><div class="on2">Y2K Sunglasses</div><div class="osk">#ORD-4817</div></div></div>
+            <div class="ov">5</div><div class="ov">$16.00</div><div class="omg">+$94.00</div>
+            <div><span class="os s-del">✓ Delivered</span></div>
+          </div>
+          <div class="or">
+            <div class="op"><div class="oe">👢</div><div><div class="on2">Platform Boots</div><div class="osk">#ORD-4821</div></div></div>
+            <div class="ov">1</div><div class="ov">$14.90</div><div class="omg">+$43.10</div>
+            <div><span class="os s-pend">⧗ Pending</span></div>
+          </div>
+          <div class="or">
+            <div class="op"><div class="oe">👜</div><div><div class="on2">Canvas Tote</div><div class="osk">#ORD-4815</div></div></div>
+            <div class="ov">3</div><div class="ov">$12.30</div><div class="omg">+$59.70</div>
+            <div><span class="os s-del">✓ Delivered</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACHIEVEMENTS -->
+      <div id="s-achievements" class="screen">
+        <div class="ph">
+          <h2><em>Achievements</em></h2>
+          <p>Your milestones. Earned badges are shareable — post them, turn wins into marketing.</p>
+        </div>
+        <div class="ag">
+          <div class="bc earned"><div class="bi">🏁</div><div class="bn">First Sale</div><div class="bd">Made your first sale</div><div class="bea">14 June 2025</div></div>
+          <div class="bc earned"><div class="bi">💸</div><div class="bn">$500 Month</div><div class="bd">Hit $500 in a month</div><div class="bea">30 June 2025</div></div>
+          <div class="bc earned"><div class="bi">📦</div><div class="bn">50 Listings</div><div class="bd">Published 50 listings</div><div class="bea">2 July 2025</div></div>
+          <div class="bc earned"><div class="bi">🔥</div><div class="bn">7-Day Streak</div><div class="bd">7 consecutive logins</div><div class="bea">28 June 2025</div></div>
+          <div class="bc locked-b"><div class="bi">💎</div><div class="bn">$1,000 Month</div><div class="bd">Hit $1K in a month</div><div style="font-size:10px;color:var(--text-dim);margin-top:3px">$240 to go</div></div>
+          <div class="bc locked-b"><div class="bi">📚</div><div class="bn">100 Listings</div><div class="bd">Publish 100 listings</div><div style="font-size:10px;color:var(--text-dim);margin-top:3px">53 to go</div></div>
+          <div class="bc locked-b" onclick="upToast()"><div class="bi">👑</div><div class="bn">VIP Inner Circle</div><div class="bd">VIP members only</div><div style="font-size:10px;color:#c084fc;margin-top:3px;cursor:pointer">Upgrade →</div></div>
+          <div class="bc locked-b"><div class="bi">⚡</div><div class="bn">30-Day Streak</div><div class="bd">30 consecutive logins</div><div style="font-size:10px;color:var(--text-dim);margin-top:3px">Day 11 / 30</div></div>
+        </div>
+        <div class="card">
+          <div class="card-t"><em>◎</em> Share your badges</div>
+          <p style="font-size:11px;color:var(--text-dim);margin-bottom:9px">Earned badges generate a branded card you can post to TikTok or Instagram — your wins become Sync marketing.</p>
+          <button style="padding:7px 15px;background:var(--gold);color:#000;border:none;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;font-family:var(--font-body)">Share "$500 Month" Badge →</button>
+        </div>
+      </div>
+
+      <!-- UPGRADE -->
+      <div id="s-upgrade" class="screen">
+        <div class="ph">
+          <h2>Ready to <em>Level Up?</em></h2>
+          <p>You've already paid $397. Your upgrade price is the difference — no double paying.</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <div class="ptog">
+            <button class="pt active" id="tl" onclick="ptoggle('lifetime')">Lifetime</button>
+            <button class="pt" id="tm" onclick="ptoggle('monthly')">Monthly</button>
+          </div>
+          <span id="msave" style="display:none;padding:3px 9px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);border-radius:100px;font-size:10px;color:#22c55e;font-weight:700">💰 Lower entry point</span>
+        </div>
+        <div class="ug-g">
+          <div class="ug-card" style="opacity:.55">
+            <div class="ug-top-bar" style="background:var(--gold)"></div>
+            <span style="font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;display:block">Current Plan</span>
+            <div class="ug-name">Elite Scale</div>
+            <span class="ug-tag">Tier 02</span>
+            <div class="ug-price" style="color:var(--text-dim)" id="cur-p">$397</div>
+            <div class="ug-note">Already paid ✓</div>
+            <div class="ug-feats">
+              <div class="ug-feat"><span class="tk">✦</span> Listings created & optimised</div>
+              <div class="ug-feat"><span class="tk">✦</span> Priority support</div>
+            </div>
+            <button class="ug-cta sec" disabled style="opacity:.4;cursor:not-allowed">Current Plan</button>
+          </div>
+          <div class="ug-card feat">
+            <div class="ug-top-bar" style="background:linear-gradient(90deg,#c084fc,#C9A84C)"></div>
+            <span style="font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:#c084fc;margin-bottom:6px;display:block">✦ Recommended</span>
+            <div class="ug-name">VIP Inner Circle</div>
+            <span class="ug-tag">Tier 03</span>
+            <div id="was-p" class="ug-price-was">Full price: $739</div>
+            <div class="ug-price" id="up-p">$342</div>
+            <div class="ug-note" id="up-note">$739 − $397 already paid = $342</div>
+            <div class="ug-feats">
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> Everything in Elite Scale</div>
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> Private VIP product catalogue</div>
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> Order through Sync (private supplier)</div>
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> Daily personal product picks</div>
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> On-demand store audits</div>
+              <div class="ug-feat"><span class="tk" style="color:#c084fc">✦</span> Phase 5 & 6 pathway unlocked</div>
+            </div>
+            <button class="ug-cta" id="up-btn">Upgrade for $342 →</button>
+          </div>
+        </div>
+        <div style="margin-top:11px;background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.13);border-radius:9px;padding:11px 15px;font-size:11px;color:var(--text-dim)">
+          💡 <strong style="color:var(--text)">Tyler, you're close.</strong> Your store is making $1,240/month. VIP members who upgrade at this stage average an extra $400–$600/month through private supplier access and custom product picks within 60 days.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="mo" onclick="cmo(event)">
+  <div class="mo-inner">
+    <div class="mo-img" id="mo-img"><div class="mo-close" onclick="cmod()">✕</div></div>
+    <div class="mo-body">
+      <div class="mo-ti" id="mo-t"></div>
+      <div class="mo-sub" id="mo-s"></div>
+      <div class="mo-stats">
+        <div class="ms"><div class="ms-l">Your Cost</div><div class="ms-v" id="mo-c"></div></div>
+        <div class="ms"><div class="ms-l">List At</div><div class="ms-v" id="mo-p"></div></div>
+        <div class="ms"><div class="ms-l">Margin</div><div class="ms-v" style="color:#22c55e" id="mo-m"></div></div>
+      </div>
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:7px;padding:9px;margin-bottom:11px;font-size:11px;color:var(--text-dim);line-height:1.6">
+        <strong style="color:var(--gold);font-size:9px;letter-spacing:.1em;text-transform:uppercase">Listing Template</strong><br>
+        <span id="mo-tpl"></span>
+      </div>
+      <div class="mo-btns">
+        <button class="mo-btn mb-p" id="mo-btn">View on AliExpress</button>
+        <button class="mo-btn mb-s" onclick="cmod()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-c" id="tc"></div>
+
+<script>
+// PARTICLES
+const cv=document.getElementById('bg'),cx=cv.getContext('2d');
+function rs(){cv.width=window.innerWidth;cv.height=window.innerHeight}rs();window.addEventListener('resize',rs);
+const pts=[];for(let i=0;i<55;i++)pts.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.18,vy:(Math.random()-.5)*.18,r:Math.random()*1.4+.4,o:Math.random()*.35+.08});
+function ap(){cx.clearRect(0,0,cv.width,cv.height);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(201,168,76,${p.o})`;cx.fill();});requestAnimationFrame(ap);}ap();
+
+// NAV
+function go(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.s-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+}
+
+// SKILL TREE TIP
+function tip(e,title,desc,tier,col){
+  const t=document.getElementById('ntip');
+  document.getElementById('nt-t').textContent=title;
+  document.getElementById('nt-d').textContent=desc;
+  const b=document.getElementById('nt-b');
+  b.textContent=tier;b.style.background=`${col}18`;b.style.color=col;
+  const rect=e.currentTarget.closest('svg').getBoundingClientRect();
+  t.style.left=(e.clientX-rect.left+12)+'px';t.style.top=(e.clientY-rect.top-15)+'px';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);
+}
+function upToast(){toast('🔒','This unlocks with <em>VIP Inner Circle</em> — upgrade for $342');}
+
+// MODAL
+function modal(name,desc,emoji,cost,price,margin,cta){
+  document.getElementById('mo-img').style.fontSize='52px';
+  document.getElementById('mo-img').innerHTML=emoji+'<div class="mo-close" onclick="cmod()">✕</div>';
+  document.getElementById('mo-t').textContent=name;
+  document.getElementById('mo-s').textContent=desc;
+  document.getElementById('mo-c').textContent=cost;
+  document.getElementById('mo-p').textContent=price;
+  document.getElementById('mo-m').textContent=margin;
+  document.getElementById('mo-tpl').innerHTML=`"${name} — same day dispatch — free shipping 📦 #depop #fashion #vintage"`;
+  document.getElementById('mo-btn').textContent=cta;
+  document.getElementById('mo').classList.add('open');
+}
+function cmo(e){if(e.target===document.getElementById('mo'))cmod();}
+function cmod(){document.getElementById('mo').classList.remove('open');}
+
+// PAYMENT TOGGLE
+function ptoggle(mode){
+  document.getElementById('tl').classList.toggle('active',mode==='lifetime');
+  document.getElementById('tm').classList.toggle('active',mode==='monthly');
+  document.getElementById('msave').style.display=mode==='monthly'?'block':'none';
+  if(mode==='lifetime'){
+    document.getElementById('up-p').textContent='$342';
+    document.getElementById('up-p').style.color='#C9A84C';
+    document.getElementById('up-note').textContent='$739 − $397 already paid = $342';
+    document.getElementById('was-p').style.display='block';
+    document.getElementById('up-btn').textContent='Upgrade for $342 →';
+  }else{
+    document.getElementById('up-p').textContent='$349/mo';
+    document.getElementById('up-p').style.color='#c084fc';
+    document.getElementById('up-note').textContent='Cancel any time. Start immediately.';
+    document.getElementById('was-p').style.display='none';
+    document.getElementById('up-btn').textContent='Subscribe for $349/mo →';
+  }
+}
+
+// TOASTS
+function toast(icon,html){
+  const w=document.getElementById('tc');
+  const t=document.createElement('div');t.className='toast';
+  t.innerHTML=`<span style="font-size:15px">${icon}</span><span>${html}</span>`;
+  w.appendChild(t);setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},3200);
+}
+const wins=[
+  ['🔥','<em>Jordan M.</em> just made their 10th sale this week'],
+  ['💸','<em>Aisha R.</em> unlocked the Diamond badge'],
+  ['👑','<em>Lachlan B.</em> upgraded to VIP Inner Circle'],
+  ['🎯','<em>Mia F.</em> just listed product #50'],
+  ['⚡','<em>Riley T.</em> joined Elite Scale'],
+];
+let wi=0;function fw(){toast(wins[wi][0],wins[wi][1]);wi=(wi+1)%wins.length;}
+setTimeout(()=>{fw();setInterval(fw,10000)},3500);
+
+// FILTER BTNS
+document.querySelectorAll('.fb').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.fb').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+}));
+</script>
+</body>
+</html>

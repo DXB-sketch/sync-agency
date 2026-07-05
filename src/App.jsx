@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import "./styles/global.css";
+import "./styles/portal.css";
 import { captureAffiliate } from "./utils/affiliate.js";
+import { AuthProvider } from "./lib/AuthContext";
 import Cursor from "./components/Cursor";
 import Nav from "./components/Nav";
 import CompetitionBanner from "./components/CompetitionBanner";
@@ -11,18 +13,40 @@ import HomePage from "./pages/HomePage";
 import RepListPage from "./pages/RepListPage";
 import AboutPage from "./pages/AboutPage";
 import CompetitionPage from "./pages/CompetitionPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import AuthConfirmedPage from "./pages/AuthConfirmedPage";
+import { RequireMember, RequireAdmin } from "./components/portal/Guards";
+import PortalLayout from "./portal/PortalLayout";
+import DashboardPage from "./portal/DashboardPage";
+import PathwayPage from "./portal/PathwayPage";
+import ProductsPage from "./portal/ProductsPage";
+import CheckoutPage from "./portal/CheckoutPage";
+import OrdersPage from "./portal/OrdersPage";
+import AchievementsPage from "./portal/AchievementsPage";
+import SupportPage from "./portal/SupportPage";
+import UpgradePage from "./portal/UpgradePage";
+import ReactivatePage from "./portal/ReactivatePage";
+import AdminLayout from "./admin/AdminLayout";
+import ClientsPage from "./admin/ClientsPage";
+import ClientDetailPage from "./admin/ClientDetailPage";
+import ProductPoolPage from "./admin/ProductPoolPage";
+import CataloguePage from "./admin/CataloguePage";
+import OrdersQueuePage from "./admin/OrdersQueuePage";
+import AchievementsReviewPage from "./admin/AchievementsReviewPage";
+import SupportQueuePage from "./admin/SupportQueuePage";
 
-export default function App() {
-  useEffect(() => {
-    captureAffiliate();
-  }, []);
+function Shell() {
+  const location = useLocation();
+  // Marketing chrome (nav, banner, footer) stays off the portal/auth screens
+  const isAppRoute = /^\/(portal|admin|login|signup|auth)/.test(location.pathname);
 
   return (
-    <BrowserRouter>
-      <CompetitionBanner />
+    <>
+      {!isAppRoute && <CompetitionBanner />}
       <div className="noise" aria-hidden="true" />
       <Cursor />
-      <Nav />
+      {!isAppRoute && <Nav />}
       <Routes>
         <Route
           path="/"
@@ -35,9 +59,69 @@ export default function App() {
           }
         />
         <Route path="/competition" element={<CompetitionPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/auth/confirmed" element={<AuthConfirmedPage />} />
+
+        <Route
+          path="/portal/reactivate"
+          element={
+            <RequireMember>
+              <ReactivatePage />
+            </RequireMember>
+          }
+        />
+        <Route
+          path="/portal"
+          element={
+            <RequireMember>
+              <PortalLayout />
+            </RequireMember>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="pathway" element={<PathwayPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="checkout" element={<CheckoutPage />} />
+          <Route path="orders" element={<OrdersPage />} />
+          <Route path="achievements" element={<AchievementsPage />} />
+          <Route path="support" element={<SupportPage />} />
+          <Route path="upgrade" element={<UpgradePage />} />
+        </Route>
+
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminLayout />
+            </RequireAdmin>
+          }
+        >
+          <Route index element={<ClientsPage />} />
+          <Route path="clients/:id" element={<ClientDetailPage />} />
+          <Route path="pool" element={<ProductPoolPage />} />
+          <Route path="catalogue" element={<CataloguePage />} />
+          <Route path="orders" element={<OrdersQueuePage />} />
+          <Route path="achievements" element={<AchievementsReviewPage />} />
+          <Route path="support" element={<SupportQueuePage />} />
+        </Route>
       </Routes>
-      <Footer />
-      <UTMIndicator />
-    </BrowserRouter>
+      {!isAppRoute && <Footer />}
+      {!isAppRoute && <UTMIndicator />}
+    </>
+  );
+}
+
+export default function App() {
+  useEffect(() => {
+    captureAffiliate();
+  }, []);
+
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Shell />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }

@@ -11,7 +11,10 @@ export default function Nav() {
   }, []);
   return (
     <nav className={`nav${scrolled ? " scrolled" : ""}`}>
-      <div className="nav-logo">Sync Agency</div>
+      <div className="nav-left">
+        <div className="nav-logo">Sync Agency</div>
+        <Link to="/login" className="nav-login">Login</Link>
+      </div>
       <div className="nav-links">
         <a href="/#how-it-works">How it works</a>
         <a href="/#pricing">Pricing</a>

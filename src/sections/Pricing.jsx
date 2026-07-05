@@ -10,7 +10,7 @@ import { trackEvent } from "../utils/analytics.js";
 const COMPARE_ROWS = [
   { feature: "1-on-1 calls", pro: "Unlimited", elite: "Unlimited", vip: "Unlimited" },
   { feature: "Store setup", pro: "✓", elite: "✓", vip: "✓" },
-  { feature: "Store run for you", pro: "-", elite: "✓", vip: "✓" },
+  { feature: "Store run for you", pro: "-", elite: "-", vip: "✓" },
   { feature: "Daily product picks", pro: "✓ (drops)", elite: "✓ (drops)", vip: "✓ (personalised)" },
   { feature: "Listings created for you", pro: "-", elite: "✓", vip: "✓" },
   { feature: "Custom supplier sourcing", pro: "-", elite: "-", vip: "✓" },
