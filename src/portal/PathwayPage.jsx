@@ -30,6 +30,8 @@ export default function PathwayPage() {
   const [saving, setSaving] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollRef = useRef(null);
+  const drag = useRef(null); // mouse drag-to-pan state
+  const dragMoved = useRef(false);
 
   useEffect(() => {
     (async () => {
@@ -61,14 +63,47 @@ export default function PathwayPage() {
 
   const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
 
+  // Start with the first node horizontally centred instead of the tree's left edge.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !laidOut.length) return;
+    el.scrollLeft = Math.max(0, laidOut[0].x - el.clientWidth / 2);
+  }, [laidOut]);
+
   // ?start=1 → open the first node and scroll to it (getting-started popup lands here)
   useEffect(() => {
     if (searchParams.get("start") && laidOut.length) {
       setOpenId(laidOut[0].id);
-      scrollRef.current?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+      const el = scrollRef.current;
+      el?.scrollTo({
+        top: 0,
+        left: Math.max(0, laidOut[0].x - el.clientWidth / 2),
+        behavior: "smooth",
+      });
       setSearchParams({}, { replace: true });
     }
   }, [laidOut, searchParams, setSearchParams]);
+
+  // Click-and-drag panning with the mouse (touch uses native scroll).
+  function onPointerDown(e) {
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+    const el = scrollRef.current;
+    drag.current = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop };
+    dragMoved.current = false;
+  }
+  function onPointerMove(e) {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved.current = true;
+    const el = scrollRef.current;
+    el.scrollLeft = d.left - dx;
+    el.scrollTop = d.top - dy;
+  }
+  function onPointerUp() {
+    drag.current = null;
+  }
 
   function nodeState(node) {
     if (!meetsTier(profile?.tier, node.min_tier)) return "locked";
@@ -113,7 +148,14 @@ export default function PathwayPage() {
       </div>
 
       <div className="pathway-wrap">
-        <div className="pathway-scroll" ref={scrollRef}>
+        <div
+          className="pathway-scroll"
+          ref={scrollRef}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+        >
           <div className="pathway-tree" style={{ width, height }}>
             <svg
               className="pathway-lines"
@@ -150,7 +192,10 @@ export default function PathwayPage() {
                   type="button"
                   className={`pathway-node pathway-node-${state}${openId === node.id ? " open" : ""}`}
                   style={{ left: node.x, top: node.y }}
-                  onClick={() => setOpenId(node.id)}
+                  onClick={() => {
+                    if (dragMoved.current) return; // was a pan, not a click
+                    setOpenId(node.id);
+                  }}
                 >
                   <PathwayIcon name={node.icon} state={state} size={52} />
                   <span className="pathway-node-phase">

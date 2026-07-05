@@ -62,8 +62,8 @@
 
 /* ── Pathway ── */
 .pathway-wrap { position: relative; }
-.pathway-scroll { overflow: auto; max-height: calc(100vh - 230px); border: 1px solid var(--border); border-radius: 4px; background: radial-gradient(circle at 50% 0%, rgba(201,168,76,0.04), transparent 60%); }
-.pathway-tree { position: relative; margin: 0 auto; }
+.pathway-scroll { overflow: auto; max-height: calc(100vh - 230px); border: 1px solid var(--border); border-radius: 4px; background: radial-gradient(circle at 50% 0%, rgba(201,168,76,0.04), transparent 60%); overscroll-behavior: contain; scrollbar-width: thin; }
+.pathway-tree { position: relative; margin: 0 auto; user-select: none; -webkit-user-select: none; }
 .pathway-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .pathway-node { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 6px; background: none; border: none; cursor: none; width: 170px; padding: 10px; border-radius: 6px; transition: background .2s; font-family: var(--font-body); }
 .pathway-node:hover, .pathway-node.open { background: rgba(201,168,76,0.05); }
