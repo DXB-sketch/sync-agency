@@ -103,7 +103,7 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 /* ── Pathway ── */
 .pathway-wrap { position: relative; }
 .pathway-scroll { overflow: auto; height: calc(100vh - 250px); min-height: 420px; border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-lg); background: radial-gradient(circle at 18% 0%, oklch(78% 0.13 86 / 0.05), transparent 55%), var(--p-bg); overscroll-behavior: contain; scrollbar-width: thin; }
-.pathway-tree { position: relative; user-select: none; -webkit-user-select: none; }
+.pathway-tree { position: relative; margin: 0 auto; user-select: none; -webkit-user-select: none; }
 .pathway-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
 /* Groups jump-menu (sticky, top-right) */
@@ -287,7 +287,7 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .upgrade-current-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-dim); }
 
 /* ── More ── */
-.more-page { max-width: 720px; }
+.more-page { max-width: 720px; margin: 0 auto; }
 .more-list { display: flex; flex-direction: column; }
 .more-row { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px; padding: 17px 4px; border: none; border-bottom: 1px solid var(--p-line); background: none; font-size: 14px; color: var(--p-text); text-align: left; cursor: none; font-family: var(--p-font); }
 .more-row:hover { color: var(--p-gold); }
