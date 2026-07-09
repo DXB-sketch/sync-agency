@@ -3,10 +3,11 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS } from "../lib/tiers";
+import { uploadProductImages } from "../lib/productImages";
 
 const TABS = ["Account", "Products", "Orders", "Pathway", "Achievements"];
 const TIER_OPTIONS = [
-  ["", "No tier"],
+  ["free", "Free Dashboard"],
   ["pro", "Pro Accelerator"],
   ["elite", "Elite Scale"],
   ["vip", "VIP Inner Circle"],
@@ -29,7 +30,7 @@ export default function ClientDetailPage() {
   // Product form state
   const [form, setForm] = useState({ name: "", description: "", price: "" });
   const [isBonus, setIsBonus] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [priceEdits, setPriceEdits] = useState({});
 
@@ -55,7 +56,7 @@ export default function ClientDetailPage() {
     setClient(c);
     if (c) {
       setAccount({
-        tier: c.tier ?? "",
+        tier: c.tier ?? "free",
         billing_type: c.billing_type ?? "lifetime",
         tier_price_paid: c.tier_price_paid ?? "",
         subscription_active: c.subscription_active,
@@ -76,11 +77,13 @@ export default function ClientDetailPage() {
     setError(null);
     setAccountSaved(false);
     setAccountSaving(true);
+    const isPaid = account.tier !== "free";
     const { error: rpcErr } = await supabase.rpc("admin_set_member_tier", {
       p_member_id: id,
-      p_tier: account.tier || null,
-      p_billing: account.tier ? account.billing_type : null,
-      p_price_paid: account.tier_price_paid === "" ? null : Number(account.tier_price_paid),
+      p_tier: account.tier,
+      p_billing: isPaid ? account.billing_type : null,
+      p_price_paid:
+        !isPaid || account.tier_price_paid === "" ? null : Number(account.tier_price_paid),
       p_active: account.subscription_active,
     });
     if (rpcErr) setError(rpcErr.message);
@@ -94,15 +97,7 @@ export default function ClientDetailPage() {
     setError(null);
     setSaving(true);
     try {
-      let image_url = null;
-      if (imageFile) {
-        const path = `${id}/${Date.now()}-${imageFile.name.replace(/[^\w.-]/g, "_")}`;
-        const { error: upErr } = await supabase.storage
-          .from("product-images")
-          .upload(path, imageFile, { contentType: imageFile.type });
-        if (upErr) throw upErr;
-        image_url = supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
-      }
+      const image_urls = await uploadProductImages(imageFiles, id);
       const { data: product, error: insErr } = await supabase
         .from("products")
         .insert({
@@ -110,7 +105,8 @@ export default function ClientDetailPage() {
           name: form.name,
           description: form.description || null,
           price: Number(form.price),
-          image_url,
+          image_url: image_urls[0] ?? null,
+          image_urls: image_urls.length ? image_urls : null,
           is_bonus: isBonus,
           created_by: admin.id,
         })
@@ -128,7 +124,7 @@ export default function ClientDetailPage() {
       }
       setForm({ name: "", description: "", price: "" });
       setIsBonus(false);
-      setImageFile(null);
+      setImageFiles([]);
       await load();
     } catch (err) {
       setError(err.message ?? "Could not add product");
@@ -182,7 +178,9 @@ export default function ClientDetailPage() {
           <h1 className="portal-h1">{client.full_name || client.email}</h1>
           <p className="portal-sub">
             {client.email} ·{" "}
-            {client.tier ? `${TIERS[client.tier].name} (${client.billing_type})` : "No tier linked"}{" "}
+            {client.tier
+              ? `${TIERS[client.tier].name}${client.billing_type ? ` (${client.billing_type})` : ""}`
+              : "No tier linked"}{" "}
             · {client.subscription_active ? "Active" : "Subscription inactive"}
           </p>
         </div>
@@ -231,7 +229,7 @@ export default function ClientDetailPage() {
                 className="auth-input"
                 value={account.billing_type}
                 onChange={(e) => setAccount({ ...account, billing_type: e.target.value })}
-                disabled={!account.tier}
+                disabled={account.tier === "free"}
               >
                 <option value="lifetime">Lifetime</option>
                 <option value="monthly">Monthly</option>
@@ -245,7 +243,7 @@ export default function ClientDetailPage() {
                 min="0"
                 value={account.tier_price_paid}
                 onChange={(e) => setAccount({ ...account, tier_price_paid: e.target.value })}
-                disabled={!account.tier}
+                disabled={account.tier === "free"}
               />
             </label>
             <label className="auth-label">
@@ -316,12 +314,13 @@ export default function ClientDetailPage() {
                 />
               </label>
               <label className="auth-label">
-                Image
+                Images (first = cover)
                 <input
                   className="auth-input"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+                  multiple
+                  onChange={(e) => setImageFiles([...(e.target.files ?? [])])}
                 />
               </label>
             </div>

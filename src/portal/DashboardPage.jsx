@@ -4,9 +4,11 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS, meetsTier } from "../lib/tiers";
 import PathwayIcon from "../components/portal/PathwayIcon";
+import { useTutorial, TAB_STEPS } from "./Tutorial";
 
 export default function DashboardPage() {
   const { profile } = useAuth();
+  const { start: startTutorial } = useTutorial();
   const [nodes, setNodes] = useState([]);
   const [progress, setProgress] = useState({});
   const [orderCount, setOrderCount] = useState(0);
@@ -84,9 +86,33 @@ export default function DashboardPage() {
         </h1>
         {tier && (
           <p className="portal-sub">
-            {tier.name} · {profile.billing_type === "monthly" ? "Monthly" : "Lifetime"} access
+            {tier.rank === 0
+              ? "Free Dashboard · upgrade anytime for more slots and steps"
+              : `${tier.name} · ${profile.billing_type === "monthly" ? "Monthly" : "Lifetime"} access`}
           </p>
         )}
+      </div>
+
+      <div className="dash-tut">
+        <div className="dash-tut-head">
+          <div>
+            <h2 className="dash-card-title">Tutorial</h2>
+            <p className="dash-card-sub">
+              New here? Learn what each tab is for and how to use it — step by step.
+            </p>
+          </div>
+          <button className="btn-gold dash-tut-start" onClick={() => startTutorial(0)}>
+            Start full tour
+          </button>
+        </div>
+        <div className="dash-tut-grid">
+          {TAB_STEPS.map((t) => (
+            <button key={t.tab} className="dash-tut-box" onClick={() => startTutorial(t.index)}>
+              <span className="dash-tut-label">Teaches · {t.tab}</span>
+              <span className="dash-tut-blurb">{t.blurb}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="dash-grid">
@@ -142,7 +168,7 @@ export default function DashboardPage() {
         <div className="dash-card dash-stat">
           <span className="dash-stat-num">{orderCount}</span>
           <span className="dash-stat-label">Stock orders placed</span>
-          <Link to="/portal/orders" className="dash-stat-link">
+          <Link to="/portal/checkout" className="dash-stat-link">
             View orders →
           </Link>
         </div>

@@ -16,14 +16,14 @@ export default function StickyCTABar() {
     <div className={`sticky-cta${show ? " visible" : ""}`}>
       <div className="sticky-cta-inner">
         <p className="sticky-cta-text">
-          <strong>1200+ clients · 100% success rate.</strong> Your Depop store won't build itself.
+          <strong>1200+ clients · 100% success rate.</strong> The Sync dashboard is free — start today.
         </p>
         <div className="sticky-cta-actions">
-          <a href="#pricing" className="btn-gold" style={{ padding: "11px 28px", fontSize: 12 }}>
-            Enrol Now →
+          <a href="/signup" className="btn-gold" style={{ padding: "11px 28px", fontSize: 12 }}>
+            Start Free →
           </a>
           <a href="#pricing" className="btn-ghost" style={{ padding: "10px 20px", fontSize: 12 }}>
-            See Pricing
+            See Upgrades
           </a>
           <button className="sticky-close" onClick={dismiss} aria-label="Dismiss">×</button>
         </div>

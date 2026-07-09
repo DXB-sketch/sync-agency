@@ -11,7 +11,7 @@ const PHASE_NAMES = {
   2: "List Your Products",
   3: "Drive Traffic",
   4: "Sell & Fulfil",
-  5: "Elite — Scale",
+  5: "Scale",
   6: "VIP — Inner Circle",
 };
 

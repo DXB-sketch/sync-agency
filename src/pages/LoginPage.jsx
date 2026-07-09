@@ -65,7 +65,7 @@ export default function LoginPage() {
           </button>
         </form>
         <p className="auth-alt">
-          Just bought a course? <Link to="/signup">Create your account</Link>
+          New here? <Link to="/signup">Create your free account</Link>
         </p>
       </div>
     </section>

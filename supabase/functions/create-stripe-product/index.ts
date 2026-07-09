@@ -1,7 +1,14 @@
 // create-stripe-product — admin-only. Links a store product to Stripe and saves
 // stripe_price_id on the products row. Reuses the existing Stripe Product/Price
-// when another store already sells the same item (same name), so giving one
-// item to many members never duplicates it in Stripe.
+// when another store already sells the same item (same name + price), so
+// giving one item to many members never duplicates it in Stripe.
+//
+// Reuse is coordinated through the product_catalog table via the
+// claim_product_catalog() RPC, which atomically claims a (name, price) slot.
+// Only the caller that wins the claim talks to Stripe; every other concurrent
+// caller (e.g. a bulk assign firing many of these at once) reuses the result,
+// closing the race that used to let concurrent inserts each create their own
+// duplicate Stripe product.
 import Stripe from "npm:stripe@18";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -17,6 +24,10 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 Deno.serve(async (req) => {
@@ -45,32 +56,64 @@ Deno.serve(async (req) => {
 
   if (product.stripe_price_id) return json({ stripe_price_id: product.stripe_price_id, reused: true });
 
-  try {
-    // Another store already sells this item? Reuse its Stripe Product/Price.
-    const { data: twins } = await admin
-      .from("products")
-      .select("id, price, stripe_price_id")
-      .neq("id", product.id)
-      .not("stripe_price_id", "is", null)
-      .ilike("name", product.name.replace(/[%_]/g, "\\$&"));
+  const key = product.name.trim().toLowerCase();
+  const price = Number(product.price);
 
-    const unit_amount = Math.round(Number(product.price) * 100);
-    const samePrice = (twins ?? []).find((t) => Number(t.price) === Number(product.price));
-    if (samePrice) {
-      await admin
-        .from("products")
-        .update({ stripe_price_id: samePrice.stripe_price_id })
-        .eq("id", product.id);
-      return json({ stripe_price_id: samePrice.stripe_price_id, reused: true });
+  try {
+    const { data: claimRows, error: claimErr } = await admin.rpc("claim_product_catalog", {
+      p_key: key,
+      p_price: price,
+      p_name: product.name,
+    });
+    if (claimErr) throw claimErr;
+    const claim = claimRows[0];
+
+    // Someone already resolved this exact item — reuse it, no Stripe call needed.
+    if (!claim.claimed && claim.stripe_price_id) {
+      await admin.from("products").update({ stripe_price_id: claim.stripe_price_id }).eq("id", product.id);
+      return json({ stripe_price_id: claim.stripe_price_id, reused: true });
     }
 
-    let stripeProductId: string;
-    if (twins && twins.length > 0) {
-      // Same item at a different price — new Price on the existing Stripe Product
-      const twinPrice = await stripe.prices.retrieve(twins[0].stripe_price_id);
-      stripeProductId =
-        typeof twinPrice.product === "string" ? twinPrice.product : twinPrice.product.id;
-    } else {
+    // Another concurrent request is creating it right now — wait for it
+    // instead of racing to create a second Stripe product ourselves.
+    if (!claim.claimed) {
+      for (let i = 0; i < 15; i++) {
+        await sleep(400);
+        const { data: fresh } = await admin
+          .from("product_catalog")
+          .select("stripe_price_id")
+          .eq("id", claim.id)
+          .single();
+        if (fresh?.stripe_price_id) {
+          await admin.from("products").update({ stripe_price_id: fresh.stripe_price_id }).eq("id", product.id);
+          return json({ stripe_price_id: fresh.stripe_price_id, reused: true });
+        }
+      }
+      // Gave up waiting (the winning request likely failed) — fall through
+      // and create it ourselves so the product doesn't stay unlinked forever.
+    }
+
+    const unit_amount = Math.round(price * 100);
+    let stripeProductId: string | undefined;
+
+    // First time this item is claimed: check for a pre-existing Stripe
+    // product from before this table existed, so we don't spin up a fresh
+    // one unnecessarily.
+    if (claim.claimed) {
+      const { data: twins } = await admin
+        .from("products")
+        .select("id, price, stripe_price_id")
+        .neq("id", product.id)
+        .not("stripe_price_id", "is", null)
+        .ilike("name", product.name.replace(/[%_]/g, "\\$&"));
+      const samePrice = (twins ?? []).find((t) => Number(t.price) === price);
+      if (samePrice) {
+        const twinPrice = await stripe.prices.retrieve(samePrice.stripe_price_id);
+        stripeProductId = typeof twinPrice.product === "string" ? twinPrice.product : twinPrice.product.id;
+      }
+    }
+
+    if (!stripeProductId) {
       const stripeProduct = await stripe.products.create({
         name: product.name,
         description: product.description ?? undefined,
@@ -87,6 +130,11 @@ Deno.serve(async (req) => {
     );
     const stripePrice =
       match ?? (await stripe.prices.create({ product: stripeProductId, currency: "aud", unit_amount }));
+
+    await admin
+      .from("product_catalog")
+      .update({ stripe_product_id: stripeProductId, stripe_price_id: stripePrice.id })
+      .eq("id", claim.id);
     await admin.from("products").update({ stripe_price_id: stripePrice.id }).eq("id", product.id);
     return json({ stripe_price_id: stripePrice.id });
   } catch (err) {

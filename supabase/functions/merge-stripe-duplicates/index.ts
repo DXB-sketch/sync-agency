@@ -97,6 +97,23 @@ Deno.serve(async (req) => {
         rowsRepointed++;
       }
 
+      // Point the create-stripe-product claim table at the surviving
+      // canonical product/price(s) so future assignments never reuse an ID
+      // this merge is about to archive below.
+      const key = canonical.name.trim().toLowerCase();
+      for (const [amount, priceId] of canonicalPrices) {
+        await admin.from("product_catalog").upsert(
+          {
+            key,
+            price: amount / 100,
+            name: canonical.name,
+            stripe_product_id: canonical.id,
+            stripe_price_id: priceId,
+          },
+          { onConflict: "key,price" }
+        );
+      }
+
       // Archive the duplicates (a Product can't be archived with active Prices)
       for (const dupe of duplicates) {
         for await (const pr of stripe.prices.list({ product: dupe.id, active: true, limit: 100 })) {

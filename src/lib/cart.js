@@ -41,6 +41,7 @@ export function addToCart(product) {
     address: { ...EMPTY_ADDRESS },
   });
   saveCart(items);
+  window.dispatchEvent(new CustomEvent("sync:cart-add", { detail: { product } }));
   return items;
 }
 
