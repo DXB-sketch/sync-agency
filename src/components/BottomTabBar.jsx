@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 // Minimal line icons in the brand stroke style, matching PathwayIcon's approach.
 const GLYPHS = {
@@ -11,30 +11,38 @@ const GLYPHS = {
   upgrade: <path d="M12 20 V6 M6 12 L12 6 L18 12" />,
   clients: <path d="M9 11 A3 3 0 1 1 9 10.99 M17 12 A2.5 2.5 0 1 1 17 11.99 M3 20 Q3 14 9 14 Q15 14 15 20 M15 20 Q15 16 20 16 Q21.5 16 21 15" />,
   orders: <path d="M4 7 H20 M4 12 H20 M4 17 H14" />,
+  more: <path d="M5 12 A1.4 1.4 0 1 1 5 11.99 M12 12 A1.4 1.4 0 1 1 12 11.99 M19 12 A1.4 1.4 0 1 1 19 11.99" />,
+  signout: <path d="M9 21 H5 A2 2 0 0 1 3 19 V5 A2 2 0 0 1 5 3 H9 M16 17 L21 12 L16 7 M21 12 H9" />,
 };
 
-function TabIcon({ name }) {
+export function TabIcon({ name, size = 21 }) {
   return (
-    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {GLYPHS[name] ?? GLYPHS.dashboard}
     </svg>
   );
 }
 
 export default function BottomTabBar({ links }) {
+  const location = useLocation();
   return (
     <nav className="bottom-tab-bar">
-      {links.map((l) => (
-        <NavLink
-          key={l.to}
-          to={l.to}
-          end={l.end}
-          className={({ isActive }) => `bottom-tab${isActive ? " active" : ""}`}
-        >
-          <TabIcon name={l.icon} />
-          <span className="bottom-tab-label">{l.label}</span>
-        </NavLink>
-      ))}
+      {links.map((l) => {
+        // A tab can also own extra routes (e.g. More owns Support/Upgrade/Checkout)
+        const alsoActive = (l.also ?? []).some((p) => location.pathname.startsWith(p));
+        return (
+          <NavLink
+            key={l.to}
+            to={l.to}
+            end={l.end}
+            data-nav={l.icon}
+            className={({ isActive }) => `bottom-tab${isActive || alsoActive ? " active" : ""}`}
+          >
+            <TabIcon name={l.icon} />
+            <span className="bottom-tab-label">{l.label}</span>
+          </NavLink>
+        );
+      })}
     </nav>
   );
 }

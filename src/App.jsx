@@ -25,6 +25,7 @@ import CheckoutPage from "./portal/CheckoutPage";
 import AchievementsPage from "./portal/AchievementsPage";
 import SupportPage from "./portal/SupportPage";
 import UpgradePage from "./portal/UpgradePage";
+import MorePage from "./portal/MorePage";
 import ReactivatePage from "./portal/ReactivatePage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
@@ -91,6 +92,7 @@ function Shell() {
           <Route path="achievements" element={<AchievementsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="upgrade" element={<UpgradePage />} />
+          <Route path="more" element={<MorePage />} />
         </Route>
 
         <Route

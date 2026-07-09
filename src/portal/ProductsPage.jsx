@@ -52,6 +52,51 @@ export default function ProductsPage() {
     return { tier: t, extra: TIERS[t].productLimit - prevLimit };
   });
 
+  // Pricing block per the revamp: the price to list at, the price to discount
+  // to on Depop, the profit that leaves, and (smaller) what the member pays.
+  function priceBlock(p) {
+    const cost = Number(p.price);
+    const listing = p.listing_price != null ? Number(p.listing_price) : null;
+    const discount = p.discount_price != null ? Number(p.discount_price) : null;
+    const profit = discount != null ? discount - cost : null;
+    return (
+      <div className="product-pricing">
+        {listing != null && discount != null ? (
+          <>
+            <div className="product-price-flow">
+              <div className="product-price-step">
+                <span className="product-price-step-label">1. List item for</span>
+                <span className="product-price-list">${listing.toFixed(2)}</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="product-price-arrow" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
+              <div className="product-price-step">
+                <span className="product-price-step-label gold">2. Then discount to</span>
+                <span className="product-price-discount">${discount.toFixed(2)}</span>
+              </div>
+            </div>
+            {profit > 0 && (
+              <span className="product-profit">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 17l6-6 4 4 8-8M15 7h6v6" />
+                </svg>
+                Profit: ${profit.toFixed(2)} per sale
+              </span>
+            )}
+            <span className="product-cost">
+              You pay <strong>${cost.toFixed(2)}</strong> <span className="price-currency">AUD</span>
+            </span>
+          </>
+        ) : (
+          <span className="product-price">
+            ${cost.toFixed(2)} <span className="price-currency">AUD</span>
+          </span>
+        )}
+      </div>
+    );
+  }
+
   function stepImage(p, dir) {
     const count = productImages(p).length;
     setImgIdx((m) => ({ ...m, [p.id]: ((m[p.id] ?? 0) + dir + count) % count }));
@@ -112,9 +157,7 @@ export default function ProductsPage() {
           </h2>
           {p.description && <p className="product-desc">{p.description}</p>}
           <div className="product-foot">
-            <span className="product-price">
-              ${Number(p.price).toFixed(2)} <span className="price-currency">AUD</span>
-            </span>
+            {priceBlock(p)}
             <button
               className="btn-ghost product-add"
               onClick={(e) => {
@@ -139,7 +182,7 @@ export default function ProductsPage() {
             Made a sale on Depop? Order that stock here — we ship it straight to your buyer.
           </p>
         </div>
-        <Link to="/portal/checkout" className="btn-gold">
+        <Link to="/portal/checkout" className="btn-gold" data-nav="checkout">
           Checkout{cartCount > 0 ? ` (${cartCount})` : ""}
         </Link>
       </div>
@@ -272,9 +315,7 @@ export default function ProductsPage() {
                 </h2>
                 {viewer.description && <p className="product-desc">{viewer.description}</p>}
                 <div className="product-foot">
-                  <span className="product-price">
-                    ${Number(viewer.price).toFixed(2)} <span className="price-currency">AUD</span>
-                  </span>
+                  {priceBlock(viewer)}
                   <button
                     className="btn-gold product-viewer-add"
                     onClick={() => {

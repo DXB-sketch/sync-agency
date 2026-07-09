@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { NavLink, Outlet, Link, useLocation } from "react-router-dom";
+import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS } from "../lib/tiers";
@@ -7,7 +6,8 @@ import { isNativeApp } from "../lib/nativeApp";
 import { TutorialProvider, SaleNudges } from "./Tutorial";
 import BottomTabBar from "../components/BottomTabBar";
 
-const LINKS = [
+// Desktop top-strip navigation — every destination.
+const NAV_LINKS = [
   { to: "/portal", label: "Dashboard", end: true, icon: "dashboard" },
   { to: "/portal/pathway", label: "Pathway", icon: "pathway" },
   { to: "/portal/products", label: "Products", icon: "products" },
@@ -17,33 +17,19 @@ const LINKS = [
   { to: "/portal/upgrade", label: "Upgrade", icon: "upgrade" },
 ].filter((l) => l.to !== "/portal/upgrade" || !isNativeApp());
 
+// Mobile + native bottom tab bar — five icon tabs; the rest lives under More.
+const TAB_LINKS = [
+  { to: "/portal", label: "Dashboard", end: true, icon: "dashboard" },
+  { to: "/portal/pathway", label: "Pathway", icon: "pathway" },
+  { to: "/portal/products", label: "Products", icon: "products" },
+  { to: "/portal/achievements", label: "Achieve", icon: "achievements" },
+  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout"] },
+];
+
 export default function PortalLayout() {
   const { profile } = useAuth();
   const tier = profile?.tier ? TIERS[profile.tier] : null;
-  const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
   const native = isNativeApp();
-
-  // Close the mobile menu whenever the route changes
-  useEffect(() => setMenuOpen(false), [location.pathname]);
-
-  // Lock background scroll while the mobile nav overlay is open
-  useEffect(() => {
-    if (native) return;
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen, native]);
-
-  // The tutorial opens the menu when it highlights a nav tab (hidden on mobile)
-  useEffect(() => {
-    const onNav = (e) => setMenuOpen(Boolean(e.detail?.open));
-    window.addEventListener("sync:portal-nav", onNav);
-    return () => window.removeEventListener("sync:portal-nav", onNav);
-  }, []);
-
-  const currentLabel =
-    LINKS.find((l) => (l.end ? location.pathname === l.to : location.pathname.startsWith(l.to)))
-      ?.label ?? "Menu";
 
   return (
     <TutorialProvider>
@@ -62,43 +48,26 @@ export default function PortalLayout() {
             <button className="portal-signout" onClick={() => supabase.auth.signOut()}>
               Sign out
             </button>
-            {!native && (
-              <button
-                className="portal-menu-btn"
-                aria-expanded={menuOpen}
-                onClick={() => setMenuOpen((o) => !o)}
-              >
-                {menuOpen ? "✕" : "☰"} {currentLabel}
-              </button>
-            )}
           </div>
         </header>
-        {!native && (
-          <nav className={`portal-nav${menuOpen ? " open" : ""}`}>
-            {LINKS.map((l) => (
-              <NavLink
-                key={l.to}
-                to={l.to}
-                end={l.end}
-                className={({ isActive }) => `portal-nav-link${isActive ? " active" : ""}`}
-                onClick={() => setMenuOpen(false)}
-              >
-                {l.label}
-              </NavLink>
-            ))}
-            <button
-              className="portal-nav-link portal-signout-mobile"
-              onClick={() => supabase.auth.signOut()}
+        <nav className="portal-nav">
+          {NAV_LINKS.map((l) => (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              end={l.end}
+              data-nav={l.icon}
+              className={({ isActive }) => `portal-nav-link${isActive ? " active" : ""}`}
             >
-              Sign out
-            </button>
-          </nav>
-        )}
+              {l.label}
+            </NavLink>
+          ))}
+        </nav>
         <main className="portal-main">
           <Outlet />
         </main>
         <SaleNudges />
-        {native && <BottomTabBar links={LINKS} />}
+        <BottomTabBar links={TAB_LINKS} />
       </div>
     </TutorialProvider>
   );
