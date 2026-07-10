@@ -2,6 +2,7 @@ import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { isNativeApp } from "../lib/nativeApp";
 import BottomTabBar from "../components/BottomTabBar";
+import SocialIcons from "../components/SocialIcons";
 
 const LINKS = [
   { to: "/admin", label: "Clients", end: true, icon: "clients" },
@@ -23,9 +24,12 @@ export default function AdminLayout() {
   return (
     <div className={`portal portal-admin${native ? " portal-native" : ""}`}>
       <header className="portal-topbar">
-        <Link to="/admin" className="portal-logo">
-          SYNC<span>/ADMIN</span>
-        </Link>
+        <div className="portal-topbar-left">
+          <Link to="/admin" className="portal-logo">
+            SYNC<span>/ADMIN</span>
+          </Link>
+          <SocialIcons className="portal-social" />
+        </div>
         <div className="portal-topbar-right">
           <Link to="/portal" className="portal-admin-link">
             Member portal

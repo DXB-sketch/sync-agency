@@ -5,6 +5,7 @@ import { TIERS } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 import { TutorialProvider, SaleNudges } from "./Tutorial";
 import BottomTabBar from "../components/BottomTabBar";
+import SocialIcons from "../components/SocialIcons";
 
 // Desktop top-strip navigation — every destination.
 const NAV_LINKS = [
@@ -35,9 +36,12 @@ export default function PortalLayout() {
     <TutorialProvider>
       <div className={`portal${native ? " portal-native" : ""}`}>
         <header className="portal-topbar">
-          <Link to="/portal" className="portal-logo">
-            SYNC<span>/PORTAL</span>
-          </Link>
+          <div className="portal-topbar-left">
+            <Link to="/portal" className="portal-logo">
+              SYNC<span>/PORTAL</span>
+            </Link>
+            <SocialIcons className="portal-social" />
+          </div>
           <div className="portal-topbar-right">
             {tier && <span className={`tier-badge tier-${profile.tier}`}>{tier.short}</span>}
             {profile?.role === "admin" && (

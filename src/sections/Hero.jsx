@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useInView } from "../components/FadeUp";
 import HeroPanel from "../components/HeroPanel";
+import SocialIcons from "../components/SocialIcons";
 
 function useCountUp(target, duration = 1800, active = false) {
   const [val, setVal] = useState(0);
@@ -62,6 +63,7 @@ export default function Hero() {
             </Link>
             <a href="#pricing" className="btn-ghost">See course upgrades</a>
           </div>
+          <SocialIcons className="hero-social hero-social-mobile" />
           <div className="hero-stats" style={{ animation: "wordReveal .8s .9s cubic-bezier(.16,1,.3,1) both" }}>
             <div className="hero-stat">
               <div className="hero-stat-num">
@@ -84,6 +86,7 @@ export default function Hero() {
           </div>
         </div>
         <div style={{ animation: "wordReveal .9s .5s cubic-bezier(.16,1,.3,1) both" }}>
+          <SocialIcons className="hero-social hero-social-desktop" />
           <HeroPanel />
         </div>
       </div>

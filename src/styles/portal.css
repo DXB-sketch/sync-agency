@@ -17,9 +17,14 @@
 
 /* Topbar */
 .portal-topbar { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: linear-gradient(180deg, oklch(17% 0.016 85) 0%, var(--p-bg) 100%); position: sticky; top: 0; z-index: 100; }
+.portal-topbar-left { display: flex; align-items: center; gap: 16px; }
 .portal-logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em; }
 .portal-logo span { color: var(--p-muted); font-size: 11px; font-family: var(--p-font); font-weight: 400; letter-spacing: 0.14em; }
 .portal-topbar-right { display: flex; align-items: center; gap: 12px; }
+.portal .social-icon-btn { color: var(--p-muted); }
+.portal .social-icon-btn:hover { color: var(--p-gold); }
+.portal-social { gap: 12px; }
+.portal-social .social-icon-btn { width: 15px; height: 15px; }
 .portal-admin-link { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-gold); font-weight: 600; border: 1px solid var(--p-line-gold); background: var(--p-card-hi); padding: 8px 12px; border-radius: 9px; }
 .portal-signout { background: none; border: none; color: var(--p-muted); font-family: var(--p-font); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: none; }
 .portal-signout:hover { color: var(--p-text); }
@@ -294,6 +299,10 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .more-row-main { display: flex; align-items: center; gap: 12px; }
 .more-row-main svg { color: var(--p-gold-deep); }
 .more-row > svg { color: var(--p-muted); }
+.more-social { margin-top: 14px; gap: 10px; }
+.more-social .social-icon-btn { flex: 1; width: auto; height: auto; padding: 18px 0; border: 1px solid var(--p-line); border-radius: var(--p-radius-md); background: var(--p-elev); }
+.more-social .social-icon-btn:hover { border-color: var(--p-line-gold); }
+.more-social .social-icon-btn svg { width: 26px; height: 26px; }
 
 /* ── Admin ── */
 .admin-back { display: inline-block; font-size: 12px; color: var(--p-dim); margin-bottom: 16px; }

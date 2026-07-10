@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import SocialIcons from "./SocialIcons";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -14,6 +15,7 @@ export default function Nav() {
       <div className="nav-left">
         <div className="nav-logo">Sync Agency</div>
         <Link to="/login" className="nav-login">Login</Link>
+        <SocialIcons className="nav-social" />
       </div>
       <div className="nav-links">
         <a href="/#how-it-works">How it works</a>

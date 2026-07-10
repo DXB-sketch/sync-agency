@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { isNativeApp } from "../lib/nativeApp";
 import { TabIcon } from "../components/BottomTabBar";
+import SocialIcons from "../components/SocialIcons";
 
 const Chevron = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -75,6 +76,8 @@ export default function MorePage() {
           </span>
         </button>
       </div>
+
+      <SocialIcons className="more-social" />
 
       {profile?.role !== "admin" && (
         <div className="danger-zone">
