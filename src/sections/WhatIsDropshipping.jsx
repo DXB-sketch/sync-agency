@@ -15,7 +15,8 @@ export default function WhatIsDropshipping() {
                 Dropshipping is one of the simplest business models online, you list products,
                 take orders, buy from a supplier, keep the margin. No warehouse. No upfront inventory.
                 Depop makes it even more powerful: millions of active buyers, less competition than
-                Amazon, and higher margins on the right products.
+                Amazon, and higher margins on the right products. Your free Sync dashboard walks
+                you through this exact process, step by step.
               </p>
             </FadeUp>
             <StaggerGrid className="ds-cards">

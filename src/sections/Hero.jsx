@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useInView } from "../components/FadeUp";
 import HeroPanel from "../components/HeroPanel";
 
@@ -30,7 +31,7 @@ function StatCounter({ target, suffix = "", prefix = "" }) {
 }
 
 export default function Hero() {
-  const words = ["Turn", "Depop", "Into", "a"];
+  const words = ["Start", "Your", "Ecommerce"];
   return (
     <section className="hero">
       <div className="hero-bg-orb orb1" />
@@ -41,24 +42,25 @@ export default function Hero() {
         <div>
           <div className="hero-eyebrow">
             <div className="hero-eyebrow-line" />
-            <span className="hero-eyebrow-text">Depop Dropshipping · Australia</span>
+            <span className="hero-eyebrow-text">The Sync Dashboard · Free Forever</span>
           </div>
           <h1 className="hero-h1">
             {words.map((w, i) => (
               <span key={w} className="word" style={{ animationDelay: `${0.1 + i * 0.08}s`, marginRight: "0.28em" }}>{w}</span>
             ))}
             <br />
-            <em className="word" style={{ animationDelay: "0.44s" }}>Profitable Business.</em>
+            <em className="word" style={{ animationDelay: "0.44s" }}>Journey — Free.</em>
           </h1>
           <p className="hero-sub" style={{ animation: "wordReveal .8s .6s cubic-bezier(.16,1,.3,1) both" }}>
-            We've helped 1200+ clients build real income on Depop. No guesswork. No theory.
-            A practitioner-built system with a 100% success rate.
+            The Sync dashboard gives you a step-by-step pathway, product slots stocked by our
+            team, and everything you need to launch your first dropshipping store — completely
+            free. Ready for more? Upgrade with our Depop Coaching System.
           </p>
           <div className="hero-actions" style={{ animation: "wordReveal .8s .75s cubic-bezier(.16,1,.3,1) both" }}>
-            <a href="#pricing" className="btn-gold">
-              Enrol Now <span>→</span>
-            </a>
-            <a href="#pricing" className="btn-ghost">View Pricing</a>
+            <Link to="/signup" className="btn-gold">
+              Create your free account <span>→</span>
+            </Link>
+            <a href="#pricing" className="btn-ghost">See course upgrades</a>
           </div>
           <div className="hero-stats" style={{ animation: "wordReveal .8s .9s cubic-bezier(.16,1,.3,1) both" }}>
             <div className="hero-stat">

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./styles/global.css";
 import "./styles/portal.css";
 import { captureAffiliate } from "./utils/affiliate.js";
@@ -22,7 +22,6 @@ import DashboardPage from "./portal/DashboardPage";
 import PathwayPage from "./portal/PathwayPage";
 import ProductsPage from "./portal/ProductsPage";
 import CheckoutPage from "./portal/CheckoutPage";
-import OrdersPage from "./portal/OrdersPage";
 import AchievementsPage from "./portal/AchievementsPage";
 import SupportPage from "./portal/SupportPage";
 import UpgradePage from "./portal/UpgradePage";
@@ -30,11 +29,16 @@ import ReactivatePage from "./portal/ReactivatePage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
 import ClientDetailPage from "./admin/ClientDetailPage";
-import ProductPoolPage from "./admin/ProductPoolPage";
-import CataloguePage from "./admin/CataloguePage";
+import ProductsAdminPage from "./admin/ProductsAdminPage";
 import OrdersQueuePage from "./admin/OrdersQueuePage";
 import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
+
+// Orders merged into Checkout — forward old links (incl. Stripe's ?paid=1 return)
+function OrdersRedirect() {
+  const location = useLocation();
+  return <Navigate to={{ pathname: "/portal/checkout", search: location.search }} replace />;
+}
 
 function Shell() {
   const location = useLocation();
@@ -83,7 +87,7 @@ function Shell() {
           <Route path="pathway" element={<PathwayPage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="checkout" element={<CheckoutPage />} />
-          <Route path="orders" element={<OrdersPage />} />
+          <Route path="orders" element={<OrdersRedirect />} />
           <Route path="achievements" element={<AchievementsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="upgrade" element={<UpgradePage />} />
@@ -99,8 +103,9 @@ function Shell() {
         >
           <Route index element={<ClientsPage />} />
           <Route path="clients/:id" element={<ClientDetailPage />} />
-          <Route path="pool" element={<ProductPoolPage />} />
-          <Route path="catalogue" element={<CataloguePage />} />
+          <Route path="products" element={<ProductsAdminPage />} />
+          <Route path="pool" element={<Navigate to="/admin/products" replace />} />
+          <Route path="catalogue" element={<Navigate to="/admin/products" replace />} />
           <Route path="orders" element={<OrdersQueuePage />} />
           <Route path="achievements" element={<AchievementsReviewPage />} />
           <Route path="support" element={<SupportQueuePage />} />

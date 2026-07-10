@@ -37,3 +37,13 @@ ds-bundle/
 
 # SiteGround upload bundle
 sync-agency-upload.zip
+
+# Capacitor native build output (the android/ and ios/ projects ARE committed)
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/output/
+ios/DerivedData/

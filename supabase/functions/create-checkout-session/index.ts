@@ -15,7 +15,7 @@ const TIER_PRICES: Record<string, { lifetime: number; monthly: number }> = {
   elite: { lifetime: 397, monthly: 127 },
   vip: { lifetime: 739, monthly: 349 },
 };
-const TIER_RANK: Record<string, number> = { pro: 1, elite: 2, vip: 3 };
+const TIER_RANK: Record<string, number> = { free: 0, pro: 1, elite: 2, vip: 3 };
 const TIER_NAMES: Record<string, string> = {
   pro: "Pro Accelerator",
   elite: "Elite Scale",
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
         mode: "payment",
         line_items,
         customer_email: profile.email ?? undefined,
-        success_url: `${SITE_URL}/portal/orders?paid=1`,
+        success_url: `${SITE_URL}/portal/checkout?paid=1`,
         cancel_url: `${SITE_URL}/portal/checkout`,
         metadata: { kind: "stock_order", order_id: order.id, member_id: user.id },
       });
@@ -111,7 +111,8 @@ Deno.serve(async (req) => {
       const target = body.target_tier as string;
       const targetBilling = (body.target_billing as string) ?? "lifetime";
       if (!TIER_PRICES[target]) return json({ error: "Unknown tier" }, 400);
-      if (!profile.tier || TIER_RANK[target] <= TIER_RANK[profile.tier]) {
+      // Free accounts (or legacy tier-less profiles) upgrade from rank 0 at full price
+      if (TIER_RANK[target] <= (TIER_RANK[profile.tier] ?? 0)) {
         return json({ error: "Can only upgrade to a higher tier" }, 400);
       }
 
@@ -168,7 +169,9 @@ Deno.serve(async (req) => {
 
     // ── Reactivate a lapsed monthly subscription ──
     if (kind === "reactivate") {
-      if (!profile.tier) return json({ error: "No tier on account" }, 400);
+      if (!profile.tier || !MONTHLY_PRICE_IDS[profile.tier]) {
+        return json({ error: "No paid tier on account" }, 400);
+      }
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [{ price: MONTHLY_PRICE_IDS[profile.tier], quantity: 1 }],

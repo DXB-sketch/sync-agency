@@ -6,6 +6,7 @@ const STATUS_LABELS = { open: "Open", answered: "Answered", closed: "Closed" };
 
 export default function SupportPage() {
   const { profile } = useAuth();
+  const [deleting, setDeleting] = useState(false);
   const [tickets, setTickets] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -88,6 +89,26 @@ export default function SupportPage() {
       await loadTickets();
     }
     setBusy(false);
+  }
+
+  // App-store requirement: accounts must be deletable from inside the app.
+  async function deleteAccount() {
+    if (
+      !window.confirm(
+        "Permanently delete your Sync account? Your pathway progress, products, orders and tickets will be erased. This cannot be undone."
+      )
+    )
+      return;
+    setDeleting(true);
+    setError(null);
+    const { data, error: fnErr } = await supabase.functions.invoke("delete-account", { body: {} });
+    if (fnErr || data?.error) {
+      setError(data?.error ?? "Could not delete the account — contact support.");
+      setDeleting(false);
+      return;
+    }
+    await supabase.auth.signOut();
+    window.location.href = "/";
   }
 
   const active = tickets.find((t) => t.id === activeId);
@@ -199,6 +220,20 @@ export default function SupportPage() {
           )}
         </div>
       </div>
+
+      {profile?.role !== "admin" && (
+        <div className="danger-zone">
+          <div>
+            <h2 className="dash-card-title">Delete account</h2>
+            <p className="dash-card-sub">
+              Permanently erase your account and all of its data. This can't be undone.
+            </p>
+          </div>
+          <button className="btn-ghost danger-btn" disabled={deleting} onClick={deleteAccount}>
+            {deleting ? "Deleting…" : "Delete my account"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

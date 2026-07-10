@@ -22,7 +22,7 @@ export default function Nav() {
         <a href="/#faq">FAQ</a>
         <a href="/#about">About</a>
         <Link to="/competition" className="nav-btn-competition">Competition</Link>
-        <a href="/#pricing" className="nav-btn">Enrol Now →</a>
+        <Link to="/signup" className="nav-btn">Start Free →</Link>
       </div>
       {/* Mobile hamburger */}
       <button
@@ -43,9 +43,9 @@ export default function Nav() {
           <Link to="/competition" className="nav-btn-competition" style={{ marginTop: 20, textAlign: "center", width: "100%" }} onClick={() => setMenuOpen(false)}>
             Competition
           </Link>
-          <a href="/#pricing" className="btn-gold" style={{ marginTop: 12, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
-            Enrol Now →
-          </a>
+          <Link to="/signup" className="btn-gold" style={{ marginTop: 12, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
+            Start Free →
+          </Link>
         </div>
       )}
     </nav>
