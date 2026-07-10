@@ -5,7 +5,7 @@ import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 
 const TIER_ORDER = ["free", "pro", "elite", "vip"];
-const EMPTY_FORM = { name: "", description: "", price: "" };
+const EMPTY_FORM = { name: "", description: "", price: "", listing_price: "", discount_price: "" };
 const EMPTY_DEST = { mode: "clients", tier: "pro", memberIds: {}, asBonus: false };
 
 // Groups every product ever added to a client store into one catalogue row per
@@ -22,6 +22,8 @@ function buildCatalogue(products, membersById) {
       if (entry.images.length === 0) entry.images = productImages(p);
       if (!entry.description && p.description) entry.description = p.description;
       if (!entry.stripe_price_id && p.stripe_price_id) entry.stripe_price_id = p.stripe_price_id;
+      if (entry.listing_price == null && p.listing_price != null) entry.listing_price = Number(p.listing_price);
+      if (entry.discount_price == null && p.discount_price != null) entry.discount_price = Number(p.discount_price);
     } else {
       map.set(key, {
         key,
@@ -29,6 +31,8 @@ function buildCatalogue(products, membersById) {
         name: p.name,
         description: p.description,
         price: Number(p.price),
+        listing_price: p.listing_price != null ? Number(p.listing_price) : null,
+        discount_price: p.discount_price != null ? Number(p.discount_price) : null,
         image_url: p.image_url,
         images: productImages(p),
         stripe_price_id: p.stripe_price_id,
@@ -151,6 +155,7 @@ export default function ProductsAdminPage() {
   const [productSearch, setProductSearch] = useState("");
   const [busy, setBusy] = useState(null); // "assign" | "create" | "merge" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
+  const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const healedRef = useRef(false);
@@ -169,7 +174,7 @@ export default function ProductsAdminPage() {
     const [{ data: prods }, { data: mem }, { data: pp }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, member_id, name, description, price, image_url, image_urls, is_bonus, active, stripe_price_id")
+        .select("id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id")
         .order("created_at"),
       supabase
         .from("profiles")
@@ -242,6 +247,8 @@ export default function ProductsAdminPage() {
             name: it.name,
             description: it.description || null,
             price: it.price,
+            listing_price: it.listing_price ?? null,
+            discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
             created_by: admin.id,
@@ -279,6 +286,8 @@ export default function ProductsAdminPage() {
               name: it.name,
               description: it.description || null,
               price: it.price,
+              listing_price: it.listing_price ?? null,
+              discount_price: it.discount_price ?? null,
               image_url: it.images[0] ?? null,
               image_urls: it.images.length ? it.images : null,
               is_bonus: dest.asBonus,
@@ -325,6 +334,8 @@ export default function ProductsAdminPage() {
         name: c.name,
         description: c.description,
         price: c.price,
+        listing_price: c.listing_price,
+        discount_price: c.discount_price,
         images: c.images,
       })),
       catDest,
@@ -374,6 +385,8 @@ export default function ProductsAdminPage() {
             name: it.name,
             description: it.description || null,
             price: it.price,
+            listing_price: it.listing_price ?? null,
+            discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
             is_bonus: false,
@@ -426,6 +439,8 @@ export default function ProductsAdminPage() {
           name: newForm.name,
           description: newForm.description,
           price: Number(newForm.price),
+          listing_price: newForm.listing_price === "" ? null : Number(newForm.listing_price),
+          discount_price: newForm.discount_price === "" ? null : Number(newForm.discount_price),
           images,
         },
       ],
@@ -494,6 +509,30 @@ export default function ProductsAdminPage() {
     } else {
       setNotice(`Deleted "${entry.name}" from the catalogue, all client stores, and Stripe.`);
       setSelected((s) => ({ ...s, [entry.key]: false }));
+    }
+    await load();
+    setBusy(null);
+  }
+
+  // Writes the member-facing listing/discount prices to every store copy,
+  // plus any same-named pool items still waiting to be distributed.
+  async function savePrices(entry, listing, discount) {
+    setError(null);
+    setBusy("prices");
+    const prices = {
+      listing_price: listing === "" ? null : Number(listing),
+      discount_price: discount === "" ? null : Number(discount),
+    };
+    const { error: upErr } = await supabase.from("products").update(prices).in("id", entry.ids);
+    if (upErr) {
+      setError(upErr.message);
+    } else {
+      await supabase
+        .from("pool_products")
+        .update(prices)
+        .eq("name", entry.name)
+        .is("assigned_member_id", null);
+      setEditingPrices(null);
     }
     await load();
     setBusy(null);
@@ -646,7 +685,8 @@ export default function ProductsAdminPage() {
               <tr>
                 <th />
                 <th>Product</th>
-                <th>Price</th>
+                <th>Cost</th>
+                <th>List → discount</th>
                 <th>In stores</th>
                 <th>Stripe</th>
                 <th />
@@ -675,6 +715,66 @@ export default function ProductsAdminPage() {
                       </div>
                     </td>
                     <td>${c.price.toFixed(2)}</td>
+                    <td>
+                      {editingPrices?.key === c.key ? (
+                        <div className="admin-price-edit">
+                          <input
+                            className="auth-input admin-price-input"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="List"
+                            value={editingPrices.listing}
+                            onChange={(e) =>
+                              setEditingPrices({ ...editingPrices, listing: e.target.value })
+                            }
+                          />
+                          <span>→</span>
+                          <input
+                            className="auth-input admin-price-input"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            placeholder="Discount"
+                            value={editingPrices.discount}
+                            onChange={(e) =>
+                              setEditingPrices({ ...editingPrices, discount: e.target.value })
+                            }
+                          />
+                          <button
+                            className="btn-gold admin-view-btn"
+                            type="button"
+                            disabled={busy === "prices"}
+                            onClick={() => savePrices(c, editingPrices.listing, editingPrices.discount)}
+                          >
+                            {busy === "prices" ? "Saving…" : "Save"}
+                          </button>
+                          <button
+                            className="btn-ghost admin-view-btn"
+                            type="button"
+                            onClick={() => setEditingPrices(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="btn-ghost admin-view-btn"
+                          type="button"
+                          onClick={() =>
+                            setEditingPrices({
+                              key: c.key,
+                              listing: c.listing_price ?? "",
+                              discount: c.discount_price ?? "",
+                            })
+                          }
+                        >
+                          {c.listing_price != null && c.discount_price != null
+                            ? `$${c.listing_price.toFixed(2)} → $${c.discount_price.toFixed(2)}`
+                            : "Set prices"}
+                        </button>
+                      )}
+                    </td>
                     <td>{c.storeCount}</td>
                     <td>
                       {c.stripe_price_id ? "Linked" : <span className="admin-warn">Pending</span>}
@@ -701,7 +801,7 @@ export default function ProductsAdminPage() {
                   </tr>
                   {editingImages === c.key && (
                     <tr>
-                      <td colSpan={6}>
+                      <td colSpan={7}>
                         <div className="catalogue-images">
                           {c.images.map((url, i) => (
                             <div key={url} className="catalogue-image">
@@ -782,6 +882,28 @@ export default function ProductsAdminPage() {
               value={newForm.price}
               onChange={(e) => setNewForm({ ...newForm, price: e.target.value })}
               required
+            />
+          </label>
+          <label className="auth-label">
+            Listing price (AUD) — what the member lists it for
+            <input
+              className="auth-input"
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={newForm.listing_price}
+              onChange={(e) => setNewForm({ ...newForm, listing_price: e.target.value })}
+            />
+          </label>
+          <label className="auth-label">
+            Discount price (AUD) — what they discount it to on Depop
+            <input
+              className="auth-input"
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={newForm.discount_price}
+              onChange={(e) => setNewForm({ ...newForm, discount_price: e.target.value })}
             />
           </label>
           <label className="auth-label">

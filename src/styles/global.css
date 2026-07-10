@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,700&family=Syne:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Syne:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
   --gold: #C9A84C;
@@ -18,6 +18,34 @@
   --border-md: rgba(201,168,76,0.25);
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Syne', sans-serif;
+
+  /* ── Portal design system (from the 2026 revamp mockups) ──
+     Gold tonal range on a warm near-black, oklch for perceptual steps. */
+  --p-font: 'Jost', sans-serif;
+  --p-bg: oklch(15% 0.014 85);
+  --p-bg-deep: oklch(8% 0.01 85);
+  --p-card-hi: oklch(23.5% 0.018 85);
+  --p-card-lo: oklch(19% 0.016 85);
+  --p-elev: oklch(28% 0.02 85);
+  --p-ink: oklch(18% 0.02 85);
+  --p-text: oklch(93% 0.012 85);
+  --p-muted: oklch(64% 0.02 85);
+  --p-dim: oklch(50% 0.018 85);
+  --p-gold: oklch(86% 0.05 88);
+  --p-gold-bright: oklch(78% 0.13 86);
+  --p-gold-deep: oklch(58% 0.10 68);
+  --p-line: oklch(32% 0.02 85 / 0.55);
+  --p-line-soft: oklch(38% 0.02 85 / 0.18);
+  --p-line-gold: oklch(58% 0.10 68 / 0.5);
+  --p-grad-gold: linear-gradient(135deg, oklch(86% 0.05 88), oklch(78% 0.13 86) 55%, oklch(58% 0.10 68));
+  --p-grad-card: linear-gradient(165deg, oklch(23.5% 0.018 85), oklch(19% 0.016 85));
+  --p-grad-node: linear-gradient(140deg, oklch(86% 0.05 88), oklch(58% 0.10 68));
+  --p-shadow-card: 0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);
+  --p-shadow-glow: 0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;
+  --p-radius-lg: 18px;
+  --p-radius-md: 14px;
+  --p-radius-sm: 10px;
+  --p-radius-pill: 100px;
 }
 html { scroll-behavior: smooth; }
 body { background: var(--black); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.65; overflow-x: hidden; cursor: none; }

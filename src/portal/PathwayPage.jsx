@@ -2,25 +2,24 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
-import { meetsTier, TIERS } from "../lib/tiers";
+import { meetsTier, tierRank, TIERS } from "../lib/tiers";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import NodeBody from "../components/portal/NodeBody";
 
-const PHASE_NAMES = {
-  1: "Launch Your Store",
-  2: "List Your Products",
-  3: "Drive Traffic",
-  4: "Sell & Fulfil",
-  5: "Scale",
-  6: "VIP — Inner Circle",
+// Group hubs: one per pathway phase. Each hub branches into its phase's steps.
+const GROUPS = {
+  1: { name: "Launch Your Store", icon: "storefront" },
+  2: { name: "List Your Products", icon: "listing-card" },
+  3: { name: "Drive Traffic", icon: "growth-arrow" },
+  4: { name: "Sell & Fulfil", icon: "handshake" },
+  5: { name: "Scale", icon: "sliders" },
+  6: { name: "VIP — Inner Circle", icon: "check-seal" },
 };
 
-// 2D grid layout: each node carries gx (column, can be negative) and gy (row).
-// The canvas grows in both directions as nodes are added.
-const COL_W = 190;
-const ROW_H = 150;
-const PAD_X = 40;
-const PAD_Y = 70;
+// Layout constants. Both breakpoints stack groups down a central trunk with
+// steps diverging left and right; desktop just spreads wider and breathes more.
+const M = { width: 380, colL: 0.26, colR: 0.74, hubGap: 128, rowH: 138, groupGap: 64, padY: 84 };
+const D = { width: 900, colL: 0.3, colR: 0.7, hubGap: 150, rowH: 150, groupGap: 96, padY: 100 };
 
 export default function PathwayPage() {
   const { profile } = useAuth();
@@ -28,10 +27,21 @@ export default function PathwayPage() {
   const [progress, setProgress] = useState({});
   const [openId, setOpenId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [groupsOpen, setGroupsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollRef = useRef(null);
   const drag = useRef(null); // mouse drag-to-pan state
   const dragMoved = useRef(false);
+  const [isDesktop, setIsDesktop] = useState(
+    () => window.matchMedia("(min-width: 900px)").matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 900px)");
+    const onChange = (e) => setIsDesktop(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -44,31 +54,47 @@ export default function PathwayPage() {
     })();
   }, []);
 
-  const { laidOut, width, height } = useMemo(() => {
-    if (!nodes.length) return { laidOut: [], width: 0, height: 0 };
-    const minGx = Math.min(...nodes.map((n) => n.gx ?? 0));
-    const maxGx = Math.max(...nodes.map((n) => n.gx ?? 0));
-    const maxGy = Math.max(...nodes.map((n) => n.gy ?? 0));
-    const laidOut = nodes.map((node) => ({
-      ...node,
-      x: ((node.gx ?? 0) - minGx) * COL_W + COL_W / 2 + PAD_X,
-      y: (node.gy ?? 0) * ROW_H + PAD_Y,
-    }));
-    return {
-      laidOut,
-      width: (maxGx - minGx + 1) * COL_W + PAD_X * 2,
-      height: (maxGy + 1) * ROW_H + PAD_Y,
-    };
-  }, [nodes]);
+  // Groups → hub + child positions. Children flow in rows of two beneath their
+  // hub; a lone child in the last row sits on the trunk line.
+  const { groups, laidOut, width, height } = useMemo(() => {
+    if (!nodes.length) return { groups: [], laidOut: [], width: 0, height: 0 };
+
+    const C = isDesktop ? D : M;
+    const phases = [...new Set(nodes.map((n) => n.phase))].sort((a, b) => a - b);
+    const groups = [];
+    const laidOut = [];
+
+    const cx = C.width / 2;
+    const colL = C.width * C.colL;
+    const colR = C.width * C.colR;
+    let y = C.padY;
+    for (const phase of phases) {
+      const children = nodes.filter((n) => n.phase === phase);
+      const hub = { phase, ...GROUPS[phase], x: cx, y, children };
+      groups.push(hub);
+      y += C.hubGap;
+      children.forEach((node, i) => {
+        const row = Math.floor(i / 2);
+        const lastInOddCount = i === children.length - 1 && children.length % 2 === 1;
+        laidOut.push({
+          ...node,
+          x: lastInOddCount ? cx : i % 2 === 0 ? colL : colR,
+          y: y + row * C.rowH,
+        });
+      });
+      y += Math.ceil(children.length / 2) * C.rowH + C.groupGap;
+    }
+    return { groups, laidOut, width: C.width, height: y };
+  }, [nodes, isDesktop]);
 
   const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
 
-  // Start with the first node horizontally centred instead of the tree's left edge.
+  // Initial view: centre the trunk horizontally, starting from the top.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || !laidOut.length) return;
-    el.scrollLeft = Math.max(0, laidOut[0].x - el.clientWidth / 2);
-  }, [laidOut]);
+    el.scrollLeft = Math.max(0, width / 2 - el.clientWidth / 2);
+  }, [laidOut, isDesktop, width]);
 
   // ?start=1 → open the first node and scroll to it (getting-started popup lands here)
   useEffect(() => {
@@ -119,6 +145,33 @@ export default function PathwayPage() {
     return depsDone ? "available" : "locked";
   }
 
+  // A group's state summarises its tier-eligible children.
+  function groupState(hub) {
+    const eligible = hub.children.filter((c) => meetsTier(profile?.tier, c.min_tier));
+    if (eligible.length === 0) {
+      const minTier = hub.children.reduce(
+        (best, c) => (tierRank(c.min_tier) < tierRank(best) ? c.min_tier : best),
+        hub.children[0].min_tier
+      );
+      return { kind: "tier-locked", minTier, done: 0, total: hub.children.length };
+    }
+    const done = eligible.filter((c) => progress[c.id]?.status === "complete").length;
+    const started = eligible.some((c) => progress[c.id]?.status);
+    if (done === eligible.length) return { kind: "complete", done, total: eligible.length };
+    if (started) return { kind: "in_progress", done, total: eligible.length };
+    return { kind: "not_started", done, total: eligible.length };
+  }
+
+  function jumpToGroup(hub) {
+    const el = scrollRef.current;
+    el?.scrollTo({
+      left: Math.max(0, hub.x - el.clientWidth / 2),
+      top: Math.max(0, hub.y - 90),
+      behavior: "smooth",
+    });
+    setGroupsOpen(false);
+  }
+
   async function setStatus(node, status) {
     setSaving(true);
     const row = {
@@ -137,17 +190,69 @@ export default function PathwayPage() {
   const open = openId ? byId[openId] : null;
   const openState = open ? nodeState(open) : null;
 
+  // Connector styling mirrors progression: bright while a group is live,
+  // dimmed and dashed for the not-yet-started reaches of the tree.
+  function trunkStyle(state) {
+    if (state.kind === "complete") return { stroke: "oklch(78% 0.13 86)", opacity: 0.9, dash: "none" };
+    if (state.kind === "in_progress") return { stroke: "oklch(78% 0.13 86)", opacity: 0.5, dash: "none" };
+    if (state.kind === "not_started") return { stroke: "oklch(58% 0.10 68)", opacity: 0.5, dash: "6 6" };
+    return { stroke: "oklch(50% 0.018 85)", opacity: 0.4, dash: "5 7" };
+  }
+
   return (
-    <div className="portal-page">
+    <div className="portal-page pathway-page">
       <div className="portal-page-head">
         <h1 className="portal-h1">Your Pathway</h1>
         <p className="portal-sub">
-          The Y2K/streetwear playbook, step by step. The tree grows in every direction — scroll to
-          explore, complete a step, move on.
+          Six groups, each branching into its own steps — all connected, all in one place.
         </p>
       </div>
 
       <div className="pathway-wrap">
+        <div className="pathway-groups">
+          <button
+            className="pathway-groups-btn"
+            aria-expanded={groupsOpen}
+            onClick={() => setGroupsOpen((v) => !v)}
+          >
+            Groups
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ transform: groupsOpen ? "rotate(90deg)" : "none", transition: "transform .2s" }}
+            >
+              <path d="M9 6l6 6-6 6" />
+            </svg>
+          </button>
+          {groupsOpen && (
+            <div className="pathway-groups-list">
+              {groups.map((hub) => {
+                const st = groupState(hub);
+                return (
+                  <button
+                    key={hub.phase}
+                    className={`pathway-groups-item pathway-groups-${st.kind}`}
+                    onClick={() => jumpToGroup(hub)}
+                  >
+                    <span>{hub.name}</span>
+                    <span className="pathway-groups-count">
+                      {st.kind === "tier-locked"
+                        ? `${TIERS[st.minTier].short}+`
+                        : `${st.done}/${st.total}`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <div
           className="pathway-scroll"
           ref={scrollRef}
@@ -164,26 +269,96 @@ export default function PathwayPage() {
               height={height}
               aria-hidden="true"
             >
-              {laidOut.map((node) =>
-                (node.depends_on ?? []).map((depId) => {
-                  const dep = byId[depId];
-                  if (!dep) return null;
-                  const done = progress[depId]?.status === "complete";
-                  const midY = (dep.y + node.y) / 2;
+              {/* Trunk: hub to hub */}
+              {groups.map((hub, i) => {
+                const next = groups[i + 1];
+                if (!next) return null;
+                const st = trunkStyle(groupState(next));
+                const midY = (hub.y + next.y) / 2;
+                return (
+                  <path
+                    key={`trunk-${hub.phase}`}
+                    d={`M ${hub.x} ${hub.y} C ${hub.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`}
+                    fill="none"
+                    stroke={st.stroke}
+                    strokeOpacity={st.opacity}
+                    strokeWidth={3}
+                    strokeDasharray={st.dash}
+                  />
+                );
+              })}
+              {/* Branches: hub to each of its steps */}
+              {groups.map((hub) =>
+                hub.children.map((child) => {
+                  const node = byId[child.id];
+                  if (!node) return null;
+                  const done = progress[child.id]?.status === "complete";
+                  const eligible = meetsTier(profile?.tier, child.min_tier);
+                  const stroke = done
+                    ? "oklch(78% 0.13 86)"
+                    : eligible
+                      ? "oklch(58% 0.10 68)"
+                      : "oklch(50% 0.018 85)";
+                  const midY = (hub.y + node.y) / 2;
                   return (
                     <path
-                      key={`${depId}-${node.id}`}
-                      d={`M ${dep.x} ${dep.y} C ${dep.x} ${midY}, ${node.x} ${midY}, ${node.x} ${node.y}`}
+                      key={`branch-${child.id}`}
+                      d={`M ${hub.x} ${hub.y} C ${hub.x} ${midY}, ${node.x} ${midY}, ${node.x} ${node.y}`}
                       fill="none"
-                      stroke={done ? "#C9A84C" : "rgba(201,168,76,0.22)"}
-                      strokeWidth={done ? 1.6 : 1.2}
-                      strokeDasharray={done ? "none" : "4 5"}
+                      stroke={stroke}
+                      strokeOpacity={done ? 0.9 : eligible ? 0.5 : 0.35}
+                      strokeWidth={done ? 2.2 : 2}
+                      strokeDasharray={done ? "none" : eligible ? "none" : "4 6"}
                     />
                   );
                 })
               )}
             </svg>
 
+            {/* Group hubs */}
+            {groups.map((hub) => {
+              const st = groupState(hub);
+              return (
+                <button
+                  key={`hub-${hub.phase}`}
+                  type="button"
+                  className={`pathway-hub pathway-hub-${st.kind}`}
+                  style={{ left: hub.x, top: hub.y }}
+                  onClick={() => {
+                    if (dragMoved.current) return;
+                    jumpToGroup(hub);
+                  }}
+                >
+                  <span className="pathway-hub-circle">
+                    <PathwayIcon
+                      name={hub.icon}
+                      state={
+                        st.kind === "complete"
+                          ? "complete"
+                          : st.kind === "in_progress"
+                            ? "in_progress"
+                            : st.kind === "not_started"
+                              ? "available"
+                              : "locked"
+                      }
+                      size={44}
+                    />
+                  </span>
+                  <span className="pathway-hub-name">{hub.name}</span>
+                  {st.kind === "tier-locked" ? (
+                    <span className={`tier-badge tier-${st.minTier} pathway-node-tier`}>
+                      {TIERS[st.minTier].short}+
+                    </span>
+                  ) : (
+                    <span className="pathway-hub-count">
+                      {st.kind === "not_started" ? "Not started" : `${st.done} of ${st.total} done`}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+
+            {/* Step nodes */}
             {laidOut.map((node) => {
               const state = nodeState(node);
               return (
@@ -198,9 +373,6 @@ export default function PathwayPage() {
                   }}
                 >
                   <PathwayIcon name={node.icon} state={state} size={52} />
-                  <span className="pathway-node-phase">
-                    {PHASE_NAMES[node.phase] ?? `Phase ${node.phase}`}
-                  </span>
                   <span className="pathway-node-title">{node.title}</span>
                   {node.min_tier && (
                     <span className={`tier-badge tier-${node.min_tier} pathway-node-tier`}>
@@ -224,7 +396,7 @@ export default function PathwayPage() {
                 <PathwayIcon name={open.icon} state={openState} size={44} />
                 <div>
                   <span className="pathway-node-phase">
-                    {PHASE_NAMES[open.phase] ?? `Phase ${open.phase}`}
+                    {GROUPS[open.phase]?.name ?? `Phase ${open.phase}`}
                   </span>
                   <h2 className="node-panel-title">{open.title}</h2>
                 </div>

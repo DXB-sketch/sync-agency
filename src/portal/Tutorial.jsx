@@ -1,17 +1,19 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Anchors the tour to a portal nav tab by its href
-const nav = (sub) => `.portal-nav a[href="/portal${sub ? `/${sub}` : ""}"]`;
+// Anchors a tour step to a navigation control. Both the desktop top strip and
+// the mobile bottom tab bar (plus a few in-page buttons) carry data-nav
+// attributes — the anchor hook picks whichever one is actually visible.
+const nav = (name) => `[data-nav="${name}"]`;
 
 // Each step: which page it lives on, what element it highlights, and the copy.
-// Steps with `blurb` open a new tab section (used by the dashboard tutorial boxes).
+// Steps with `blurb` open a new tab section (used by the dashboard tutorial card).
 export const STEPS = [
   {
     tab: "Dashboard",
     blurb: "Your home base — progress, today's focus and stats at a glance.",
     route: "/portal",
-    target: nav(""),
+    target: nav("dashboard"),
     title: "This is the Dashboard",
     body: "Your home base. Every time you log in you land here to see where your store is at, at a glance.",
   },
@@ -20,7 +22,7 @@ export const STEPS = [
     route: "/portal",
     target: ".dash-grid",
     title: "Your snapshot",
-    body: "These cards show your pathway progress, today's focus (the next step to work on), your stock orders and your achievements. Click any card to jump straight to that page.",
+    body: "These cards show your pathway progress, today's focus (the next step to work on), your sales, stock orders and achievements. Click any card to jump straight to that page.",
   },
   {
     tab: "Pathway",
@@ -35,7 +37,7 @@ export const STEPS = [
     route: "/portal/pathway",
     target: ".pathway-scroll",
     title: "How the Pathway works",
-    body: "Each circle is one step. Click a node to open its instructions, then mark it complete to unlock the next one. Drag to pan around the tree. Work through it in order — “Today's focus” on your dashboard always points at your next step.",
+    body: "Steps are grouped by stage — each large circle is a group, branching into its individual steps. Click a step to open its instructions, then mark it complete to unlock the next one. Use the Groups button to jump between stages.",
   },
   {
     tab: "Products",
@@ -50,7 +52,7 @@ export const STEPS = [
     route: "/portal/products",
     target: ".product-grid",
     title: "Your product slots",
-    body: "When a buyer purchases something from your Depop store, find that product here and press “Add to order” — we source it and ship it straight to your buyer. Higher tiers unlock more product slots.",
+    body: "Every product shows the price to list it at and the price to discount it to on Depop — plus your profit per sale. When a buyer purchases something, find it here and press “Add to order” — we source it and ship it straight to your buyer.",
   },
   {
     tab: "Checkout",
@@ -92,7 +94,7 @@ export const STEPS = [
   {
     tab: "Support",
     blurb: "Stuck on anything? Open a ticket and the team will help.",
-    route: "/portal/achievements",
+    route: "/portal/more",
     target: nav("support"),
     title: "This is Support",
     body: "Stuck on anything, or something not working the way you expect? This is where you reach the Sync team.",
@@ -107,7 +109,7 @@ export const STEPS = [
   {
     tab: "Upgrade",
     blurb: "Compare tiers and unlock more product slots when you're ready.",
-    route: "/portal/support",
+    route: "/portal/more",
     target: nav("upgrade"),
     title: "This is the Upgrade tab",
     body: "When you're ready to scale, this is where you level up your membership.",
@@ -117,21 +119,29 @@ export const STEPS = [
     route: "/portal/upgrade",
     target: ".upgrade-grid",
     title: "Upgrading your tier",
-    body: "Compare tiers and unlock more product slots and pathway phases. That's the tour! You can replay any part of it from the Tutorial section on your Dashboard.",
+    body: "Compare tiers and unlock more product slots and pathway steps. That's the tour! You can replay any part of it from the Tutorial card on your Dashboard.",
   },
 ];
 
-// First step of each tab — powers the dashboard tutorial boxes
+// First step of each tab — powers the dashboard tutorial card's step list
 export const TAB_STEPS = STEPS.reduce((acc, s, i) => {
   if (s.blurb) acc.push({ tab: s.tab, index: i, blurb: s.blurb });
   return acc;
 }, []);
 
-const TutorialContext = createContext({ start: () => {}, active: false });
+// Device-local tutorial progress: how many steps have been seen so far.
+const SEEN_KEY = "sync_tutorial_seen";
+const loadSeen = () => {
+  const n = Number(localStorage.getItem(SEEN_KEY));
+  return Number.isFinite(n) ? Math.min(Math.max(n, 0), STEPS.length) : 0;
+};
+
+const TutorialContext = createContext({ start: () => {}, active: false, seen: 0 });
 export const useTutorial = () => useContext(TutorialContext);
 
 // Repeatedly measures the tour target so the popup tracks elements that render
 // after data loads, and follows scrolling. Returns null while the element is absent.
+// When several elements match (desktop nav + bottom tab bar), uses the visible one.
 function useAnchorRect(selector, activeKey) {
   const [rect, setRect] = useState(null);
   const scrolled = useRef(false);
@@ -141,9 +151,11 @@ function useAnchorRect(selector, activeKey) {
     setRect(null);
     if (!selector) return;
     function measure() {
-      const el = document.querySelector(selector);
-      // Zero-size = hidden (e.g. nav links behind the closed mobile menu)
-      if (!el || (el.offsetWidth === 0 && el.offsetHeight === 0)) {
+      // Zero-size = hidden (e.g. the desktop nav strip on mobile)
+      const el = [...document.querySelectorAll(selector)].find(
+        (e) => e.offsetWidth > 0 || e.offsetHeight > 0
+      );
+      if (!el) {
         setRect(null);
         return;
       }
@@ -195,19 +207,9 @@ function highlightStyle(rect) {
   };
 }
 
-const setPortalNav = (open) =>
-  window.dispatchEvent(new CustomEvent("sync:portal-nav", { detail: { open } }));
-
 function TutorialPopover({ idx, onPrev, onNext, onClose }) {
   const step = STEPS[idx];
   const rect = useAnchorRect(step.target, idx);
-
-  // Steps that point at a nav tab need the mobile hamburger menu open to
-  // have something to highlight; close it again for in-page steps.
-  useEffect(() => {
-    setPortalNav(step.target.startsWith(".portal-nav"));
-  }, [step]);
-  useEffect(() => () => setPortalNav(false), []);
 
   return (
     <>
@@ -245,6 +247,7 @@ function TutorialPopover({ idx, onPrev, onNext, onClose }) {
 
 export function TutorialProvider({ children }) {
   const [idx, setIdx] = useState(null);
+  const [seen, setSeen] = useState(loadSeen);
   const navigate = useNavigate();
 
   const start = useCallback(
@@ -259,8 +262,18 @@ export function TutorialProvider({ children }) {
     [navigate]
   );
 
+  // Remember the furthest step viewed so the dashboard card can resume there
+  useEffect(() => {
+    if (idx === null) return;
+    setSeen((prev) => {
+      const next = Math.max(prev, idx + 1);
+      if (next !== prev) localStorage.setItem(SEEN_KEY, String(next));
+      return next;
+    });
+  }, [idx]);
+
   return (
-    <TutorialContext.Provider value={{ start, active: idx !== null }}>
+    <TutorialContext.Provider value={{ start, active: idx !== null, seen }}>
       {children}
       {idx !== null && (
         <TutorialPopover
