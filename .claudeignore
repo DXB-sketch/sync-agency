@@ -1,0 +1,12 @@
+node_modules/
+dist/
+ios/
+android/
+.design-sync/
+.ds-sync/
+ds-bundle/
+resources/
+Mockups/
+sync-agency-upload.zip
+package-lock.json
+.env
