@@ -500,7 +500,7 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .portal-native .portal-signout { display: none; }
 .portal-native.portal-admin .portal-signout { display: inline-flex; padding: 7px 10px; font-size: 10px; }
 
-/* ── Desktop pathway: full-viewport canvas, top-left origin ── */
+/* ── Desktop pathway: full-viewport canvas, centred vertical trunk ── */
 @media (min-width: 900px) {
   .pathway-page { padding-top: 28px; }
   .pathway-page .portal-page-head { margin-bottom: 18px; }

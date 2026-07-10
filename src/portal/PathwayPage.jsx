@@ -16,11 +16,10 @@ const GROUPS = {
   6: { name: "VIP — Inner Circle", icon: "check-seal" },
 };
 
-// Layout constants. Mobile stacks groups in a single trunk; desktop cascades
-// each group further down and further right so the tree fills the viewport
-// from the top-left.
-const M = { width: 380, hubGap: 128, rowH: 138, groupGap: 64, padY: 84 };
-const D = { hubStepX: 330, rowH: 140, childSpread: 115, groupGap: 130, padX: 150, padY: 110 };
+// Layout constants. Both breakpoints stack groups down a central trunk with
+// steps diverging left and right; desktop just spreads wider and breathes more.
+const M = { width: 380, colL: 0.26, colR: 0.74, hubGap: 128, rowH: 138, groupGap: 64, padY: 84 };
+const D = { width: 900, colL: 0.3, colR: 0.7, hubGap: 150, rowH: 150, groupGap: 96, padY: 100 };
 
 export default function PathwayPage() {
   const { profile } = useAuth();
@@ -60,76 +59,41 @@ export default function PathwayPage() {
   const { groups, laidOut, width, height } = useMemo(() => {
     if (!nodes.length) return { groups: [], laidOut: [], width: 0, height: 0 };
 
+    const C = isDesktop ? D : M;
     const phases = [...new Set(nodes.map((n) => n.phase))].sort((a, b) => a - b);
     const groups = [];
     const laidOut = [];
 
-    if (!isDesktop) {
-      const cx = M.width / 2;
-      const colL = M.width * 0.26;
-      const colR = M.width * 0.74;
-      let y = M.padY;
-      for (const phase of phases) {
-        const children = nodes.filter((n) => n.phase === phase);
-        const hub = { phase, ...GROUPS[phase], x: cx, y, children };
-        groups.push(hub);
-        y += M.hubGap;
-        children.forEach((node, i) => {
-          const row = Math.floor(i / 2);
-          const lastInOddCount = i === children.length - 1 && children.length % 2 === 1;
-          laidOut.push({
-            ...node,
-            x: lastInOddCount ? cx : i % 2 === 0 ? colL : colR,
-            y: y + row * M.rowH,
-          });
-        });
-        y += Math.ceil(children.length / 2) * M.rowH + M.groupGap;
-      }
-      return { groups, laidOut, width: M.width, height: y };
-    }
-
-    // Desktop: each group starts below the previous one's children and one
-    // column further right — the tree grows down and right simultaneously.
-    let hubX = D.padX;
-    let hubY = D.padY;
-    let maxX = 0;
+    const cx = C.width / 2;
+    const colL = C.width * C.colL;
+    const colR = C.width * C.colR;
+    let y = C.padY;
     for (const phase of phases) {
       const children = nodes.filter((n) => n.phase === phase);
-      const hub = { phase, ...GROUPS[phase], x: hubX, y: hubY, children };
+      const hub = { phase, ...GROUPS[phase], x: cx, y, children };
       groups.push(hub);
-      const childTop = hubY + D.rowH;
+      y += C.hubGap;
       children.forEach((node, i) => {
         const row = Math.floor(i / 2);
         const lastInOddCount = i === children.length - 1 && children.length % 2 === 1;
-        const x = lastInOddCount
-          ? hubX
-          : i % 2 === 0
-            ? hubX - D.childSpread
-            : hubX + D.childSpread;
-        laidOut.push({ ...node, x, y: childTop + row * D.rowH });
-        maxX = Math.max(maxX, x);
+        laidOut.push({
+          ...node,
+          x: lastInOddCount ? cx : i % 2 === 0 ? colL : colR,
+          y: y + row * C.rowH,
+        });
       });
-      const rows = Math.ceil(children.length / 2);
-      hubY = childTop + rows * D.rowH + D.groupGap;
-      hubX += D.hubStepX;
-      maxX = Math.max(maxX, hubX);
+      y += Math.ceil(children.length / 2) * C.rowH + C.groupGap;
     }
-    return {
-      groups,
-      laidOut,
-      width: maxX + D.childSpread + D.padX,
-      height: hubY + D.padY,
-    };
+    return { groups, laidOut, width: C.width, height: y };
   }, [nodes, isDesktop]);
 
   const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
 
-  // Initial view: desktop starts at the top-left where the tree begins;
-  // mobile centres the trunk.
+  // Initial view: centre the trunk horizontally, starting from the top.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el || !laidOut.length) return;
-    el.scrollLeft = isDesktop ? 0 : Math.max(0, width / 2 - el.clientWidth / 2);
+    el.scrollLeft = Math.max(0, width / 2 - el.clientWidth / 2);
   }, [laidOut, isDesktop, width]);
 
   // ?start=1 → open the first node and scroll to it (getting-started popup lands here)
