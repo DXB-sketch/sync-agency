@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS } from "../lib/tiers";
 import { uploadProductImages } from "../lib/productImages";
+import { CATEGORIES } from "../lib/categories";
 
 const TABS = ["Account", "Products", "Orders", "Pathway", "Achievements"];
 const TIER_OPTIONS = [
@@ -33,6 +34,7 @@ export default function ClientDetailPage() {
   const [imageFiles, setImageFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [priceEdits, setPriceEdits] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const load = useCallback(async () => {
     const [{ data: c }, { data: pr }, { data: o }, { data: pg }, { data: ma }] =
@@ -273,6 +275,9 @@ export default function ClientDetailPage() {
         const cap = client.tier ? TIERS[client.tier].productLimit : 0;
         const used = products.filter((p) => p.active && !p.is_bonus).length;
         const atCap = client.tier && used >= cap;
+        const shownProducts = products.filter(
+          (p) => categoryFilter === "all" || p.category === categoryFilter
+        );
         return (
         <>
           <form className="admin-product-form" onSubmit={addProduct}>
@@ -337,6 +342,20 @@ export default function ClientDetailPage() {
             </button>
           </form>
 
+          <select
+            className="auth-input admin-category-filter"
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            style={{ marginBottom: 14 }}
+          >
+            <option value="all">All categories</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
           <div className="admin-table-wrap">
             <table className="admin-table">
               <thead>
@@ -349,7 +368,7 @@ export default function ClientDetailPage() {
                 </tr>
               </thead>
               <tbody>
-                {products.map((p) => (
+                {shownProducts.map((p) => (
                   <tr key={p.id} className={p.active ? "" : "admin-row-inactive"}>
                     <td>
                       <div className="admin-product-cell">
@@ -468,28 +487,4 @@ export default function ClientDetailPage() {
           </div>
         ) : (
           <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Achievement</th>
-                  <th>Status</th>
-                  <th>Submitted</th>
-                </tr>
-              </thead>
-              <tbody>
-                {achievements.map((row) => (
-                  <tr key={row.id}>
-                    <td>{row.achievements?.title}</td>
-                    <td>{row.status}</td>
-                    <td>
-                      {row.submitted_at ? new Date(row.submitted_at).toLocaleDateString() : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-    </div>
-  );
-}
+            <table className
