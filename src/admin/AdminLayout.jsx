@@ -8,6 +8,8 @@ const LINKS = [
   { to: "/admin", label: "Clients", end: true, icon: "clients" },
   { to: "/admin/products", label: "Products", icon: "products" },
   { to: "/admin/orders", label: "Orders queue", icon: "orders" },
+  { to: "/admin/exceptions", label: "Exceptions", icon: "exceptions" },
+  { to: "/admin/margins", label: "Margins", icon: "margins" },
   { to: "/admin/achievements", label: "Achievements review", icon: "achievements" },
   { to: "/admin/support", label: "Support", icon: "support" },
 ];

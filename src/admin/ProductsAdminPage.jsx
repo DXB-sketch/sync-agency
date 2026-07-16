@@ -3,9 +3,17 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
+import { CATEGORIES } from "../lib/categories";
 
 const TIER_ORDER = ["free", "pro", "elite", "vip"];
-const EMPTY_FORM = { name: "", description: "", price: "", listing_price: "", discount_price: "" };
+const EMPTY_FORM = {
+  name: "",
+  description: "",
+  price: "",
+  listing_price: "",
+  discount_price: "",
+  category: "",
+};
 const EMPTY_DEST = { mode: "clients", tier: "pro", memberIds: {}, asBonus: false };
 
 // Groups every product ever added to a client store into one catalogue row per
@@ -24,6 +32,8 @@ function buildCatalogue(products, membersById) {
       if (!entry.stripe_price_id && p.stripe_price_id) entry.stripe_price_id = p.stripe_price_id;
       if (entry.listing_price == null && p.listing_price != null) entry.listing_price = Number(p.listing_price);
       if (entry.discount_price == null && p.discount_price != null) entry.discount_price = Number(p.discount_price);
+      if (entry.category == null && p.category) entry.category = p.category;
+      if (!entry.supplierProduct && p.supplier_products) entry.supplierProduct = p.supplier_products;
     } else {
       map.set(key, {
         key,
@@ -38,6 +48,8 @@ function buildCatalogue(products, membersById) {
         stripe_price_id: p.stripe_price_id,
         storeCount: 1,
         firstMember: membersById[p.member_id]?.email ?? null,
+        category: p.category ?? null,
+        supplierProduct: p.supplier_products ?? null,
       });
     }
   }
@@ -153,9 +165,11 @@ export default function ProductsAdminPage() {
   const [memberNames, setMemberNames] = useState({}); // member_id -> set of product names
   const [selected, setSelected] = useState({});
   const [productSearch, setProductSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [busy, setBusy] = useState(null); // "assign" | "create" | "merge" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
   const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
+  const [linkerTarget, setLinkerTarget] = useState(null); // supplier-link modal target | null
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const healedRef = useRef(false);
@@ -174,7 +188,9 @@ export default function ProductsAdminPage() {
     const [{ data: prods }, { data: mem }, { data: pp }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id")
+        .select(
+          "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
+        )
         .order("created_at"),
       supabase
         .from("profiles")
@@ -184,7 +200,9 @@ export default function ProductsAdminPage() {
         .order("email"),
       supabase
         .from("pool_products")
-        .select("*, profiles!pool_products_assigned_member_id_fkey(email)")
+        .select(
+          "*, profiles!pool_products_assigned_member_id_fkey(email), supplier_products(external_sku, stock_state, display_name)"
+        )
         .order("created_at", { ascending: false }),
     ]);
     const membersById = Object.fromEntries((mem ?? []).map((m) => [m.id, m]));
@@ -223,9 +241,8 @@ export default function ProductsAdminPage() {
   const q = productSearch.trim().toLowerCase();
   const shownCatalogue = catalogue.filter(
     (c) =>
-      !q ||
-      c.name.toLowerCase().includes(q) ||
-      (c.description ?? "").toLowerCase().includes(q)
+      (categoryFilter === "all" || c.category === categoryFilter) &&
+      (!q || c.name.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q))
   );
 
   // Sends items (name/description/price/images) to the chosen destination:
@@ -251,6 +268,7 @@ export default function ProductsAdminPage() {
             discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
+            category: it.category ?? null,
             created_by: admin.id,
           }))
         );
@@ -290,6 +308,7 @@ export default function ProductsAdminPage() {
               discount_price: it.discount_price ?? null,
               image_url: it.images[0] ?? null,
               image_urls: it.images.length ? it.images : null,
+              category: it.category ?? null,
               is_bonus: dest.asBonus,
               created_by: admin.id,
             }))
@@ -337,6 +356,7 @@ export default function ProductsAdminPage() {
         listing_price: c.listing_price,
         discount_price: c.discount_price,
         images: c.images,
+        category: c.category,
       })),
       catDest,
       "assign"
@@ -389,6 +409,7 @@ export default function ProductsAdminPage() {
             discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
+            category: it.category ?? null,
             is_bonus: false,
             created_by: admin.id,
           }))
@@ -442,6 +463,7 @@ export default function ProductsAdminPage() {
           listing_price: newForm.listing_price === "" ? null : Number(newForm.listing_price),
           discount_price: newForm.discount_price === "" ? null : Number(newForm.discount_price),
           images,
+          category: newForm.category || null,
         },
       ],
       newDest,
@@ -538,6 +560,53 @@ export default function ProductsAdminPage() {
     setBusy(null);
   }
 
+  // Writes the category to every store copy, plus any same-named pool items
+  // still waiting to be distributed (same pattern as savePrices).
+  async function saveCategory(entry, category) {
+    setError(null);
+    setBusy("category");
+    const value = category || null;
+    const { error: upErr } = await supabase
+      .from("products")
+      .update({ category: value })
+      .in("id", entry.ids);
+    if (upErr) {
+      setError(upErr.message);
+    } else {
+      await supabase
+        .from("pool_products")
+        .update({ category: value })
+        .eq("name", entry.name)
+        .is("assigned_member_id", null);
+    }
+    await load();
+    setBusy(null);
+  }
+
+  // Clears the supplier link across every row a catalogue entry spans (or the
+  // single pool row). Linking itself happens in the SupplierLinkerModal via
+  // the cj-search edge function — this is a direct write under the existing
+  // admin write policy, same as unassigning any other field.
+  async function unlinkSupplier(target) {
+    setError(null);
+    setBusy("unlink");
+    await supabase.from(target.table).update({ supplier_product_id: null }).in("id", target.allIds);
+    await load();
+    setBusy(null);
+  }
+
+  // Propagates a fresh supplier link (set by the modal on one row) across the
+  // rest of a merged catalogue entry's store copies.
+  async function onSupplierLinked(target, supplierProductId) {
+    if (target.allIds.length > 1) {
+      await supabase
+        .from(target.table)
+        .update({ supplier_product_id: supplierProductId })
+        .in("id", target.allIds);
+    }
+    await load();
+  }
+
   // Writes the new gallery to every store copy; first image is the cover.
   async function saveImages(entry, images) {
     setError(null);
@@ -585,6 +654,41 @@ export default function ProductsAdminPage() {
       await load();
     }
     setBusy(null);
+  }
+
+  // Link badge + link/unlink buttons for one catalogue/pool row (docs/PHASE1_PLAN.md §3.3).
+  function supplierCell(target) {
+    const sp = target.supplierProduct;
+    return (
+      <div className="admin-supplier-cell">
+        {sp ? (
+          <span className="admin-supplier-linked">
+            {sp.external_sku ?? sp.display_name ?? "linked"} · {sp.stock_state}
+          </span>
+        ) : (
+          <span className="admin-warn">Not linked</span>
+        )}
+        <div>
+          <button
+            className="btn-ghost admin-view-btn"
+            type="button"
+            onClick={() => setLinkerTarget(target)}
+          >
+            {sp ? "Relink" : "Link supplier"}
+          </button>{" "}
+          {sp && (
+            <button
+              className="btn-ghost admin-view-btn"
+              type="button"
+              disabled={busy === "unlink"}
+              onClick={() => unlinkSupplier(target)}
+            >
+              Unlink
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -663,12 +767,26 @@ export default function ProductsAdminPage() {
         </button>
       </form>
 
-      <input
-        className="auth-input admin-search"
-        placeholder={`Search ${catalogue.length} products…`}
-        value={productSearch}
-        onChange={(e) => setProductSearch(e.target.value)}
-      />
+      <div className="admin-search-row">
+        <input
+          className="auth-input admin-search"
+          placeholder={`Search ${catalogue.length} products…`}
+          value={productSearch}
+          onChange={(e) => setProductSearch(e.target.value)}
+        />
+        <select
+          className="auth-input admin-category-filter"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="all">All categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {shownCatalogue.length === 0 ? (
         <div className="portal-empty">
@@ -687,6 +805,8 @@ export default function ProductsAdminPage() {
                 <th>Product</th>
                 <th>Cost</th>
                 <th>List → discount</th>
+                <th>Category</th>
+                <th>Supplier</th>
                 <th>In stores</th>
                 <th>Stripe</th>
                 <th />
@@ -775,6 +895,30 @@ export default function ProductsAdminPage() {
                         </button>
                       )}
                     </td>
+                    <td>
+                      <select
+                        className="auth-input admin-category-filter"
+                        value={c.category ?? ""}
+                        disabled={busy === "category"}
+                        onChange={(e) => saveCategory(c, e.target.value)}
+                      >
+                        <option value="">No category</option>
+                        {CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      {supplierCell({
+                        table: "products",
+                        allIds: c.ids,
+                        singleId: c.ids[0],
+                        label: c.name,
+                        supplierProduct: c.supplierProduct,
+                      })}
+                    </td>
                     <td>{c.storeCount}</td>
                     <td>
                       {c.stripe_price_id ? "Linked" : <span className="admin-warn">Pending</span>}
@@ -801,7 +945,7 @@ export default function ProductsAdminPage() {
                   </tr>
                   {editingImages === c.key && (
                     <tr>
-                      <td colSpan={7}>
+                      <td colSpan={9}>
                         <div className="catalogue-images">
                           {c.images.map((url, i) => (
                             <div key={url} className="catalogue-image">
@@ -915,6 +1059,21 @@ export default function ProductsAdminPage() {
             />
           </label>
           <label className="auth-label">
+            Category
+            <select
+              className="auth-input"
+              value={newForm.category}
+              onChange={(e) => setNewForm({ ...newForm, category: e.target.value })}
+            >
+              <option value="">No category</option>
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="auth-label">
             Images (first = cover)
             <input
               className="auth-input"
@@ -965,6 +1124,7 @@ export default function ProductsAdminPage() {
                   <tr>
                     <th>Product</th>
                     <th>Price</th>
+                    <th>Supplier</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -978,6 +1138,15 @@ export default function ProductsAdminPage() {
                         </div>
                       </td>
                       <td>${Number(p.price).toFixed(2)}</td>
+                      <td>
+                        {supplierCell({
+                          table: "pool_products",
+                          allIds: [p.id],
+                          singleId: p.id,
+                          label: p.name,
+                          supplierProduct: p.supplier_products,
+                        })}
+                      </td>
                       <td>
                         {p.released ? (
                           <span className="admin-warn">Waiting for a free slot</span>
@@ -996,6 +1165,15 @@ export default function ProductsAdminPage() {
                         </div>
                       </td>
                       <td>${Number(p.price).toFixed(2)}</td>
+                      <td>
+                        {supplierCell({
+                          table: "pool_products",
+                          allIds: [p.id],
+                          singleId: p.id,
+                          label: p.name,
+                          supplierProduct: p.supplier_products,
+                        })}
+                      </td>
                       <td>→ {p.profiles?.email ?? "assigned"}</td>
                     </tr>
                   ))}
@@ -1005,6 +1183,204 @@ export default function ProductsAdminPage() {
           </div>
         );
       })}
+
+      {linkerTarget && (
+        <SupplierLinkerModal
+          target={linkerTarget}
+          onClose={() => setLinkerTarget(null)}
+          onLinked={onSupplierLinked}
+        />
+      )}
+    </div>
+  );
+}
+
+// Supplier product search/link modal (docs/PHASE1_PLAN.md §3.3). CJ's listV2
+// search doesn't return a variant id, only a product id — "variants" is the
+// extra step the deployed cj-search function adds between search and link to
+// fetch per-SKU vids (see supabase/functions/cj-search/index.ts comment).
+function SupplierLinkerModal({ target, onClose, onLinked }) {
+  const [categories, setCategories] = useState([]);
+  const [categoryId, setCategoryId] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [results, setResults] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [variants, setVariants] = useState([]);
+  const [linkResult, setLinkResult] = useState(null);
+  const [busy, setBusy] = useState("categories");
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    supabase.functions.invoke("cj-search", { body: { action: "categories" } }).then(({ data, error: fnErr }) => {
+      if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Could not load categories");
+      else setCategories(data?.categories ?? []);
+      setBusy(null);
+    });
+  }, []);
+
+  async function search(e) {
+    e?.preventDefault();
+    setError(null);
+    setSelectedProduct(null);
+    setVariants([]);
+    setLinkResult(null);
+    setBusy("search");
+    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", {
+      body: {
+        action: "search",
+        keyword: keyword.trim() || undefined,
+        category_id: categoryId || undefined,
+      },
+    });
+    if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Search failed");
+    setResults(data?.results ?? []);
+    setBusy(null);
+  }
+
+  async function pickProduct(product) {
+    setError(null);
+    setSelectedProduct(product);
+    setVariants([]);
+    setLinkResult(null);
+    setBusy("variants");
+    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", {
+      body: { action: "variants", pid: product.pid },
+    });
+    if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Could not load variants");
+    setVariants(data?.variants ?? []);
+    setBusy(null);
+  }
+
+  async function pickVariant(variant) {
+    setError(null);
+    setBusy("link");
+    const body = {
+      action: "link",
+      pid: selectedProduct.pid,
+      vid: variant.vid,
+      productSku: variant.variantSku ?? selectedProduct.productSku,
+      name: variant.variantName ?? selectedProduct.name,
+      image: variant.image ?? selectedProduct.image,
+      sell_price_usd: variant.sellPrice ?? selectedProduct.sellPrice,
+    };
+    if (target.table === "products") body.product_id = target.singleId;
+    else body.pool_product_id = target.singleId;
+
+    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", { body });
+    if (fnErr || data?.error) {
+      setError(data?.error ?? fnErr?.message ?? "Link failed");
+      setBusy(null);
+      return;
+    }
+    setLinkResult(data);
+    await onLinked(target, data.supplier_product_id);
+    setBusy(null);
+  }
+
+  const breach =
+    linkResult?.margin_pct != null &&
+    linkResult?.margin_floor_pct != null &&
+    Number(linkResult.margin_pct) < Number(linkResult.margin_floor_pct);
+
+  return (
+    <div className="admin-modal-overlay" onClick={onClose}>
+      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
+        <h2 className="dash-card-title">Link supplier — {target.label}</h2>
+        {error && <p className="auth-error">{error}</p>}
+
+        {linkResult ? (
+          <>
+            <p className={breach ? "admin-warn" : "admin-notice"}>
+              Linked.{" "}
+              {linkResult.margin_pct != null
+                ? `Live margin ${Number(linkResult.margin_pct).toFixed(1)}%`
+                : "Live margin unknown (no FX rate yet — run a price sync)"}
+              {linkResult.margin_floor_pct != null
+                ? ` (floor ${Number(linkResult.margin_floor_pct).toFixed(0)}%)`
+                : ""}
+            </p>
+            <button className="btn-gold" type="button" onClick={onClose}>
+              Done
+            </button>
+          </>
+        ) : (
+          <>
+            <form className="admin-form-grid" onSubmit={search}>
+              <label className="auth-label">
+                Category
+                <select
+                  className="auth-input"
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                >
+                  <option value="">All categories</option>
+                  {categories.map((c) => (
+                    <option key={c.categoryId ?? c.id} value={c.categoryId ?? c.id}>
+                      {c.categoryName ?? c.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="auth-label">
+                Keyword
+                <input
+                  className="auth-input"
+                  value={keyword}
+                  onChange={(e) => setKeyword(e.target.value)}
+                  placeholder="e.g. phone case"
+                />
+              </label>
+              <button className="btn-gold" type="submit" disabled={busy === "search"}>
+                {busy === "search" ? "Searching…" : "Search CJ"}
+              </button>
+            </form>
+
+            {!selectedProduct && results.length > 0 && (
+              <div className="linker-results">
+                {results.map((r) => (
+                  <button key={r.pid} type="button" className="linker-result" onClick={() => pickProduct(r)}>
+                    {r.image && <img src={r.image} alt="" />}
+                    <span>
+                      <span className="linker-result-name">{r.name}</span>
+                      <span className="portal-sub">
+                        {r.productSku} · ${Number(r.sellPrice).toFixed(2)} USD
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {busy === "variants" && <p className="portal-sub">Loading variants…</p>}
+
+            {selectedProduct && variants.length > 0 && (
+              <div className="linker-results">
+                {variants.map((v) => (
+                  <button
+                    key={v.vid}
+                    type="button"
+                    className="linker-result"
+                    disabled={busy === "link"}
+                    onClick={() => pickVariant(v)}
+                  >
+                    {v.image && <img src={v.image} alt="" />}
+                    <span>
+                      <span className="linker-result-name">{v.variantName}</span>
+                      <span className="portal-sub">
+                        {v.variantSku} · ${Number(v.sellPrice).toFixed(2)} USD
+                      </span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <button className="btn-ghost admin-view-btn" type="button" onClick={onClose}>
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 }
