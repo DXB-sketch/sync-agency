@@ -5,6 +5,7 @@ import { useAuth } from "../lib/AuthContext";
 import { isNativeApp } from "../lib/nativeApp";
 import { TabIcon } from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
+import { walletEnabled } from "../lib/walletFlag";
 
 const Chevron = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -59,6 +60,24 @@ export default function MorePage() {
           <span className="more-row-main">
             <TabIcon name="checkout" size={17} />
             Checkout &amp; orders
+          </span>
+          <Chevron />
+        </Link>
+        {walletEnabled(profile) && (
+          <Link to="/portal/wallet" className="more-row" data-nav="wallet">
+            <span className="more-row-main">
+              <TabIcon name="wallet" size={17} />
+              Wallet
+            </span>
+            <Chevron />
+          </Link>
+        )}
+        {/* Shopify pathway feature — visible to every active member for now.
+            Phase 4 (member_pathways) will scope this to Shopify-pathway members only. */}
+        <Link to="/portal/store" className="more-row" data-nav="store">
+          <span className="more-row-main">
+            <TabIcon name="store" size={17} />
+            Shopify store
           </span>
           <Chevron />
         </Link>

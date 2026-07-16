@@ -1,0 +1,15 @@
+{
+  "appId": "org.syncagency.app",
+  "appName": "Sync Agency",
+  "webDir": "dist",
+  "backgroundColor": "#080808",
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "always"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}

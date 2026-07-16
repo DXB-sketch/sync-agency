@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const { start: startTutorial, seen } = useTutorial();
   const [nodes, setNodes] = useState([]);
   const [progress, setProgress] = useState({});
+  const [pathwayCount, setPathwayCount] = useState(0);
   const [orders, setOrders] = useState([]);
   const [earned, setEarned] = useState(0);
   const [loaded, setLoaded] = useState(false);
@@ -35,7 +36,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!profile) return;
     (async () => {
-      const [{ data: n }, { data: p }, { data: o }, { count: ac }] = await Promise.all([
+      const [{ data: n }, { data: p }, { data: o }, { count: ac }, { data: mp }] = await Promise.all([
         supabase.from("pathway_nodes").select("*").order("phase").order("order_in_phase"),
         supabase.from("member_pathway_progress").select("*"),
         supabase.from("orders").select("status, total_amount"),
@@ -43,11 +44,25 @@ export default function DashboardPage() {
           .from("member_achievements")
           .select("id", { count: "exact", head: true })
           .eq("status", "verified"),
+        supabase.from("member_pathways").select("pathway_id, granted_at").order("granted_at"),
       ]);
-      setNodes((n ?? []).filter((node) => meetsTier(profile.tier, node.min_tier)));
+      // Two owned pathways both have a phase 1, 2, ... — sort by grant order first
+      // so branches don't interleave, then the existing phase/order_in_phase.
+      const grantOrder = Object.fromEntries((mp ?? []).map((row, i) => [row.pathway_id, i]));
+      const sorted = (n ?? [])
+        .filter((node) => meetsTier(profile.tier, node.min_tier))
+        .sort((a, b) => {
+          const oa = grantOrder[a.pathway_id] ?? 0;
+          const ob = grantOrder[b.pathway_id] ?? 0;
+          if (oa !== ob) return oa - ob;
+          if (a.phase !== b.phase) return a.phase - b.phase;
+          return a.order_in_phase - b.order_in_phase;
+        });
+      setNodes(sorted);
       setProgress(Object.fromEntries((p ?? []).map((r) => [r.node_id, r.status])));
       setOrders(o ?? []);
       setEarned(ac ?? 0);
+      setPathwayCount(mp?.length ?? 0);
       setLoaded(true);
     })();
   }, [profile]);
@@ -185,7 +200,9 @@ export default function DashboardPage() {
             <div>
               <h2 className="dash-card-title">Pathway progress</h2>
               <p className="dash-card-sub">
-                {completed} of {nodes.length} steps complete
+                {pathwayCount >= 2
+                  ? `${completed} of ${nodes.length} steps across your pathways`
+                  : `${completed} of ${nodes.length} steps complete`}
               </p>
               <Link to="/portal/pathway" className="btn-ghost dash-btn">
                 Open pathway

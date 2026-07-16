@@ -29,6 +29,7 @@ import MorePage from "./portal/MorePage";
 import ReactivatePage from "./portal/ReactivatePage";
 import ConnectStorePage from "./portal/ConnectStorePage";
 import ProductLinkingPage from "./portal/ProductLinkingPage";
+import WalletPage from "./portal/WalletPage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
 import ClientDetailPage from "./admin/ClientDetailPage";
@@ -98,6 +99,7 @@ function Shell() {
           <Route path="upgrade" element={<UpgradePage />} />
           <Route path="store" element={<ConnectStorePage />} />
           <Route path="store/products" element={<ProductLinkingPage />} />
+          <Route path="wallet" element={<WalletPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
 

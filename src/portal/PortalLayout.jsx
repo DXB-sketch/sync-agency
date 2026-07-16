@@ -6,6 +6,7 @@ import { isNativeApp } from "../lib/nativeApp";
 import { TutorialProvider, SaleNudges } from "./Tutorial";
 import BottomTabBar from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
+import { walletEnabled } from "../lib/walletFlag";
 
 // Desktop top-strip navigation — every destination.
 const NAV_LINKS = [
@@ -24,13 +25,16 @@ const TAB_LINKS = [
   { to: "/portal/pathway", label: "Pathway", icon: "pathway" },
   { to: "/portal/products", label: "Products", icon: "products" },
   { to: "/portal/achievements", label: "Achieve", icon: "achievements" },
-  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout"] },
+  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout", "/portal/wallet"] },
 ];
 
 export default function PortalLayout() {
   const { profile } = useAuth();
   const tier = profile?.tier ? TIERS[profile.tier] : null;
   const native = isNativeApp();
+  const navLinks = walletEnabled(profile)
+    ? [...NAV_LINKS, { to: "/portal/wallet", label: "Wallet", icon: "wallet" }]
+    : NAV_LINKS;
 
   return (
     <TutorialProvider>
@@ -55,7 +59,7 @@ export default function PortalLayout() {
           </div>
         </header>
         <nav className="portal-nav">
-          {NAV_LINKS.map((l) => (
+          {navLinks.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}

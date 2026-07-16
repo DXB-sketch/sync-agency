@@ -106,6 +106,12 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .dash-stat-label { display: block; font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--p-muted); margin-top: 3px; }
 
 /* ── Pathway ── */
+.pathway-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.pathway-switch-btn { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: var(--p-grad-card); border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-md); cursor: none; font-size: 12.5px; font-weight: 600; color: var(--p-muted); font-family: var(--p-font); transition: border-color .2s, color .2s; }
+.pathway-switch-btn:hover { color: var(--p-text); }
+.pathway-switch-active { color: var(--p-gold); border-color: oklch(58% 0.10 68 / .45); box-shadow: 0 10px 26px -14px rgba(0,0,0,.6); }
+.pathway-switch-count { font-size: 10.5px; color: var(--p-dim); }
+.pathway-switch-active .pathway-switch-count { color: var(--p-gold-deep); }
 .pathway-wrap { position: relative; }
 .pathway-scroll { overflow: auto; height: calc(100vh - 250px); min-height: 420px; border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-lg); background: radial-gradient(circle at 18% 0%, oklch(78% 0.13 86 / 0.05), transparent 55%), var(--p-bg); overscroll-behavior: contain; scrollbar-width: thin; }
 .pathway-tree { position: relative; margin: 0 auto; user-select: none; -webkit-user-select: none; }
@@ -460,6 +466,23 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .danger-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: oklch(64% 0.11 25); margin-bottom: 4px; }
 .danger-btn { border-color: oklch(64% 0.11 25 / .5); color: oklch(64% 0.11 25); white-space: nowrap; }
 .danger-btn:hover { border-color: oklch(64% 0.11 25); background: oklch(64% 0.11 25 / .08); }
+
+/* ── Wallet (Project Chronos Phase 2) ── */
+.wallet-balance-card { margin-bottom: 20px; }
+.wallet-balance-amount { font-family: var(--font-display); font-size: 40px; font-weight: 600; color: var(--p-gold); margin-top: 6px; }
+.wallet-banner-warn { border: 1px solid oklch(64% 0.13 55 / .4); background: oklch(64% 0.13 55 / .12); color: oklch(74% 0.13 55); border-radius: var(--p-radius-md); padding: 14px 18px; font-size: 13px; margin-bottom: 24px; }
+.wallet-holds { margin-bottom: 20px; }
+.wallet-hold-card { border-color: oklch(58% 0.14 25 / .35); }
+.wallet-topup-card, .wallet-threshold-card { margin-bottom: 20px; }
+.wallet-preset-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.wallet-custom-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
+.wallet-custom-row .auth-label { display: flex; flex-direction: column; gap: 6px; font-size: 11px; }
+.wallet-custom-row .auth-input { padding: 10px 12px; }
+.wallet-ledger-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.wallet-ledger-table th { text-align: left; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-dim); padding: 8px 10px; border-bottom: 1px solid var(--p-line); }
+.wallet-ledger-table td { padding: 10px; border-bottom: 1px solid var(--p-line-soft); color: var(--p-text); }
+.wallet-amount-pos { color: oklch(78% 0.1 145); font-weight: 600; }
+.wallet-amount-neg { color: #D97A6C; font-weight: 600; }
 
 /* ── Tutorial popover / highlight / nudges ── */
 .tut-highlight { position: fixed; z-index: 300; border: 2px solid var(--p-gold-bright); border-radius: var(--p-radius-md); box-shadow: 0 0 0 9999px rgba(0,0,0,0.55), 0 0 24px oklch(78% 0.13 86 / 0.4); pointer-events: none; transition: top .25s ease, left .25s ease, width .25s ease, height .25s ease; }

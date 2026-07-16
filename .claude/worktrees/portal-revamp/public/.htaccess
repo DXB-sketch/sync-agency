@@ -1,0 +1,21 @@
+# ── Stripe secret key for checkout.php ──────────────────────────────
+# Fill in the real sk_live_... key ONLY in the live file on SiteGround.
+# NEVER put the real key in this repo copy — it would end up in git.
+<IfModule mod_env.c>
+  SetEnv STRIPE_SECRET_KEY sk_live_REPLACE_WITH_YOUR_SECRET_KEY
+</IfModule>
+
+# ── SPA routing: serve index.html for any path that isn't a real file ──
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# ── Never serve .htaccess or hidden files ──
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

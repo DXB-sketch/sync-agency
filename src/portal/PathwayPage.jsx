@@ -6,14 +6,26 @@ import { meetsTier, tierRank, TIERS } from "../lib/tiers";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import NodeBody from "../components/portal/NodeBody";
 
-// Group hubs: one per pathway phase. Each hub branches into its phase's steps.
+// Group hubs: one per pathway phase, keyed by pathway slug. Each hub branches
+// into its phase's steps.
 const GROUPS = {
-  1: { name: "Launch Your Store", icon: "storefront" },
-  2: { name: "List Your Products", icon: "listing-card" },
-  3: { name: "Drive Traffic", icon: "growth-arrow" },
-  4: { name: "Sell & Fulfil", icon: "handshake" },
-  5: { name: "Scale", icon: "sliders" },
-  6: { name: "VIP — Inner Circle", icon: "check-seal" },
+  depop: {
+    1: { name: "Launch Your Store", icon: "storefront" },
+    2: { name: "List Your Products", icon: "listing-card" },
+    3: { name: "Drive Traffic", icon: "growth-arrow" },
+    4: { name: "Sell & Fulfil", icon: "handshake" },
+    5: { name: "Scale", icon: "sliders" },
+    6: { name: "VIP — Inner Circle", icon: "check-seal" },
+  },
+  shopify: {
+    1: { name: "Set Up Your Store", icon: "browser-store" },
+    2: { name: "Pick Your Products", icon: "catalogue-grid" },
+    3: { name: "Build & List", icon: "layout-blocks" },
+    4: { name: "Connect to Sync", icon: "link-nodes" },
+    5: { name: "Drive Traffic", icon: "megaphone" },
+    6: { name: "Run the Machine", icon: "wallet" },
+    7: { name: "Scale", icon: "growth-arrow" },
+  },
 };
 
 // Layout constants. Both breakpoints stack groups down a central trunk with
@@ -25,6 +37,8 @@ export default function PathwayPage() {
   const { profile } = useAuth();
   const [nodes, setNodes] = useState([]);
   const [progress, setProgress] = useState({});
+  const [pathways, setPathways] = useState([]); // owned pathways: [{id, slug, name}]
+  const [activeId, setActiveId] = useState(null);
   const [openId, setOpenId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [groupsOpen, setGroupsOpen] = useState(false);
@@ -44,23 +58,40 @@ export default function PathwayPage() {
   }, []);
 
   useEffect(() => {
+    if (!profile) return;
     (async () => {
-      const [{ data: n }, { data: p }] = await Promise.all([
+      const isAdmin = profile.role === "admin";
+      const [{ data: n }, { data: p }, { data: mp }] = await Promise.all([
         supabase.from("pathway_nodes").select("*").order("phase").order("order_in_phase"),
         supabase.from("member_pathway_progress").select("*"),
+        isAdmin
+          ? supabase.from("pathways").select("*").order("created_at")
+          : supabase
+              .from("member_pathways")
+              .select("pathway_id, granted_at, pathways(id, slug, name)")
+              .order("granted_at"),
       ]);
       setNodes(n ?? []);
       setProgress(Object.fromEntries((p ?? []).map((r) => [r.node_id, r])));
+      const owned = isAdmin ? (mp ?? []) : (mp ?? []).map((row) => row.pathways).filter(Boolean);
+      setPathways(owned);
+      setActiveId((prev) => prev ?? owned[0]?.id ?? null);
     })();
-  }, []);
+  }, [profile]);
+
+  const activeSlug = pathways.find((pw) => pw.id === activeId)?.slug;
+  const branchNodes = useMemo(
+    () => (activeId ? nodes.filter((n) => n.pathway_id === activeId) : []),
+    [nodes, activeId]
+  );
 
   // Groups → hub + child positions. Children flow in rows of two beneath their
   // hub; a lone child in the last row sits on the trunk line.
   const { groups, laidOut, width, height } = useMemo(() => {
-    if (!nodes.length) return { groups: [], laidOut: [], width: 0, height: 0 };
+    if (!branchNodes.length || !activeSlug) return { groups: [], laidOut: [], width: 0, height: 0 };
 
     const C = isDesktop ? D : M;
-    const phases = [...new Set(nodes.map((n) => n.phase))].sort((a, b) => a - b);
+    const phases = [...new Set(branchNodes.map((n) => n.phase))].sort((a, b) => a - b);
     const groups = [];
     const laidOut = [];
 
@@ -69,8 +100,8 @@ export default function PathwayPage() {
     const colR = C.width * C.colR;
     let y = C.padY;
     for (const phase of phases) {
-      const children = nodes.filter((n) => n.phase === phase);
-      const hub = { phase, ...GROUPS[phase], x: cx, y, children };
+      const children = branchNodes.filter((n) => n.phase === phase);
+      const hub = { phase, ...GROUPS[activeSlug]?.[phase], x: cx, y, children };
       groups.push(hub);
       y += C.hubGap;
       children.forEach((node, i) => {
@@ -85,7 +116,7 @@ export default function PathwayPage() {
       y += Math.ceil(children.length / 2) * C.rowH + C.groupGap;
     }
     return { groups, laidOut, width: C.width, height: y };
-  }, [nodes, isDesktop]);
+  }, [branchNodes, activeSlug, isDesktop]);
 
   const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
 
@@ -172,6 +203,13 @@ export default function PathwayPage() {
     setGroupsOpen(false);
   }
 
+  function switchPathway(id) {
+    if (id === activeId) return;
+    setActiveId(id);
+    setOpenId(null);
+    setGroupsOpen(false);
+  }
+
   async function setStatus(node, status) {
     setSaving(true);
     const row = {
@@ -204,9 +242,31 @@ export default function PathwayPage() {
       <div className="portal-page-head">
         <h1 className="portal-h1">Your Pathway</h1>
         <p className="portal-sub">
-          Six groups, each branching into its own steps — all connected, all in one place.
+          Every group branches into its own steps — all connected, all in one place.
         </p>
       </div>
+
+      {pathways.length >= 2 && (
+        <div className="pathway-switch">
+          {pathways.map((pw) => {
+            const pwNodes = nodes.filter((n) => n.pathway_id === pw.id);
+            const done = pwNodes.filter((n) => progress[n.id]?.status === "complete").length;
+            return (
+              <button
+                key={pw.id}
+                type="button"
+                className={`pathway-switch-btn${pw.id === activeId ? " pathway-switch-active" : ""}`}
+                onClick={() => switchPathway(pw.id)}
+              >
+                <span>{pw.name}</span>
+                <span className="pathway-switch-count">
+                  {done}/{pwNodes.length}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="pathway-wrap">
         <div className="pathway-groups">
@@ -396,7 +456,7 @@ export default function PathwayPage() {
                 <PathwayIcon name={open.icon} state={openState} size={44} />
                 <div>
                   <span className="pathway-node-phase">
-                    {GROUPS[open.phase]?.name ?? `Phase ${open.phase}`}
+                    {GROUPS[activeSlug]?.[open.phase]?.name ?? `Phase ${open.phase}`}
                   </span>
                   <h2 className="node-panel-title">{open.title}</h2>
                 </div>

@@ -84,6 +84,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
+  // ── Wallet top-up (Shopify members) — credit is ledgered atomically by the RPC ──
+  if (kind === "wallet_topup" && session.metadata?.member_id) {
+    const { error } = await supabase.rpc("wallet_topup_credit", {
+      p_member_id: session.metadata.member_id,
+      p_amount_cents: session.amount_total ?? Number(session.metadata.amount_cents),
+      p_stripe_ref:
+        typeof session.payment_intent === "string" ? session.payment_intent : session.id,
+    });
+    if (error) throw error; // -> 500 -> Stripe redelivers -> RPC answers 'duplicate' (idempotent)
+    return;
+  }
+
   // ── Otherwise: a course purchase from the marketing site ──
   const email = session.customer_details?.email ?? session.customer_email;
   if (!email) return;

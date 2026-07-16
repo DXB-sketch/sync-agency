@@ -6,7 +6,12 @@ import { TIERS } from "../lib/tiers";
 import { uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
 
-const TABS = ["Account", "Products", "Orders", "Pathway", "Achievements"];
+const TABS = ["Account", "Products", "Orders", "Pathway", "Achievements", "Wallet"];
+const WALLET_ADJUST_TYPES = [
+  ["credit", "Credit"],
+  ["adjustment", "Adjustment"],
+  ["refund", "Refund"],
+];
 const TIER_OPTIONS = [
   ["free", "Free Dashboard"],
   ["pro", "Pro Accelerator"],
@@ -26,7 +31,16 @@ export default function ClientDetailPage() {
   const [orders, setOrders] = useState([]);
   const [progress, setProgress] = useState([]);
   const [achievements, setAchievements] = useState([]);
+  const [allPathways, setAllPathways] = useState([]);
+  const [memberPathways, setMemberPathways] = useState([]);
+  const [pathwayBusy, setPathwayBusy] = useState(null);
   const [error, setError] = useState(null);
+  const [wallet, setWallet] = useState(null);
+  const [walletLedger, setWalletLedger] = useState([]);
+  const [walletHolds, setWalletHolds] = useState([]);
+  const [walletForm, setWalletForm] = useState({ amount: "", type: "credit", reason: "", order_id: "" });
+  const [walletSaving, setWalletSaving] = useState(false);
+  const [walletMsg, setWalletMsg] = useState(null);
 
   // Product form state
   const [form, setForm] = useState({ name: "", description: "", price: "" });
@@ -37,8 +51,18 @@ export default function ClientDetailPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
 
   const load = useCallback(async () => {
-    const [{ data: c }, { data: pr }, { data: o }, { data: pg }, { data: ma }] =
-      await Promise.all([
+    const [
+      { data: c },
+      { data: pr },
+      { data: o },
+      { data: pg },
+      { data: ma },
+      { data: ap },
+      { data: mp },
+      { data: w },
+      { data: wt },
+      { data: wh },
+    ] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", id).single(),
         supabase.from("products").select("*").eq("member_id", id).order("created_at"),
         supabase
@@ -48,12 +72,22 @@ export default function ClientDetailPage() {
           .order("created_at", { ascending: false }),
         supabase
           .from("member_pathway_progress")
-          .select("*, pathway_nodes(title, phase)")
+          .select("*, pathway_nodes(title, phase, pathways(name))")
           .eq("member_id", id),
         supabase
           .from("member_achievements")
           .select("*, achievements(title)")
           .eq("member_id", id),
+        supabase.from("pathways").select("*").order("created_at"),
+        supabase.from("member_pathways").select("*").eq("member_id", id),
+        supabase.from("wallets").select("*").eq("member_id", id).maybeSingle(),
+        supabase
+          .from("wallet_transactions")
+          .select("*")
+          .eq("member_id", id)
+          .order("created_at", { ascending: false })
+          .limit(10),
+        supabase.from("wallet_order_holds").select("*").eq("member_id", id),
       ]);
     setClient(c);
     if (c) {
@@ -68,6 +102,11 @@ export default function ClientDetailPage() {
     setOrders(o ?? []);
     setProgress(pg ?? []);
     setAchievements(ma ?? []);
+    setAllPathways(ap ?? []);
+    setMemberPathways(mp ?? []);
+    setWallet(w ?? null);
+    setWalletLedger(wt ?? []);
+    setWalletHolds(wh ?? []);
   }, [id]);
 
   useEffect(() => {
@@ -146,6 +185,60 @@ export default function ClientDetailPage() {
     }
     setPriceEdits((p) => ({ ...p, [productId]: undefined }));
     await load();
+  }
+
+  async function grantPathway(pathwayId) {
+    setPathwayBusy(pathwayId);
+    setError(null);
+    const { error: insErr } = await supabase
+      .from("member_pathways")
+      .insert({ member_id: id, pathway_id: pathwayId, tier: client.tier ?? "free" });
+    if (insErr) setError(insErr.message);
+    await load();
+    setPathwayBusy(null);
+  }
+
+  async function revokePathway(pathwayId) {
+    if (
+      !window.confirm(
+        "Revoke this pathway? The member loses access immediately. Their progress is kept and restores automatically if you re-grant it later."
+      )
+    )
+      return;
+    setPathwayBusy(pathwayId);
+    setError(null);
+    const { error: delErr } = await supabase
+      .from("member_pathways")
+      .delete()
+      .eq("member_id", id)
+      .eq("pathway_id", pathwayId);
+    if (delErr) setError(delErr.message);
+    await load();
+    setPathwayBusy(null);
+  }
+
+  async function adjustWallet(e) {
+    e.preventDefault();
+    setWalletMsg(null);
+    setWalletSaving(true);
+    const amount_cents = Math.round(Number(walletForm.amount) * 100);
+    const { data, error: fnErr } = await supabase.functions.invoke("wallet-adjust", {
+      body: {
+        member_id: id,
+        amount_cents,
+        type: walletForm.type,
+        reason: walletForm.reason,
+        order_id: walletForm.order_id || undefined,
+      },
+    });
+    if (fnErr || data?.error || (data?.status && data.status !== "adjusted")) {
+      setWalletMsg(data?.error ?? data?.status ?? "Adjustment failed");
+    } else {
+      setWalletMsg("adjusted");
+      setWalletForm({ amount: "", type: "credit", reason: "", order_id: "" });
+    }
+    await load();
+    setWalletSaving(false);
   }
 
   async function toggleActive(product) {
@@ -446,39 +539,68 @@ export default function ClientDetailPage() {
           ))
         ))}
 
-      {tab === "Pathway" &&
-        (progress.length === 0 ? (
-          <div className="portal-empty">
-            <p>No pathway progress yet.</p>
+      {tab === "Pathway" && (
+        <>
+          <div className="dash-card">
+            <h2 className="dash-card-title">Pathways</h2>
+            <p className="dash-card-sub">
+              Grant or revoke which pathways this member can see. Revoking hides the branch but
+              keeps their progress — re-granting restores it exactly.
+            </p>
+            <div className="admin-order-actions" style={{ flexWrap: "wrap", gap: 8 }}>
+              {allPathways.map((pw) => {
+                const owned = memberPathways.some((mp) => mp.pathway_id === pw.id);
+                const busy = pathwayBusy === pw.id;
+                return (
+                  <button
+                    key={pw.id}
+                    className={owned ? "btn-ghost danger-btn" : "btn-gold"}
+                    disabled={busy}
+                    onClick={() => (owned ? revokePathway(pw.id) : grantPathway(pw.id))}
+                  >
+                    {busy ? "Saving…" : owned ? `Revoke ${pw.name}` : `Grant ${pw.name}`}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        ) : (
-          <div className="admin-table-wrap">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Phase</th>
-                  <th>Step</th>
-                  <th>Status</th>
-                  <th>Completed</th>
-                </tr>
-              </thead>
-              <tbody>
-                {progress
-                  .sort((a, b) => (a.pathway_nodes?.phase ?? 0) - (b.pathway_nodes?.phase ?? 0))
-                  .map((row) => (
-                    <tr key={row.node_id}>
-                      <td>{row.pathway_nodes?.phase}</td>
-                      <td>{row.pathway_nodes?.title}</td>
-                      <td>{row.status}</td>
-                      <td>
-                        {row.completed_at ? new Date(row.completed_at).toLocaleDateString() : "—"}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+
+          {progress.length === 0 ? (
+            <div className="portal-empty">
+              <p>No pathway progress yet.</p>
+            </div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Pathway</th>
+                    <th>Phase</th>
+                    <th>Step</th>
+                    <th>Status</th>
+                    <th>Completed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {progress
+                    .sort((a, b) => (a.pathway_nodes?.phase ?? 0) - (b.pathway_nodes?.phase ?? 0))
+                    .map((row) => (
+                      <tr key={row.node_id}>
+                        <td>{row.pathway_nodes?.pathways?.name ?? "—"}</td>
+                        <td>{row.pathway_nodes?.phase}</td>
+                        <td>{row.pathway_nodes?.title}</td>
+                        <td>{row.status}</td>
+                        <td>
+                          {row.completed_at ? new Date(row.completed_at).toLocaleDateString() : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
 
       {tab === "Achievements" &&
         (achievements.length === 0 ? (
@@ -509,6 +631,120 @@ export default function ClientDetailPage() {
             </table>
           </div>
         ))}
+
+      {tab === "Wallet" && (
+        <>
+          <div className="dash-card">
+            <h2 className="dash-card-title">Balance</h2>
+            <p className="dash-card-sub">
+              ${((wallet?.balance_cents ?? 0) / 100).toFixed(2)} AUD
+              {wallet?.low_balance_threshold_cents != null &&
+                ` · alert threshold $${(wallet.low_balance_threshold_cents / 100).toFixed(2)}`}
+              {wallet?.low_balance_flagged_at && " · low-balance flag set"}
+            </p>
+            <p className="dash-card-sub">
+              Balance refunds to card are manual (Stripe dashboard) + a negative adjustment here.
+            </p>
+          </div>
+
+          {walletHolds.length > 0 && (
+            <div className="dash-card">
+              <h2 className="dash-card-title">Awaiting funds</h2>
+              {walletHolds.map((h) => (
+                <p key={h.order_id} className="dash-card-sub">
+                  Order #{h.order_id.slice(0, 8)} — ${(h.amount_cents / 100).toFixed(2)} needed
+                </p>
+              ))}
+            </div>
+          )}
+
+          <form className="admin-product-form" onSubmit={adjustWallet}>
+            <h2 className="dash-card-title">Adjust wallet</h2>
+            <div className="admin-form-grid">
+              <label className="auth-label">
+                Amount (AUD)
+                <input
+                  className="auth-input"
+                  type="number"
+                  step="0.01"
+                  value={walletForm.amount}
+                  onChange={(e) => setWalletForm({ ...walletForm, amount: e.target.value })}
+                  required
+                />
+              </label>
+              <label className="auth-label">
+                Type
+                <select
+                  className="auth-input"
+                  value={walletForm.type}
+                  onChange={(e) => setWalletForm({ ...walletForm, type: e.target.value })}
+                >
+                  {WALLET_ADJUST_TYPES.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="auth-label">
+                Reason (required, audit-logged)
+                <input
+                  className="auth-input"
+                  value={walletForm.reason}
+                  onChange={(e) => setWalletForm({ ...walletForm, reason: e.target.value })}
+                  required
+                />
+              </label>
+              <label className="auth-label">
+                Order ID (optional)
+                <input
+                  className="auth-input"
+                  value={walletForm.order_id}
+                  onChange={(e) => setWalletForm({ ...walletForm, order_id: e.target.value })}
+                />
+              </label>
+            </div>
+            <div className="admin-order-actions">
+              <button className="btn-gold" type="submit" disabled={walletSaving}>
+                {walletSaving ? "Saving…" : "Apply adjustment"}
+              </button>
+              {walletMsg === "adjusted" && (
+                <span className="ach-status ach-status-verified">Saved ✓</span>
+              )}
+              {walletMsg && walletMsg !== "adjusted" && <p className="auth-error">{walletMsg}</p>}
+            </div>
+          </form>
+
+          {walletLedger.length === 0 ? (
+            <div className="portal-empty">
+              <p>No wallet activity yet.</p>
+            </div>
+          ) : (
+            <div className="admin-table-wrap">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {walletLedger.map((t) => (
+                    <tr key={t.id}>
+                      <td>{new Date(t.created_at).toLocaleDateString()}</td>
+                      <td>{t.type}</td>
+                      <td>${(t.amount_cents / 100).toFixed(2)}</td>
+                      <td>{t.reason}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
