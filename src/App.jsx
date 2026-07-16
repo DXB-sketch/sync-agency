@@ -27,8 +27,6 @@ import SupportPage from "./portal/SupportPage";
 import UpgradePage from "./portal/UpgradePage";
 import MorePage from "./portal/MorePage";
 import ReactivatePage from "./portal/ReactivatePage";
-import ConnectStorePage from "./portal/ConnectStorePage";
-import ProductLinkingPage from "./portal/ProductLinkingPage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
 import ClientDetailPage from "./admin/ClientDetailPage";
@@ -36,8 +34,6 @@ import ProductsAdminPage from "./admin/ProductsAdminPage";
 import OrdersQueuePage from "./admin/OrdersQueuePage";
 import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
-import ExceptionQueuePage from "./admin/ExceptionQueuePage";
-import MarginAlertsPage from "./admin/MarginAlertsPage";
 
 // Orders merged into Checkout — forward old links (incl. Stripe's ?paid=1 return)
 function OrdersRedirect() {
@@ -96,8 +92,6 @@ function Shell() {
           <Route path="achievements" element={<AchievementsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="upgrade" element={<UpgradePage />} />
-          <Route path="store" element={<ConnectStorePage />} />
-          <Route path="store/products" element={<ProductLinkingPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
 
@@ -115,5 +109,26 @@ function Shell() {
           <Route path="pool" element={<Navigate to="/admin/products" replace />} />
           <Route path="catalogue" element={<Navigate to="/admin/products" replace />} />
           <Route path="orders" element={<OrdersQueuePage />} />
-          <Route path="exceptions" element={<ExceptionQueuePage />} />
-          <Route path="margins" element={
+          <Route path="achievements" element={<AchievementsReviewPage />} />
+          <Route path="support" element={<SupportQueuePage />} />
+        </Route>
+      </Routes>
+      {!isAppRoute && <Footer />}
+      {!isAppRoute && <UTMIndicator />}
+    </>
+  );
+}
+
+export default function App() {
+  useEffect(() => {
+    captureAffiliate();
+  }, []);
+
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Shell />
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

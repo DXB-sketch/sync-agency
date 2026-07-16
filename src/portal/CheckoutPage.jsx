@@ -14,23 +14,15 @@ const ADDRESS_FIELDS = [
   ["ship_country", "Country", true],
 ];
 
-// Members never see raw fulfilment-engine statuses (dispatching/dispatched/exception) —
-// dispatching/dispatched read as "sourcing", exception reads as "processing" (never the
-// word "exception"). docs/PHASE1_PLAN.md §3.5.
 const STATUS_LABELS = {
   pending_payment: "Awaiting payment",
   paid: "Paid — sourcing soon",
   sourcing: "Sourcing your stock",
-  dispatching: "Sourcing your stock",
-  dispatched: "Sourcing your stock",
-  exception: "Processing your order",
   shipped: "Shipped",
   delivered: "Delivered",
   cancelled: "Cancelled",
 };
 const STATUS_FLOW = ["paid", "sourcing", "shipped", "delivered"];
-// dispatching/dispatched map onto the same "sourcing" track step for progress purposes.
-const TRACK_STATUS = { dispatching: "sourcing", dispatched: "sourcing" };
 
 export default function CheckoutPage() {
   const { profile } = useAuth();
@@ -222,14 +214,12 @@ export default function CheckoutPage() {
             <p>No orders yet. When a Depop sale lands, order the stock here.</p>
           </div>
         ) : (
-          orders.map((order) => {
-            const trackStatus = TRACK_STATUS[order.status] ?? order.status;
-            return (
+          orders.map((order) => (
             <div key={order.id} className="order-card">
               <div className="order-head">
                 <div>
                   <span className={`order-status order-status-${order.status}`}>
-                    {STATUS_LABELS[order.status] ?? order.status}
+                    {STATUS_LABELS[order.status]}
                   </span>
                   <span className="order-date">
                     {new Date(order.created_at).toLocaleDateString()}
@@ -238,13 +228,13 @@ export default function CheckoutPage() {
                 <span className="order-total">${Number(order.total_amount).toFixed(2)}</span>
               </div>
 
-              {STATUS_FLOW.includes(trackStatus) && (
+              {STATUS_FLOW.includes(order.status) && (
                 <div className="order-track">
                   {STATUS_FLOW.map((s, i) => (
                     <div
                       key={s}
                       className={`order-track-step${
-                        STATUS_FLOW.indexOf(trackStatus) >= i ? " done" : ""
+                        STATUS_FLOW.indexOf(order.status) >= i ? " done" : ""
                       }`}
                     >
                       <span className="order-track-dot" />
@@ -265,4 +255,24 @@ export default function CheckoutPage() {
                         {item.products?.name ?? item.product_name} × {item.quantity}
                       </span>
                       <span className="order-item-ship">
-                        → {item.ship_name}, {item.shi
+                        → {item.ship_name}, {item.ship_city}, {item.ship_country}
+                      </span>
+                      {item.tracking_number && (
+                        <span className="order-item-tracking">
+                          Tracking: {item.tracking_number}
+                        </span>
+                      )}
+                    </div>
+                    <span className="order-item-price">
+                      ${(Number(item.unit_price) * item.quantity).toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
