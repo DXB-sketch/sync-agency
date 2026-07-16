@@ -3,9 +3,17 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
+import { CATEGORIES } from "../lib/categories";
 
 const TIER_ORDER = ["free", "pro", "elite", "vip"];
-const EMPTY_FORM = { name: "", description: "", price: "", listing_price: "", discount_price: "" };
+const EMPTY_FORM = {
+  name: "",
+  description: "",
+  price: "",
+  listing_price: "",
+  discount_price: "",
+  category: "",
+};
 const EMPTY_DEST = { mode: "clients", tier: "pro", memberIds: {}, asBonus: false };
 
 // Groups every product ever added to a client store into one catalogue row per
@@ -24,6 +32,8 @@ function buildCatalogue(products, membersById) {
       if (!entry.stripe_price_id && p.stripe_price_id) entry.stripe_price_id = p.stripe_price_id;
       if (entry.listing_price == null && p.listing_price != null) entry.listing_price = Number(p.listing_price);
       if (entry.discount_price == null && p.discount_price != null) entry.discount_price = Number(p.discount_price);
+      if (entry.category == null && p.category) entry.category = p.category;
+      if (!entry.supplierProduct && p.supplier_products) entry.supplierProduct = p.supplier_products;
     } else {
       map.set(key, {
         key,
@@ -38,6 +48,8 @@ function buildCatalogue(products, membersById) {
         stripe_price_id: p.stripe_price_id,
         storeCount: 1,
         firstMember: membersById[p.member_id]?.email ?? null,
+        category: p.category ?? null,
+        supplierProduct: p.supplier_products ?? null,
       });
     }
   }
@@ -153,9 +165,11 @@ export default function ProductsAdminPage() {
   const [memberNames, setMemberNames] = useState({}); // member_id -> set of product names
   const [selected, setSelected] = useState({});
   const [productSearch, setProductSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [busy, setBusy] = useState(null); // "assign" | "create" | "merge" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
   const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
+  const [linkerTarget, setLinkerTarget] = useState(null); // supplier-link modal target | null
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const healedRef = useRef(false);
@@ -174,7 +188,9 @@ export default function ProductsAdminPage() {
     const [{ data: prods }, { data: mem }, { data: pp }] = await Promise.all([
       supabase
         .from("products")
-        .select("id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id")
+        .select(
+          "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
+        )
         .order("created_at"),
       supabase
         .from("profiles")
@@ -184,7 +200,9 @@ export default function ProductsAdminPage() {
         .order("email"),
       supabase
         .from("pool_products")
-        .select("*, profiles!pool_products_assigned_member_id_fkey(email)")
+        .select(
+          "*, profiles!pool_products_assigned_member_id_fkey(email), supplier_products(external_sku, stock_state, display_name)"
+        )
         .order("created_at", { ascending: false }),
     ]);
     const membersById = Object.fromEntries((mem ?? []).map((m) => [m.id, m]));
@@ -223,9 +241,8 @@ export default function ProductsAdminPage() {
   const q = productSearch.trim().toLowerCase();
   const shownCatalogue = catalogue.filter(
     (c) =>
-      !q ||
-      c.name.toLowerCase().includes(q) ||
-      (c.description ?? "").toLowerCase().includes(q)
+      (categoryFilter === "all" || c.category === categoryFilter) &&
+      (!q || c.name.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q))
   );
 
   // Sends items (name/description/price/images) to the chosen destination:
@@ -251,6 +268,7 @@ export default function ProductsAdminPage() {
             discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
+            category: it.category ?? null,
             created_by: admin.id,
           }))
         );
@@ -290,6 +308,7 @@ export default function ProductsAdminPage() {
               discount_price: it.discount_price ?? null,
               image_url: it.images[0] ?? null,
               image_urls: it.images.length ? it.images : null,
+              category: it.category ?? null,
               is_bonus: dest.asBonus,
               created_by: admin.id,
             }))
@@ -337,6 +356,7 @@ export default function ProductsAdminPage() {
         listing_price: c.listing_price,
         discount_price: c.discount_price,
         images: c.images,
+        category: c.category,
       })),
       catDest,
       "assign"
@@ -389,6 +409,7 @@ export default function ProductsAdminPage() {
             discount_price: it.discount_price ?? null,
             image_url: it.images[0] ?? null,
             image_urls: it.images.length ? it.images : null,
+            category: it.category ?? null,
             is_bonus: false,
             created_by: admin.id,
           }))
@@ -442,6 +463,7 @@ export default function ProductsAdminPage() {
           listing_price: newForm.listing_price === "" ? null : Number(newForm.listing_price),
           discount_price: newForm.discount_price === "" ? null : Number(newForm.discount_price),
           images,
+          category: newForm.category || null,
         },
       ],
       newDest,
@@ -538,6 +560,53 @@ export default function ProductsAdminPage() {
     setBusy(null);
   }
 
+  // Writes the category to every store copy, plus any same-named pool items
+  // still waiting to be distributed (same pattern as savePrices).
+  async function saveCategory(entry, category) {
+    setError(null);
+    setBusy("category");
+    const value = category || null;
+    const { error: upErr } = await supabase
+      .from("products")
+      .update({ category: value })
+      .in("id", entry.ids);
+    if (upErr) {
+      setError(upErr.message);
+    } else {
+      await supabase
+        .from("pool_products")
+        .update({ category: value })
+        .eq("name", entry.name)
+        .is("assigned_member_id", null);
+    }
+    await load();
+    setBusy(null);
+  }
+
+  // Clears the supplier link across every row a catalogue entry spans (or the
+  // single pool row). Linking itself happens in the SupplierLinkerModal via
+  // the cj-search edge function — this is a direct write under the existing
+  // admin write policy, same as unassigning any other field.
+  async function unlinkSupplier(target) {
+    setError(null);
+    setBusy("unlink");
+    await supabase.from(target.table).update({ supplier_product_id: null }).in("id", target.allIds);
+    await load();
+    setBusy(null);
+  }
+
+  // Propagates a fresh supplier link (set by the modal on one row) across the
+  // rest of a merged catalogue entry's store copies.
+  async function onSupplierLinked(target, supplierProductId) {
+    if (target.allIds.length > 1) {
+      await supabase
+        .from(target.table)
+        .update({ supplier_product_id: supplierProductId })
+        .in("id", target.allIds);
+    }
+    await load();
+  }
+
   // Writes the new gallery to every store copy; first image is the cover.
   async function saveImages(entry, images) {
     setError(null);
@@ -585,6 +654,41 @@ export default function ProductsAdminPage() {
       await load();
     }
     setBusy(null);
+  }
+
+  // Link badge + link/unlink buttons for one catalogue/pool row (docs/PHASE1_PLAN.md §3.3).
+  function supplierCell(target) {
+    const sp = target.supplierProduct;
+    return (
+      <div className="admin-supplier-cell">
+        {sp ? (
+          <span className="admin-supplier-linked">
+            {sp.external_sku ?? sp.display_name ?? "linked"} · {sp.stock_state}
+          </span>
+        ) : (
+          <span className="admin-warn">Not linked</span>
+        )}
+        <div>
+          <button
+            className="btn-ghost admin-view-btn"
+            type="button"
+            onClick={() => setLinkerTarget(target)}
+          >
+            {sp ? "Relink" : "Link supplier"}
+          </button>{" "}
+          {sp && (
+            <button
+              className="btn-ghost admin-view-btn"
+              type="button"
+              disabled={busy === "unlink"}
+              onClick={() => unlinkSupplier(target)}
+            >
+              Unlink
+            </button>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -663,12 +767,26 @@ export default function ProductsAdminPage() {
         </button>
       </form>
 
-      <input
-        className="auth-input admin-search"
-        placeholder={`Search ${catalogue.length} products…`}
-        value={productSearch}
-        onChange={(e) => setProductSearch(e.target.value)}
-      />
+      <div className="admin-search-row">
+        <input
+          className="auth-input admin-search"
+          placeholder={`Search ${catalogue.length} products…`}
+          value={productSearch}
+          onChange={(e) => setProductSearch(e.target.value)}
+        />
+        <select
+          className="auth-input admin-category-filter"
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+        >
+          <option value="all">All categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {shownCatalogue.length === 0 ? (
         <div className="portal-empty">
@@ -687,6 +805,8 @@ export default function ProductsAdminPage() {
                 <th>Product</th>
                 <th>Cost</th>
                 <th>List → discount</th>
+                <th>Category</th>
+                <th>Supplier</th>
                 <th>In stores</th>
                 <th>Stripe</th>
                 <th />
@@ -775,6 +895,30 @@ export default function ProductsAdminPage() {
                         </button>
                       )}
                     </td>
+                    <td>
+                      <select
+                        className="auth-input admin-category-filter"
+                        value={c.category ?? ""}
+                        disabled={busy === "category"}
+                        onChange={(e) => saveCategory(c, e.target.value)}
+                      >
+                        <option value="">No category</option>
+                        {CATEGORIES.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td>
+                      {supplierCell({
+                        table: "products",
+                        allIds: c.ids,
+                        singleId: c.ids[0],
+                        label: c.name,
+                        supplierProduct: c.supplierProduct,
+                      })}
+                    </td>
                     <td>{c.storeCount}</td>
                     <td>
                       {c.stripe_price_id ? "Linked" : <span className="admin-warn">Pending</span>}
@@ -801,7 +945,7 @@ export default function ProductsAdminPage() {
                   </tr>
                   {editingImages === c.key && (
                     <tr>
-                      <td colSpan={7}>
+                      <td colSpan={9}>
                         <div className="catalogue-images">
                           {c.images.map((url, i) => (
                             <div key={url} className="catalogue-image">
@@ -875,136 +1019,4 @@ export default function ProductsAdminPage() {
           <label className="auth-label">
             Price (AUD) — what the member pays
             <input
-              className="auth-input"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={newForm.price}
-              onChange={(e) => setNewForm({ ...newForm, price: e.target.value })}
-              required
-            />
-          </label>
-          <label className="auth-label">
-            Listing price (AUD) — what the member lists it for
-            <input
-              className="auth-input"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={newForm.listing_price}
-              onChange={(e) => setNewForm({ ...newForm, listing_price: e.target.value })}
-            />
-          </label>
-          <label className="auth-label">
-            Discount price (AUD) — what they discount it to on Depop
-            <input
-              className="auth-input"
-              type="number"
-              step="0.01"
-              min="0.01"
-              value={newForm.discount_price}
-              onChange={(e) => setNewForm({ ...newForm, discount_price: e.target.value })}
-            />
-          </label>
-          <label className="auth-label">
-            Description
-            <input
-              className="auth-input"
-              value={newForm.description}
-              onChange={(e) => setNewForm({ ...newForm, description: e.target.value })}
-            />
-          </label>
-          <label className="auth-label">
-            Images (first = cover)
-            <input
-              className="auth-input"
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={(e) => setNewFiles([...(e.target.files ?? [])])}
-            />
-          </label>
-        </div>
-        <DestinationPicker dest={newDest} onChange={setNewDest} members={members} fill={fill} />
-        <button className="btn-gold" type="submit" disabled={busy === "create"}>
-          {busy === "create" ? "Creating…" : "Create & assign"}
-        </button>
-      </form>
-
-      {TIER_ORDER.map((tier) => {
-        const waiting = pool.filter((p) => p.tier === tier && !p.assigned_member_id);
-        const assigned = pool.filter((p) => p.tier === tier && p.assigned_member_id).slice(0, 8);
-        const tierMembers = members.filter((m) => m.tier === tier && m.subscription_active);
-        const openSlots = tierMembers.reduce(
-          (sum, m) => sum + Math.max(TIERS[tier].productLimit - (fill[m.id] ?? 0), 0),
-          0
-        );
-        if (waiting.length === 0 && assigned.length === 0) return null;
-        return (
-          <div key={tier} className="admin-product-form pool-tier">
-            <div className="pool-tier-head">
-              <h2 className="dash-card-title">{TIERS[tier].name} pool</h2>
-              <span className="pool-tier-stats">
-                {waiting.length} waiting · {tierMembers.length} eligible members · {openSlots} open
-                slots
-              </span>
-            </div>
-            <div className="pool-form-action">
-              <button
-                className="btn-gold"
-                type="button"
-                disabled={busy === `dist-${tier}` || waiting.length === 0}
-                onClick={() => distribute(tier)}
-              >
-                {busy === `dist-${tier}` ? "Distributing…" : `Distribute now (${waiting.length})`}
-              </button>
-            </div>
-            <div className="admin-table-wrap">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Product</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {waiting.map((p) => (
-                    <tr key={p.id}>
-                      <td>
-                        <div className="admin-product-cell">
-                          {p.image_url && <img src={p.image_url} alt="" />}
-                          {p.name}
-                        </div>
-                      </td>
-                      <td>${Number(p.price).toFixed(2)}</td>
-                      <td>
-                        {p.released ? (
-                          <span className="admin-warn">Waiting for a free slot</span>
-                        ) : (
-                          "In pool — not distributed yet"
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {assigned.map((p) => (
-                    <tr key={p.id} className="admin-row-inactive">
-                      <td>
-                        <div className="admin-product-cell">
-                          {p.image_url && <img src={p.image_url} alt="" />}
-                          {p.name}
-                        </div>
-                      </td>
-                      <td>${Number(p.price).toFixed(2)}</td>
-                      <td>→ {p.profiles?.email ?? "assigned"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+   
