@@ -72,15 +72,18 @@ export default function MorePage() {
             <Chevron />
           </Link>
         )}
-        {/* Shopify pathway feature — visible to every active member for now.
-            Phase 4 (member_pathways) will scope this to Shopify-pathway members only. */}
-        <Link to="/portal/store" className="more-row" data-nav="store">
-          <span className="more-row-main">
-            <TabIcon name="store" size={17} />
-            Shopify store
-          </span>
-          <Chevron />
-        </Link>
+        {/* Chronos preview: admin-only for now, per founder go-live scoping — the
+            route itself is also wrapped in RequireAdmin (App.jsx), so this is
+            belt-and-suspenders, not the only gate. */}
+        {profile?.role === "admin" && (
+          <Link to="/portal/store" className="more-row" data-nav="store">
+            <span className="more-row-main">
+              <TabIcon name="store" size={17} />
+              Shopify store (admin preview)
+            </span>
+            <Chevron />
+          </Link>
+        )}
         <Link to="/portal/support" className="more-row" data-nav="support">
           <span className="more-row-main">
             <TabIcon name="support" size={17} />

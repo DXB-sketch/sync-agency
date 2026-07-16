@@ -56,4 +56,31 @@ This is exactly the failure mode the founder flagged: the jacket looked fine at 
 
 > "≥15 of 20 current products matched or substituted at ≥30% gross margin at current sell prices"
 
-Not yet certifiable, and now stricter than the first draft: of the 8 plausible matches, only 3 have been checked with real freight+FX so far — 2 clear 30%, 1 doesn't. The other 5 plausible matches and the 12 unresolved searches still need the same freight+FX treatment. What's certain: the CJ account is live and working end to end (auth → search → freight quote, all real calls), and the methodology now correctly accounts for the founder's AUD/landed-cost correction. What's not certain: the final ≥15/20 count — that requires running all ~20 through this same freight+FX check, which is mechanical but needs the real per-SKU picks first (the supplier-linker step). I'm carrying this forward as a concrete Phase 1 task rather than estimating it.
+**CERTIFIED PASS — 19/20 at ≥30% margin, run 2026-07-16.** Per founder direction ("just come up with your own SKUs, doesn't mean anything to me"), I picked one CJ SKU per catalogue item myself (no manual admin curation) and ran every one of them through the real, live CJ pipeline: `product/listV2` search → `product/query` (variant id) → `logistic/freightCalculate` (CN→AU) → margin computed on the corrected formula (`(listing_AUD − (cj_price_USD + freight_USD) × live_fx) / listing_AUD`), FX pulled fresh (1.428913, matching the rate already confirmed live in Phase 1). All 20 items, all real API calls, no estimates.
+
+| Our product | CJ SKU | CJ product (USD) | Freight to AU (USD) | Landed (AUD) | Our listing (AUD) | Margin | |
+|---|---|---|---|---|---|---|---|
+| Abercrombie & Fitch gray zip up hoodie w/ fur hood | CJWY1617806 | $6.20 | $8.33 | $20.78 | $59 | 64.8% | ✅ |
+| American Retro Hollister Embroidered Y2k Jumper | CJMY2193434 | $5.80 | $10.29 | $23.01 | $89 | 74.1% | ✅ |
+| Black And Blue Y2K Affliction Skater Zip Up Jumper | CJLS2085328 | $5.03 | $11.55 | $23.71 | $89 | 73.4% | ✅ |
+| Black Slim Fit Rock Angel Cross Y2k Graphic Tee | CJYH2052267 | $3.52 | $6.95 | $14.97 | $47 | 68.1% | ✅ |
+| Black Y2K Cross Graphic Tee | CJWL2388848 | $12.99 | $8.00 | $30.02 | $48 | 37.5% | ✅ |
+| Black Y2K Goth Themed Strap Graphic Tee | CJCS2460317 | $3.32 | $5.57 | $12.71 | $48 | 73.5% | ✅ |
+| Brown Y2k Slim Summer Button Up Crop Top | CJWS2372160 | $12.99 | $8.00 | $30.02 | $48 | 37.5% | ✅ |
+| Cute Short Shorts Fur Lining Denim | CJNZ2421510 | $6.30 | $8.22 | $20.76 | $48 | 56.7% | ✅ |
+| Fur Collar Leopard Print Y2K Zip-up Jumper | CJQB1426188 | $11.29 | $8.56 | $28.39 | $89 | 68.1% | ✅ |
+| **Pink Abercrombie & Fitch fur hooded jacket** | CJJK2254909 | $22.39 | $19.83 | $60.37 | $79 | **23.6%** | ❌ |
+| Red & Black Ripped Jumper | CJGD1000339 | $3.04 | $5.54 | $12.27 | $59 | 79.2% | ✅ |
+| Retro Y2k Short Sleeve Gothic Graphic Tee | CJCS2316494 | $3.34 | $6.95 | $14.71 | $49 | 70.0% | ✅ |
+| Slim Fit Yankees Graphic Y2K Tee | CJNS1006970 | $1.71 | $7.18 | $12.71 | $47 | 73.0% | ✅ |
+| Striped Gothic Emo Y2k Long Sleeve Tee | CJMY2951722 | $5.03 | $8.10 | $18.78 | $59 | 68.2% | ✅ |
+| White Vintage Y2K Oversize Off Shoulder Graphic Tee | CJLY1304455 | $5.95 | $7.87 | $19.76 | $48 | 58.8% | ✅ |
+| Y2k 2000s Style Striped Long Sleeve Crop Top Sweater | CJMY2049579 | $5.39 | $8.10 | $19.29 | $67 | 71.2% | ✅ |
+| Y2k Crop Top Slim Summer Tee | CJLS1489631 | $11.26 | $6.58 | $25.51 | $48 | 46.9% | ✅ |
+| Y2k Metal Cross Print V-neck Graphic Tee | CJQB2450611 | $5.14 | $7.76 | $18.45 | $49 | 62.4% | ✅ |
+| Y2K Punk Style Womens Belt | CJYD1134780 | $2.31 | $6.61 | $12.76 | $20 | 36.2% | ✅ |
+| Y2k Short Sleeve Minimalist Graphic Crop Top Tee | CJCS2764592 | $2.55 | $6.61 | $13.10 | $48 | 72.7% | ✅ |
+
+**19 of 20 clear the ≥30% floor — comfortably passes the ≥15/20 acceptance criterion.** The one failure (the fur-hooded jacket) isn't a bad search match — I re-ran it with two different keyword strategies and both landed on legitimate fur-collar hooded jackets; the item is genuinely margin-negative at CJ's real freight cost to Australia at the current $79 listing price (consistent with the original Phase 0 finding above, which flagged the exact same style of item for the exact same reason). Fix options for this one SKU, none applied yet: raise its listing price, find a lighter/cheaper CJ alternative, or accept it as a loss-leader/retired line — founder call, not blocking the overall Phase 0 pass.
+
+**Important scope note:** these SKU picks and freight/margin numbers are real and live-verified, but the actual `products.supplier_product_id` / `pool_products.supplier_product_id` linkage could **not** be written yet — `chronos-dev`'s `products`/`pool_products` tables only contain earlier test fixtures (3 rows, all synthetic), not the real ~20-item catalogue. The real catalogue only exists in **production** (read-only per the branch-only work rule), so the actual per-row linking has to happen as part of the eventual merge-to-production step, using the SKU table above. All 19 passing CJ SKUs (plus the one flagged jacket) are cached in `chronos-dev`'s `supplier_products` table now, so that merge step is a lookup-and-link, not a re-search.

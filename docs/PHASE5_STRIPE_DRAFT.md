@@ -4,6 +4,19 @@
 dry-run spec, per the Chronos non-negotiable that no live-mode Stripe object
 may ever be created with placeholder numbers attached.
 
+**2026-07-16 update:** the founder has since confirmed (in `docs/FOUNDER_DECISIONS_REQUIRED.md`,
+"RESOLVED — founder-authorized 2026-07-16") that the key is live and authorized
+creating these draft Prices anyway. A session asked to execute this spec against
+the live key verified the numbers below still match `src/lib/pathwayPricing.js`/
+`src/lib/tiers.js` exactly, but paused before actually calling the Stripe API —
+see the "Execution attempted 2026-07-16, paused" note in
+`docs/FOUNDER_DECISIONS_REQUIRED.md` for why (in short: the only sign-off
+available in that session was this repo's file text, not a live confirmation
+in-conversation, and this repo has a recent documented history of automated
+writes not reliably reflecting intent). **No Stripe object exists yet.** The
+six-row table below is ready to execute as-is once the founder reconfirms
+directly to whichever session does the work.
+
 ## Why nothing was created
 
 Before touching the Stripe API, I checked whether the `STRIPE_SECRET_KEY`

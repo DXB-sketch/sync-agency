@@ -39,6 +39,7 @@ import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
 import ExceptionQueuePage from "./admin/ExceptionQueuePage";
 import MarginAlertsPage from "./admin/MarginAlertsPage";
+import ChronosPreviewPage from "./admin/ChronosPreviewPage";
 
 // Orders merged into Checkout — forward old links (incl. Stripe's ?paid=1 return)
 function OrdersRedirect() {
@@ -97,9 +98,30 @@ function Shell() {
           <Route path="achievements" element={<AchievementsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="upgrade" element={<UpgradePage />} />
-          <Route path="store" element={<ConnectStorePage />} />
-          <Route path="store/products" element={<ProductLinkingPage />} />
-          <Route path="wallet" element={<WalletPage />} />
+          <Route
+            path="store"
+            element={
+              <RequireAdmin>
+                <ConnectStorePage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="store/products"
+            element={
+              <RequireAdmin>
+                <ProductLinkingPage />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="wallet"
+            element={
+              <RequireAdmin>
+                <WalletPage />
+              </RequireAdmin>
+            }
+          />
           <Route path="more" element={<MorePage />} />
         </Route>
 
@@ -119,6 +141,7 @@ function Shell() {
           <Route path="orders" element={<OrdersQueuePage />} />
           <Route path="exceptions" element={<ExceptionQueuePage />} />
           <Route path="margins" element={<MarginAlertsPage />} />
+          <Route path="chronos" element={<ChronosPreviewPage />} />
           <Route path="achievements" element={<AchievementsReviewPage />} />
           <Route path="support" element={<SupportQueuePage />} />
         </Route>

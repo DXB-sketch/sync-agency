@@ -38,6 +38,15 @@
 // forged payload with a fake tracking number is ignored in favour of the real (untracked) CJ
 // state, an unmatched/garbage payload is discarded with 200, and duplicate delivery of the same
 // payload produces identical DB state (idempotent). Flagged in FOUNDER_DECISIONS_REQUIRED.md.
+//
+// PHASE 3 ADDITION: whenever a tracking number lands on a dispatch whose order has
+// source='shopify', fire-and-forget invoke shopify-fulfil (internal_trigger_secret bearer,
+// same pattern as the cj-auth call below) so the tracking pushes back to the member's Shopify
+// store and Shopify emails the buyer. Best-effort — a failure here does not fail this webhook's
+// 200 response (CJ's own tracking data is already safely persisted by this point regardless);
+// shopify-fulfil records its own fulfilment_exceptions row on failure, and is naturally
+// idempotent (re-invoking it for an already-fulfilled order is a safe no-op), so there is no
+// harm in calling it again on a future cj-webhook redelivery for the same order.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -161,6 +170,20 @@ Deno.serve(async (req) => {
     if (itemErr) {
       console.error("cj-webhook: order_items tracking fan-out failed", itemErr);
       return json({ error: "db write failed" }, 500);
+    }
+
+    // Phase 3: push tracking to Shopify for Shopify-sourced orders. Best-effort — see header
+    // comment. `its` was already fetched above for the cj-auth call.
+    const { data: sourceOrder } = await admin.from("orders").select("source").eq("id", dispatch.order_id).maybeSingle();
+    if (sourceOrder?.source === "shopify") {
+      try {
+        await admin.functions.invoke("shopify-fulfil", {
+          body: { order_id: dispatch.order_id },
+          headers: { Authorization: `Bearer ${its}` },
+        });
+      } catch (err) {
+        console.error("cj-webhook: shopify-fulfil invoke failed (non-fatal)", err);
+      }
     }
   }
 

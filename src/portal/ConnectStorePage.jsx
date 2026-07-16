@@ -14,6 +14,7 @@ export default function ConnectStorePage() {
   const [loading, setLoading] = useState(true);
   const [shopDomain, setShopDomain] = useState("");
   const [accessToken, setAccessToken] = useState("");
+  const [apiSecretKey, setApiSecretKey] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
@@ -39,7 +40,12 @@ export default function ConnectStorePage() {
     setBusy(true);
     setError(null);
     const { data, error: fnErr } = await supabase.functions.invoke("shopify-connect", {
-      body: { action: "connect", shop_domain: shopDomain.trim(), access_token: accessToken.trim() },
+      body: {
+        action: "connect",
+        shop_domain: shopDomain.trim(),
+        access_token: accessToken.trim(),
+        api_secret_key: apiSecretKey.trim(),
+      },
     });
     if (fnErr || data?.error) {
       setError(data?.error ?? "Could not connect that store.");
@@ -47,6 +53,7 @@ export default function ConnectStorePage() {
       return;
     }
     setAccessToken("");
+    setApiSecretKey("");
     setBusy(false);
     await loadStore();
   }
@@ -125,7 +132,11 @@ export default function ConnectStorePage() {
                   <code>read_products</code>.
                 </li>
                 <li>Click <strong>Install app</strong>, then reveal and copy the <strong>Admin API access token</strong> (shown once).</li>
-                <li>Paste your store's domain and that token below.</li>
+                <li>
+                  On the app's <strong>API credentials</strong> tab, copy the <strong>API secret key</strong> (Shopify's
+                  "Client secret") too — Sync uses it to verify order notifications really came from your store.
+                </li>
+                <li>Paste your store's domain and both values below.</li>
               </ol>
 
               {error && <p className="auth-error">{error}</p>}
@@ -144,6 +155,14 @@ export default function ConnectStorePage() {
                   placeholder="Admin API access token (shpat_…)"
                   value={accessToken}
                   onChange={(e) => setAccessToken(e.target.value)}
+                  required
+                />
+                <input
+                  className="auth-input"
+                  type="password"
+                  placeholder="API secret key (Client secret)"
+                  value={apiSecretKey}
+                  onChange={(e) => setApiSecretKey(e.target.value)}
                   required
                 />
                 <button className="btn-gold" disabled={busy}>

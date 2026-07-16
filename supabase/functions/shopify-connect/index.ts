@@ -5,26 +5,30 @@
 // member's Shopify products, create/remove product_links rows) — grouped into
 // this one function rather than a second edge function because both "read the
 // live token" and "write product_links" are service-role-only operations
-// (see migration comment), and the build brief scoped this phase to exactly
-// two new functions (shopify-connect, shopify-health).
+// (see migration comment).
 //
-// NOT built here (intentionally, per Project Chronos Phase 3 scope): the
-// shopify-webhook / shopify-fulfil functions and any wallet-debit logic —
-// those depend on Phase 1's dispatch-order and Phase 2's wallet, both still
-// in progress. This function only gets a store connected and its product
-// catalogue linked.
+// UPDATED for Phase 3 completion: shopify-webhook now exists, so `connect`
+// also (a) collects the custom app's API secret key ("Client secret" in
+// Shopify's UI) alongside the Admin API access token — this is the shared
+// secret Shopify signs webhook deliveries with, distinct from the access
+// token, and there is no way to derive one from the other — and (b)
+// registers orders/create + orders/cancelled webhooks against
+// {SUPABASE_URL}/functions/v1/shopify-webhook. Registration failure does not
+// fail the connect call (the store is still usable, just won't receive
+// orders until re-registered) — logged to webhook_state.errors instead, same
+// "degrade, don't block" posture as shopify-health's network-error handling.
 //
 // Shopify API notes: pinned to Admin REST API version 2026-01 (revisit
 // quarterly per build plan §4.3 — REST Admin API is legacy as of Oct 2024 but
 // still fully supported/versioned for existing custom apps; a public-app
 // GraphQL migration is out of scope for the v1 custom-app-token model).
 // UNVERIFIED LIVE: this environment has no real Shopify dev store/token to
-// test against (see build report). The `connect`/`products` actions are
-// written strictly to Shopify's documented REST Admin API shapes
-// (GET /admin/api/{version}/shop.json and /products.json, header
-// `X-Shopify-Access-Token: <token>`) — flag any live-connect failure to the
-// exact response Shopify returns, since the shapes here are unverified against
-// a real store.
+// test against (see build report). The `connect`/`products`/webhook-register
+// actions are written strictly to Shopify's documented REST Admin API shapes
+// (GET /admin/api/{version}/shop.json, /products.json, /webhooks.json,
+// header `X-Shopify-Access-Token: <token>`) — flag any live-connect failure
+// to the exact response Shopify returns, since the shapes here are
+// unverified against a real store.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SHOPIFY_API_VERSION = "2026-01";
@@ -39,6 +43,63 @@ function json(body: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+const WEBHOOK_TOPICS = ["orders/create", "orders/cancelled"] as const;
+
+// Registers (or confirms already-registered) webhook subscriptions for this store, pointing
+// at shopify-webhook. Best-effort: any per-topic failure is recorded in the returned state's
+// `errors` map rather than thrown — a member's store connection should not fail outright just
+// because webhook registration hiccuped (matches shopify-health's "degrade, don't block" style
+// for transient Shopify API issues). Idempotent: lists existing webhooks first so reconnecting
+// doesn't create duplicate subscriptions for the same topic+address.
+async function registerWebhooks(
+  shopDomain: string,
+  accessToken: string
+): Promise<Record<string, unknown>> {
+  const address = `${Deno.env.get("SUPABASE_URL")}/functions/v1/shopify-webhook`;
+  const state: Record<string, unknown> = { registered_at: new Date().toISOString(), topics: {} };
+  const errors: Record<string, string> = {};
+
+  let existing: Array<Record<string, unknown>> = [];
+  try {
+    const listResp = await fetch(
+      `https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/webhooks.json?limit=250`,
+      { headers: { "X-Shopify-Access-Token": accessToken } }
+    );
+    if (listResp.ok) {
+      const listBody = await listResp.json().catch(() => ({}));
+      existing = (listBody?.webhooks as Array<Record<string, unknown>>) ?? [];
+    }
+  } catch (err) {
+    console.error("shopify-connect: webhooks.json list failed", err);
+  }
+
+  for (const topic of WEBHOOK_TOPICS) {
+    const already = existing.find((w) => w.topic === topic && w.address === address);
+    if (already) {
+      (state.topics as Record<string, unknown>)[topic] = { id: already.id, address };
+      continue;
+    }
+    try {
+      const resp = await fetch(`https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken },
+        body: JSON.stringify({ webhook: { topic, address, format: "json" } }),
+      });
+      const body = await resp.json().catch(() => null);
+      if (resp.ok && body?.webhook?.id) {
+        (state.topics as Record<string, unknown>)[topic] = { id: body.webhook.id, address };
+      } else {
+        errors[topic] = (body?.errors && JSON.stringify(body.errors)) || `status ${resp.status}`;
+      }
+    } catch (err) {
+      errors[topic] = err instanceof Error ? err.message : String(err);
+    }
+  }
+
+  if (Object.keys(errors).length) state.errors = errors;
+  return state;
 }
 
 Deno.serve(async (req) => {
@@ -71,9 +132,9 @@ Deno.serve(async (req) => {
   const action = payload.action;
 
   if (action === "connect") {
-    const { shop_domain, access_token } = payload;
-    if (!shop_domain || !access_token) {
-      return json({ error: "shop_domain and access_token are required" }, 400);
+    const { shop_domain, access_token, api_secret_key } = payload;
+    if (!shop_domain || !access_token || !api_secret_key) {
+      return json({ error: "shop_domain, access_token and api_secret_key are required" }, 400);
     }
     const domain = String(shop_domain).trim().toLowerCase();
     if (!/^[a-z0-9-]+\.myshopify\.com$/.test(domain)) {
@@ -106,6 +167,7 @@ Deno.serve(async (req) => {
       p_member_id: user.id,
       p_shop_domain: myshopifyDomain,
       p_access_token: access_token,
+      p_webhook_secret: api_secret_key,
     });
     if (upsertErr) {
       if (upsertErr.message?.includes("shopify_stores_shop_domain_key")) {
@@ -114,7 +176,15 @@ Deno.serve(async (req) => {
       return json({ error: upsertErr.message }, 500);
     }
 
-    return json({ store_id: storeId, shop_domain: myshopifyDomain, status: "connected" });
+    const webhookState = await registerWebhooks(myshopifyDomain, access_token);
+    await admin.from("shopify_stores").update({ webhook_state: webhookState }).eq("id", storeId);
+
+    return json({
+      store_id: storeId,
+      shop_domain: myshopifyDomain,
+      status: "connected",
+      webhook_warning: webhookState.errors ? webhookState.errors : undefined,
+    });
   }
 
   if (action === "disconnect") {
