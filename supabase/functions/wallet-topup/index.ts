@@ -6,6 +6,13 @@
 // action "set_threshold": service-role upsert of the member's low-balance alert preference.
 //   Not money, but wallets is never client-writable (RLS has zero write policies), so even
 //   this preference needs a service-role path.
+//
+// Stripe product hygiene (docs/INCIDENT_2026-07-17): never use price_data.product_data here —
+// that creates a brand-new Stripe Product on every single Checkout Session, which is exactly
+// what ran the account up to 500+ products before. getOrCreateTopupProduct() below creates the
+// one "Sync Wallet Top-up" product a single time (found by metadata on every later call) and
+// every top-up references it by id via price_data.product — only a lightweight Price is created
+// per session, never a duplicate Product.
 import Stripe from "npm:stripe@18";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -13,6 +20,29 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOL
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
 const PRESET_AMOUNTS = [5000, 10000, 25000];
+
+const TOPUP_PRODUCT_METADATA_KEY = "sync_wallet_topup_product";
+let cachedTopupProductId: string | null = null;
+
+async function getOrCreateTopupProduct(): Promise<string> {
+  if (cachedTopupProductId) return cachedTopupProductId;
+
+  const found = await stripe.products.search({
+    query: `active:'true' AND metadata['${TOPUP_PRODUCT_METADATA_KEY}']:'true'`,
+    limit: 1,
+  });
+  if (found.data.length > 0) {
+    cachedTopupProductId = found.data[0].id;
+    return cachedTopupProductId;
+  }
+
+  const product = await stripe.products.create({
+    name: "Sync Wallet Top-up",
+    metadata: { [TOPUP_PRODUCT_METADATA_KEY]: "true" },
+  });
+  cachedTopupProductId = product.id;
+  return cachedTopupProductId;
+}
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -86,13 +116,14 @@ Deno.serve(async (req) => {
     }
 
     try {
+      const productId = await getOrCreateTopupProduct();
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [
           {
             price_data: {
               currency: "aud",
-              product_data: { name: "Sync wallet top-up" },
+              product: productId,
               unit_amount: amount,
             },
             quantity: 1,

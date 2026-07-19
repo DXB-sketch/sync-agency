@@ -79,6 +79,13 @@ above. Not yet reflected in the secrets list above since they're branch-only unt
   transaction regardless of which edge function triggered it. `debit_wallet_for_order`'s own
   unique index (`wallet_transactions_order_debit_uniq`) makes a concurrent double-submit of
   `wallet-pay-order` produce exactly one debit.
+  **Stripe product hygiene:** `wallet-topup` never uses `price_data.product_data` (that creates a
+  brand-new Stripe Product every single Checkout Session — the same class of bug behind
+  docs/INCIDENT_2026-07-17's original 500+ product count). It calls `getOrCreateTopupProduct()`
+  instead, which finds the one persistent "Sync Wallet Top-up" product by metadata
+  (`sync_wallet_topup_product: "true"`) or creates it once, then references it by id
+  (`price_data.product`) — only a lightweight Price is created per session, never a duplicate
+  Product.
   `stripe-webhook` got one surgical addition: a `kind === "wallet_topup"` branch in
   `handleCheckoutCompleted` that calls `wallet_topup_credit` — the existing Depop
   `stock_order`/`upgrade`/`reactivate` branches and the course-purchase fallthrough are
