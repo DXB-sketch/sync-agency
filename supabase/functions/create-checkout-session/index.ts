@@ -30,6 +30,36 @@ const MONTHLY_PRICE_IDS: Record<string, string> = {
 };
 // ────────────────────────────────────────────────────────────────────────────
 
+// Stripe product hygiene (docs/INCIDENT_2026-07-17): never use price_data.product_data — that
+// creates a brand-new Stripe Product on every single Checkout Session, which is exactly what ran
+// the account up to 500+ products before. getOrCreateUpgradeProduct() creates one persistent
+// product per tier a single time (found by metadata on every later call); the prorated diff is
+// still charged correctly via a fresh (lightweight) Price each time — UpgradePage.jsx already
+// shows the member the $X − $Y breakdown before they ever reach Stripe, so nothing is lost by the
+// Stripe-hosted product name being static per tier instead of per-user.
+const UPGRADE_PRODUCT_METADATA_KEY = "sync_tier_upgrade_product";
+const cachedUpgradeProductIds: Record<string, string> = {};
+
+async function getOrCreateUpgradeProduct(tier: string): Promise<string> {
+  if (cachedUpgradeProductIds[tier]) return cachedUpgradeProductIds[tier];
+
+  const found = await stripe.products.search({
+    query: `active:'true' AND metadata['${UPGRADE_PRODUCT_METADATA_KEY}']:'${tier}'`,
+    limit: 1,
+  });
+  if (found.data.length > 0) {
+    cachedUpgradeProductIds[tier] = found.data[0].id;
+    return cachedUpgradeProductIds[tier];
+  }
+
+  const product = await stripe.products.create({
+    name: `Upgrade to ${TIER_NAMES[tier]} (lifetime)`,
+    metadata: { [UPGRADE_PRODUCT_METADATA_KEY]: tier },
+  });
+  cachedUpgradeProductIds[tier] = product.id;
+  return cachedUpgradeProductIds[tier];
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -138,16 +168,14 @@ Deno.serve(async (req) => {
       // Lifetime upgrade: one-time payment of (target lifetime price − what they already paid)
       const alreadyPaid = profile.tier_price_paid ?? 0;
       const diff = Math.max(TIER_PRICES[target].lifetime - alreadyPaid, 1);
+      const upgradeProductId = await getOrCreateUpgradeProduct(target);
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [
           {
             price_data: {
               currency: "aud",
-              product_data: {
-                name: `Upgrade to ${TIER_NAMES[target]} (lifetime)`,
-                description: `Prorated: $${TIER_PRICES[target].lifetime} minus $${alreadyPaid} already paid`,
-              },
+              product: upgradeProductId,
               unit_amount: diff * 100,
             },
             quantity: 1,
