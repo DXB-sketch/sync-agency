@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabase";
 import { walletEnabled } from "../lib/walletFlag";
 import { useAuth } from "../lib/AuthContext";
 
-const PRESETS = [2500, 5000, 10000, 25000];
+const PRESETS = [5000, 10000, 25000];
 
 const TYPE_LABELS = {
   topup: "Top-up",
@@ -124,7 +124,7 @@ export default function WalletPage() {
     <div className="portal-page">
       <div className="portal-page-head">
         <h1 className="portal-h1">Wallet</h1>
-        <p className="portal-sub">Pre-funded balance for your Shopify store orders.</p>
+        <p className="portal-sub">Pre-funded store credit — pay for stock orders straight from your balance.</p>
       </div>
 
       {justToppedUp && (

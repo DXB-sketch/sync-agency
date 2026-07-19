@@ -64,24 +64,25 @@ above. Not yet reflected in the secrets list above since they're branch-only unt
   `shopify_token_key` Vault secret via the `shopify_store_upsert` / `shopify_store_get_token`
   RPCs (same pattern as `get_secret`). `shopify-webhook` / `shopify-fulfil` are NOT built —
   they depend on Phase 1's `dispatch-order` and Phase 2's wallet, both still in progress.
-- `wallet-topup`, `wallet-adjust` (Phase 2 — member wallet) — member-facing top-up checkout
-  session + threshold preference (`wallet-topup`), admin manual credit/adjustment/refund
-  (`wallet-adjust`, admin JWT only). Both self-contained, same CORS/`json()`/user-scoped-client
-  pattern as `create-checkout-session`. Money movement is never done directly by these
-  functions — both call `security definer` Postgres RPCs (`wallet_topup_credit`,
-  `wallet_adjust`) that are revoked from `anon`/`authenticated` and granted only to
+- `wallet-topup`, `wallet-adjust`, `wallet-pay-order` — member wallet (store credit), live on
+  production (`whuqfxdzopyucebtnbkx`), open to every active member (not Chronos/Shopify-pathway
+  gated — the `WALLET_MEMBER_IDS` allowlist was removed from both `wallet-topup/index.ts` and
+  `src/lib/walletFlag.js`). `wallet-topup`: top-up checkout session + threshold preference.
+  `wallet-adjust`: admin manual credit/adjustment/refund (admin JWT only) — also the Exception
+  Queue's automatic wallet-refund-on-cancel path. `wallet-pay-order`: pays an existing draft
+  order entirely from wallet credit, recomputing the total server-side from live `products`
+  prices (never trusts the client). All three self-contained, same CORS/`json()`/user-scoped-
+  client pattern as `create-checkout-session`. Money movement is never done directly by these
+  functions — all call `security definer` Postgres RPCs (`wallet_topup_credit`, `wallet_adjust`,
+  `debit_wallet_for_order`) that are revoked from `anon`/`authenticated` and granted only to
   `service_role`, so the ledger insert + cached-balance update happen atomically in one DB
-  transaction regardless of which edge function triggered it.
+  transaction regardless of which edge function triggered it. `debit_wallet_for_order`'s own
+  unique index (`wallet_transactions_order_debit_uniq`) makes a concurrent double-submit of
+  `wallet-pay-order` produce exactly one debit.
   `stripe-webhook` got one surgical addition: a `kind === "wallet_topup"` branch in
   `handleCheckoutCompleted` that calls `wallet_topup_credit` — the existing Depop
   `stock_order`/`upgrade`/`reactivate` branches and the course-purchase fallthrough are
-  unchanged. Reads the same `STRIPE_SECRET_KEY`/`SITE_URL` secrets as `create-checkout-session`;
-  `wallet-topup` additionally needs `STRIPE_SECRET_KEY`. **Not yet confirmed these secrets are
-  set on the `chronos-dev` branch for these new functions** — no MCP tool in the build session
-  could set/verify edge function secrets (see FOUNDER_DECISIONS_REQUIRED.md, Phase 2 section).
-  Wallet beta gate is a hardcoded `WALLET_MEMBER_IDS` allowlist (empty by default) in both
-  `wallet-topup/index.ts` and `src/lib/walletFlag.js` — marked `// PHASE 4: replace with
-  member_pathways check` in both places, replace together when Phase 4's pathway gate is ready.
+  unchanged. Reads the same `STRIPE_SECRET_KEY`/`SITE_URL` secrets as `create-checkout-session`.
 - All four Vault secrets (`cj_api_key`, `internal_trigger_secret`, `edge_functions_url`,
   `shopify_token_key`) must be created in production Vault before any Chronos code merges —
   production has none of them today (tracked in FOUNDER_DECISIONS_REQUIRED.md).

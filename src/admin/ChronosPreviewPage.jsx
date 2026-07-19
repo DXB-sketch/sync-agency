@@ -1,16 +1,10 @@
 import { Link } from "react-router-dom";
 
-// Admin-only hub for Project Chronos while it's staged behind an admin gate
-// (no client-facing entry point exists yet — see docs/FOUNDER_DECISIONS_REQUIRED.md).
-// Every link below either already lives in the admin nav (Margins, Exceptions) or
-// is a portal-styled member page wrapped in RequireAdmin (App.jsx) so no client can
-// reach it by URL either.
+// Admin-only hub for the parts of Project Chronos still gated behind Chronos Mode
+// (AdminLayout.jsx's toggle). The wallet has been promoted out of Chronos into a live
+// member feature — find it at /portal/wallet, not from this hub. Every link below is
+// wrapped in RequireChronos (App.jsx), so it's unreachable by URL with the toggle off.
 const LINKS = [
-  {
-    to: "/portal/wallet",
-    title: "Wallet",
-    body: "Member wallet balance, top-ups, ledger. Admins always have wallet access regardless of the WALLET_MEMBER_IDS allowlist.",
-  },
   {
     to: "/portal/store",
     title: "Connect Shopify store",
@@ -46,11 +40,12 @@ export default function ChronosPreviewPage() {
       </div>
 
       <p className="dash-card-sub" style={{ marginBottom: 24 }}>
-        Project Chronos is live on production but admin-gated: nothing below is visible or
-        reachable by a client. The CJ Dropshipping auto-dispatch trigger and its cron sweeps are
-        also intentionally not wired up yet — creating a CJ order requires at least one real
-        product linked to a supplier first, and staging that here would just generate exception
-        noise on real Depop orders. See docs/FOUNDER_DECISIONS_REQUIRED.md for the full status.
+        These sections only render for admins with Chronos Mode switched on — a member session
+        can never reach them, and turning the toggle off hides them again immediately. The CJ
+        Dropshipping auto-dispatch trigger and its cron sweeps are also intentionally not wired up
+        yet — creating a CJ order requires at least one real product linked to a supplier first,
+        and staging that here would just generate exception noise on real Depop orders. See
+        docs/FOUNDER_DECISIONS_REQUIRED.md for the full status.
       </p>
 
       <div className="more-list">

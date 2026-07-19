@@ -84,7 +84,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  // ── Wallet top-up (Shopify members) — credit is ledgered atomically by the RPC ──
+  // ── Wallet top-up (all active members — store credit) — credit is ledgered atomically by the RPC ──
   if (kind === "wallet_topup" && session.metadata?.member_id) {
     const { error } = await supabase.rpc("wallet_topup_credit", {
       p_member_id: session.metadata.member_id,

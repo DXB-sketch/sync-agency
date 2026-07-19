@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/AuthContext";
+import { useChronosMode } from "../lib/ChronosModeContext";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
@@ -158,6 +159,7 @@ function DestinationPicker({ dest, onChange, members, fill }) {
 
 export default function ProductsAdminPage() {
   const { profile: admin } = useAuth();
+  const { chronosMode } = useChronosMode();
   const [catalogue, setCatalogue] = useState([]);
   const [pool, setPool] = useState([]);
   const [members, setMembers] = useState([]);
@@ -657,7 +659,9 @@ export default function ProductsAdminPage() {
   }
 
   // Link badge + link/unlink buttons for one catalogue/pool row (docs/PHASE1_PLAN.md §3.3).
+  // Chronos-only (CJ supplier tooling) — hidden entirely unless Chronos Mode is on.
   function supplierCell(target) {
+    if (!chronosMode) return null;
     const sp = target.supplierProduct;
     return (
       <div className="admin-supplier-cell">

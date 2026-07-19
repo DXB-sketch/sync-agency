@@ -6,6 +6,7 @@ import { isNativeApp } from "../lib/nativeApp";
 import { TabIcon } from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
+import { useChronosMode } from "../lib/ChronosModeContext";
 
 const Chevron = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -15,6 +16,7 @@ const Chevron = () => (
 
 export default function MorePage() {
   const { profile } = useAuth();
+  const { chronosMode } = useChronosMode();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -72,14 +74,14 @@ export default function MorePage() {
             <Chevron />
           </Link>
         )}
-        {/* Chronos preview: admin-only for now, per founder go-live scoping — the
-            route itself is also wrapped in RequireAdmin (App.jsx), so this is
+        {/* Chronos preview: admin-only, and only when Chronos Mode is on — the route
+            itself is also wrapped in RequireChronos (App.jsx), so this is
             belt-and-suspenders, not the only gate. */}
-        {profile?.role === "admin" && (
+        {profile?.role === "admin" && chronosMode && (
           <Link to="/portal/store" className="more-row" data-nav="store">
             <span className="more-row-main">
               <TabIcon name="store" size={17} />
-              Shopify store (admin preview)
+              Shopify store (Chronos preview)
             </span>
             <Chevron />
           </Link>

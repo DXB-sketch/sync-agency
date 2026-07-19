@@ -61,6 +61,35 @@ export default function ExceptionQueuePage() {
     }
     setError(null);
     setBusy(exc.id);
+
+    if (status === "refunded" && exc.order_id) {
+      // Wallet-paid orders (a debit ledger row exists for this order) get credited back
+      // automatically, in one ledgered transaction, via wallet_adjust. Card-paid orders keep
+      // the existing manual-Stripe-refund note-only path.
+      const { data: debit } = await supabase
+        .from("wallet_transactions")
+        .select("member_id, amount_cents")
+        .eq("order_id", exc.order_id)
+        .eq("type", "debit")
+        .maybeSingle();
+      if (debit) {
+        const { data, error: fnErr } = await supabase.functions.invoke("wallet-adjust", {
+          body: {
+            member_id: debit.member_id,
+            amount_cents: Math.abs(debit.amount_cents),
+            type: "refund",
+            reason: note,
+            order_id: exc.order_id,
+          },
+        });
+        if (fnErr || data?.error) {
+          setError(data?.error ?? fnErr?.message ?? "Could not credit the wallet refund.");
+          setBusy(null);
+          return;
+        }
+      }
+    }
+
     await supabase
       .from("fulfilment_exceptions")
       .update({
@@ -199,8 +228,8 @@ export default function ExceptionQueuePage() {
                     Mark refunded
                   </button>
                   <p className="portal-sub admin-exception-hint">
-                    Refunding here only records it — process the actual refund in the Stripe
-                    dashboard.
+                    Wallet-paid orders are credited back automatically. Card-paid orders: this
+                    only records it — process the actual refund in the Stripe dashboard.
                   </p>
                 </div>
               ) : (

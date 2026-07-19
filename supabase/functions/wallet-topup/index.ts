@@ -1,4 +1,5 @@
-// wallet-topup — member-facing wallet actions (Shopify members only, Phase 2 Project Chronos).
+// wallet-topup — member-facing wallet actions. Wallet (store credit) is a live feature for
+// every active member — no longer Shopify/Chronos pathway-gated.
 // action "create_session" (default): Stripe Checkout Session for a wallet top-up. The wallet
 //   itself is only ever credited by stripe-webhook -> wallet_topup_credit RPC; this function
 //   makes no DB write for that path — an abandoned checkout leaves zero rows anywhere.
@@ -11,11 +12,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOLDER");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
-// PHASE 4: replace with a member_pathways check (Shopify pathway active). Mirrored in
-// src/lib/walletFlag.js — keep both lists in sync (house no-shared-imports pattern).
-const WALLET_MEMBER_IDS: string[] = [];
-
-const PRESET_AMOUNTS = [2500, 5000, 10000, 25000];
+const PRESET_AMOUNTS = [5000, 10000, 25000];
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -51,10 +48,6 @@ Deno.serve(async (req) => {
   if (!profile) return json({ error: "No profile" }, 400);
   if (!profile.subscription_active) return json({ error: "Subscription inactive" }, 403);
 
-  if (!WALLET_MEMBER_IDS.includes(user.id) && profile.role !== "admin") {
-    return json({ error: "Wallet not enabled for this account" }, 403);
-  }
-
   const body = await req.json().catch(() => ({}));
   const action = (body.action as string) ?? "create_session";
 
@@ -89,7 +82,7 @@ Deno.serve(async (req) => {
     const isPreset = PRESET_AMOUNTS.includes(amount);
     const isValidCustom = Number.isInteger(amount) && amount >= 1000 && amount <= 100000;
     if (!isPreset && !isValidCustom) {
-      return json({ error: "amount_cents must be a preset ($25/$50/$100/$250) or between $10 and $1,000" }, 400);
+      return json({ error: "amount_cents must be a preset ($50/$100/$250) or between $10 and $1,000" }, 400);
     }
 
     try {

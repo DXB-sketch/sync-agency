@@ -29,6 +29,13 @@
 .portal-signout { background: none; border: none; color: var(--p-muted); font-family: var(--p-font); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: none; }
 .portal-signout:hover { color: var(--p-text); }
 
+.chronos-mode-switch { display: flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-muted); cursor: none; }
+.chronos-mode-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chronos-mode-track { position: relative; width: 34px; height: 18px; border-radius: 999px; background: var(--p-card-hi); border: 1px solid var(--p-line-gold); transition: background 0.15s ease; }
+.chronos-mode-track::after { content: ""; position: absolute; top: 1px; left: 1px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-muted); transition: transform 0.15s ease, background 0.15s ease; }
+.chronos-mode-switch input:checked + .chronos-mode-track { background: rgba(201, 168, 76, 0.25); }
+.chronos-mode-switch input:checked + .chronos-mode-track::after { transform: translateX(16px); background: var(--p-gold); }
+
 /* Tier badges */
 .tier-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 11px; border-radius: var(--p-radius-pill); border: 1px solid var(--p-line-gold); color: var(--p-gold); background: var(--p-card-hi); }
 .tier-badge.tier-free { color: var(--p-muted); border-color: var(--p-line); background: none; }
@@ -246,6 +253,9 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .checkout-total { font-size: 15px; color: var(--p-muted); }
 .checkout-total strong { font-family: var(--font-display); font-size: 30px; color: var(--p-gold); margin-left: 8px; }
 .checkout-hint { font-size: 12px; color: var(--p-dim); }
+.checkout-wallet-option { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.checkout-wallet-hint { font-size: 12px; color: var(--p-dim); }
+.checkout-wallet-hint a { color: var(--p-gold); }
 
 /* ── Orders ── */
 .order-card { background: var(--p-grad-card); border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-lg); box-shadow: var(--p-shadow-card); padding: 22px; margin-bottom: 16px; }

@@ -4,6 +4,7 @@ import "./styles/global.css";
 import "./styles/portal.css";
 import { captureAffiliate } from "./utils/affiliate.js";
 import { AuthProvider } from "./lib/AuthContext";
+import { ChronosModeProvider } from "./lib/ChronosModeContext";
 import Cursor from "./components/Cursor";
 import Nav from "./components/Nav";
 import CompetitionBanner from "./components/CompetitionBanner";
@@ -16,7 +17,7 @@ import CompetitionPage from "./pages/CompetitionPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthConfirmedPage from "./pages/AuthConfirmedPage";
-import { RequireMember, RequireAdmin } from "./components/portal/Guards";
+import { RequireMember, RequireAdmin, RequireChronos } from "./components/portal/Guards";
 import PortalLayout from "./portal/PortalLayout";
 import DashboardPage from "./portal/DashboardPage";
 import PathwayPage from "./portal/PathwayPage";
@@ -101,27 +102,23 @@ function Shell() {
           <Route
             path="store"
             element={
-              <RequireAdmin>
+              <RequireChronos redirectTo="/portal">
                 <ConnectStorePage />
-              </RequireAdmin>
+              </RequireChronos>
             }
           />
           <Route
             path="store/products"
             element={
-              <RequireAdmin>
+              <RequireChronos redirectTo="/portal">
                 <ProductLinkingPage />
-              </RequireAdmin>
+              </RequireChronos>
             }
           />
-          <Route
-            path="wallet"
-            element={
-              <RequireAdmin>
-                <WalletPage />
-              </RequireAdmin>
-            }
-          />
+          {/* Wallet is a live member feature, promoted out of Chronos — gated by normal
+              member auth only (RequireMember on the parent /portal route), never by
+              Chronos Mode or admin role. */}
+          <Route path="wallet" element={<WalletPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
 
@@ -139,9 +136,30 @@ function Shell() {
           <Route path="pool" element={<Navigate to="/admin/products" replace />} />
           <Route path="catalogue" element={<Navigate to="/admin/products" replace />} />
           <Route path="orders" element={<OrdersQueuePage />} />
-          <Route path="exceptions" element={<ExceptionQueuePage />} />
-          <Route path="margins" element={<MarginAlertsPage />} />
-          <Route path="chronos" element={<ChronosPreviewPage />} />
+          <Route
+            path="exceptions"
+            element={
+              <RequireChronos>
+                <ExceptionQueuePage />
+              </RequireChronos>
+            }
+          />
+          <Route
+            path="margins"
+            element={
+              <RequireChronos>
+                <MarginAlertsPage />
+              </RequireChronos>
+            }
+          />
+          <Route
+            path="chronos"
+            element={
+              <RequireChronos>
+                <ChronosPreviewPage />
+              </RequireChronos>
+            }
+          />
           <Route path="achievements" element={<AchievementsReviewPage />} />
           <Route path="support" element={<SupportQueuePage />} />
         </Route>
@@ -159,9 +177,11 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Shell />
-      </BrowserRouter>
+      <ChronosModeProvider>
+        <BrowserRouter>
+          <Shell />
+        </BrowserRouter>
+      </ChronosModeProvider>
     </AuthProvider>
   );
 }

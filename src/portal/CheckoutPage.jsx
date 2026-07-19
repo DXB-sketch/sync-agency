@@ -39,6 +39,7 @@ export default function CheckoutPage() {
   const [paying, setPaying] = useState(false);
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
+  const [walletBalanceCents, setWalletBalanceCents] = useState(null);
   const [params] = useSearchParams();
   const justPaid = params.get("paid") === "1";
 
@@ -51,6 +52,11 @@ export default function CheckoutPage() {
         setOrders(data ?? []);
         setLoadingOrders(false);
       });
+    supabase
+      .from("wallets")
+      .select("balance_cents")
+      .maybeSingle()
+      .then(({ data }) => setWalletBalanceCents(data?.balance_cents ?? 0));
   }, []);
 
   function update(lineId, patch) {
@@ -77,33 +83,38 @@ export default function CheckoutPage() {
     ADDRESS_FIELDS.some(([field, , required]) => required && !i.address?.[field]?.trim())
   );
 
+  async function createDraftOrder() {
+    // Draft order + items (per-item shipping lives HERE, not in Stripe)
+    const { data: order, error: orderErr } = await supabase
+      .from("orders")
+      .insert({ member_id: profile.id, total_amount: cartTotal(items) })
+      .select()
+      .single();
+    if (orderErr) throw orderErr;
+
+    const { error: itemsErr } = await supabase.from("order_items").insert(
+      items.map((i) => ({
+        order_id: order.id,
+        product_id: i.product_id,
+        product_name: i.name,
+        quantity: i.quantity,
+        unit_price: i.unit_price,
+        ...Object.fromEntries(
+          ADDRESS_FIELDS.map(([field]) => [field, i.address?.[field]?.trim() || null])
+        ),
+      }))
+    );
+    if (itemsErr) throw itemsErr;
+    return order;
+  }
+
   async function pay() {
     setError(null);
     setPaying(true);
     try {
-      // 1. Draft order + items (per-item shipping lives HERE, not in Stripe)
-      const { data: order, error: orderErr } = await supabase
-        .from("orders")
-        .insert({ member_id: profile.id, total_amount: cartTotal(items) })
-        .select()
-        .single();
-      if (orderErr) throw orderErr;
+      const order = await createDraftOrder();
 
-      const { error: itemsErr } = await supabase.from("order_items").insert(
-        items.map((i) => ({
-          order_id: order.id,
-          product_id: i.product_id,
-          product_name: i.name,
-          quantity: i.quantity,
-          unit_price: i.unit_price,
-          ...Object.fromEntries(
-            ADDRESS_FIELDS.map(([field]) => [field, i.address?.[field]?.trim() || null])
-          ),
-        }))
-      );
-      if (itemsErr) throw itemsErr;
-
-      // 2. One lump-sum Stripe Checkout Session for the whole order
+      // One lump-sum Stripe Checkout Session for the whole order
       const { data, error: fnErr } = await supabase.functions.invoke("create-checkout-session", {
         body: { kind: "stock_order", order_id: order.id },
       });
@@ -111,6 +122,25 @@ export default function CheckoutPage() {
 
       clearCart();
       window.location.href = data.url;
+    } catch (err) {
+      setError(err.message ?? "Something went wrong — nothing has been charged.");
+      setPaying(false);
+    }
+  }
+
+  async function payWithWallet() {
+    setError(null);
+    setPaying(true);
+    try {
+      const order = await createDraftOrder();
+
+      const { data, error: fnErr } = await supabase.functions.invoke("wallet-pay-order", {
+        body: { order_id: order.id },
+      });
+      if (fnErr || data?.error) throw new Error(data?.error ?? "Could not pay from wallet");
+
+      clearCart();
+      window.location.href = "/portal/checkout?paid=1";
     } catch (err) {
       setError(err.message ?? "Something went wrong — nothing has been charged.");
       setPaying(false);
@@ -203,6 +233,28 @@ export default function CheckoutPage() {
               {incomplete && (
                 <p className="checkout-hint">Fill in every item's shipping address to pay.</p>
               )}
+              {walletBalanceCents !== null && (() => {
+                const totalCents = Math.round(cartTotal(items) * 100);
+                const canPayWithWallet = walletBalanceCents >= totalCents;
+                return (
+                  <div className="checkout-wallet-option">
+                    <button
+                      className="btn-ghost"
+                      disabled={incomplete || paying || !canPayWithWallet}
+                      onClick={payWithWallet}
+                    >
+                      {paying
+                        ? "Preparing payment…"
+                        : `Pay with wallet credit — $${(walletBalanceCents / 100).toFixed(2)} balance`}
+                    </button>
+                    {!canPayWithWallet && (
+                      <span className="checkout-wallet-hint">
+                        Not enough credit for this order. <Link to="/portal/wallet">Top up</Link>
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               <button className="btn-gold" disabled={incomplete || paying} onClick={pay}>
                 {paying ? "Preparing payment…" : "Pay once for everything"}
               </button>
