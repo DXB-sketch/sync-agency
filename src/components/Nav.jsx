@@ -23,7 +23,6 @@ export default function Nav() {
         <a href="/#results">Results</a>
         <a href="/#faq">FAQ</a>
         <a href="/#about">About</a>
-        <Link to="/competition" className="nav-btn-competition">Competition</Link>
         <Link to="/signup" className="nav-btn">Start Free →</Link>
       </div>
       {/* Mobile hamburger */}
@@ -36,16 +35,13 @@ export default function Nav() {
         {menuOpen ? "✕" : "☰"}
       </button>
       {menuOpen && (
-        <div style={{ position: "fixed", top: "calc(var(--banner-height, 0px) + 60px)", left: 0, right: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", padding: "24px 20px", zIndex: 499, display: "flex", flexDirection: "column", gap: 0 }}>
+        <div style={{ position: "fixed", top: 60, left: 0, right: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", padding: "24px 20px", zIndex: 499, display: "flex", flexDirection: "column", gap: 0 }}>
           {["/#how-it-works", "/#pricing", "/#results", "/#faq", "/#about"].map((href, i) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{ padding: "16px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-md)", fontWeight: 500 }}>
               {["How it works", "Pricing", "Results", "FAQ", "About"][i]}
             </a>
           ))}
-          <Link to="/competition" className="nav-btn-competition" style={{ marginTop: 20, textAlign: "center", width: "100%" }} onClick={() => setMenuOpen(false)}>
-            Competition
-          </Link>
-          <Link to="/signup" className="btn-gold" style={{ marginTop: 12, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
+          <Link to="/signup" className="btn-gold" style={{ marginTop: 20, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
             Start Free →
           </Link>
         </div>

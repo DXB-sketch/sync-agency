@@ -7,13 +7,11 @@ import { AuthProvider } from "./lib/AuthContext";
 import { ChronosModeProvider } from "./lib/ChronosModeContext";
 import Cursor from "./components/Cursor";
 import Nav from "./components/Nav";
-import CompetitionBanner from "./components/CompetitionBanner";
 import Footer from "./sections/Footer";
 import UTMIndicator from "./components/UTMIndicator";
 import HomePage from "./pages/HomePage";
 import RepListPage from "./pages/RepListPage";
 import AboutPage from "./pages/AboutPage";
-import CompetitionPage from "./pages/CompetitionPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthConfirmedPage from "./pages/AuthConfirmedPage";
@@ -55,7 +53,6 @@ function Shell() {
 
   return (
     <>
-      {!isAppRoute && <CompetitionBanner />}
       <div className="noise" aria-hidden="true" />
       <Cursor />
       {!isAppRoute && <Nav />}
@@ -70,7 +67,6 @@ function Shell() {
             </>
           }
         />
-        <Route path="/competition" element={<CompetitionPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/auth/confirmed" element={<AuthConfirmedPage />} />

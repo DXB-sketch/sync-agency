@@ -605,59 +605,8 @@ footer { border-top: 1px solid var(--border); padding: 40px 80px; background: va
   .about-page-cta .btn-gold { width: 100%; justify-content: center; }
 }
 
-/* ── COMPETITION NAV BADGE ── */
-.nav-btn-competition { background: var(--gold); color: var(--black); padding: 6px 14px; border-radius: 2px; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; transition: background .2s; cursor: none; }
-.nav-btn-competition:hover { background: var(--gold-lt); }
-
-/* Keep dark text on the gold nav buttons — overrides the muted `.nav-links a` colour (and its gold hover) that would otherwise make the label illegible on gold. */
-.nav-links a.nav-btn, .nav-links a.nav-btn-competition,
-.nav-links a.nav-btn:hover, .nav-links a.nav-btn-competition:hover { color: var(--black); }
-
-/* ── COMPETITION BANNER ── */
-.comp-banner { position: fixed; top: 0; left: 0; right: 0; z-index: 600; height: var(--banner-height, 44px); background: var(--gold); color: var(--black); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 20px; font-family: var(--font-body); font-size: 13px; font-weight: 700; letter-spacing: 0.06em; }
-.comp-banner-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.comp-banner-right { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
-.comp-banner-link { color: var(--gold-dk); cursor: pointer; }
-.comp-banner-link:hover { text-decoration: underline; }
-.comp-banner-close { background: transparent; color: var(--black); border: none; cursor: pointer; font-size: 15px; line-height: 1; padding: 4px; }
-body.banner-visible .nav { top: var(--banner-height, 44px); }
-@media (max-width: 768px) {
-  .comp-banner { padding: 0 12px; font-size: 11px; }
-  .comp-banner-right { gap: 10px; }
-}
-
-/* ── COMPETITION PAGE ── */
-.comp-page { padding-top: 120px; background: var(--black); }
-.comp-hero { text-align: center; max-width: 900px; margin: 0 auto; padding: 80px 80px 100px; }
-.comp-hero-h1 { font-family: var(--font-display); font-size: clamp(48px, 6vw, 92px); line-height: 1.02; font-weight: 700; }
-.comp-amount { font-style: italic; color: var(--gold); }
-.comp-hero-sub { font-size: 18px; color: var(--text-md); line-height: 1.75; max-width: 620px; margin: 28px auto 0; }
-.comp-hero-descriptor { font-size: 15px; color: var(--text-dim); line-height: 1.7; margin-top: 18px; }
-.comp-hero-cta { margin-top: 44px; }
-.comp-section { max-width: 1200px; margin: 0 auto; padding: 80px; }
-.comp-section-head { text-align: center; margin-bottom: 48px; }
-.comp-section-head h2 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 52px); font-weight: 700; }
-.comp-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-.comp-step { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 36px 32px; transition: border-color .3s, transform .3s; }
-.comp-step:hover { border-color: var(--border-md); transform: translateY(-3px); }
-.comp-step-num { font-family: var(--font-display); font-size: 48px; color: var(--gold); font-weight: 700; line-height: 1; }
-.comp-step-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin: 16px 0 10px; }
-.comp-step-desc { font-size: 14px; color: var(--text-md); line-height: 1.7; }
-.comp-eligibility { max-width: 900px; margin: 0 auto; background: var(--card); border: 1px solid var(--border); border-left: 3px solid var(--gold); border-radius: 0 4px 4px 0; padding: 40px 44px; }
-.comp-eligibility h2 { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--gold); margin-bottom: 16px; }
-.comp-eligibility p { font-size: 15px; color: var(--text-md); line-height: 1.8; }
-.comp-final { text-align: center; max-width: 800px; margin: 0 auto; padding: 100px 80px 120px; }
-.comp-final h2 { font-family: var(--font-display); font-size: clamp(40px, 5vw, 68px); font-weight: 700; line-height: 1.05; }
-.comp-final p { font-size: 17px; color: var(--text-md); line-height: 1.7; margin: 20px auto 36px; max-width: 480px; }
-.comp-final-smallprint { font-size: 12px; color: var(--text-dim); letter-spacing: 0.04em; margin-top: 20px; }
-@media (max-width: 768px) {
-  .comp-hero { padding: 48px 20px 64px; }
-  .comp-section { padding: 56px 20px; }
-  .comp-steps { grid-template-columns: 1fr; }
-  .comp-eligibility { padding: 32px 24px; }
-  .comp-final { padding: 64px 20px 80px; }
-  .comp-final .btn-gold { width: 100%; justify-content: center; }
-}
+/* Keep dark text on the gold nav button — overrides the muted `.nav-links a` colour (and its gold hover) that would otherwise make the label illegible on gold. */
+.nav-links a.nav-btn, .nav-links a.nav-btn:hover { color: var(--black); }
 
 /* ── PORTAL AUTH ── */
 .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 20px 60px; }

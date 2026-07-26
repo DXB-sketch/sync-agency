@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 import { getAffiliate } from "../utils/affiliate.js";
 
 function trackEvent(name, props) {
@@ -32,30 +33,20 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
   if (!open || !tier) return null;
 
   const isMonthly = plan === "monthly";
-  const priceId = isMonthly ? tier.stripeMonthlyPriceId : tier.stripeYearlyPriceId;
-  const mode = isMonthly ? "subscription" : "payment";
 
   async function handleCTA() {
     setLoading(true);
     setError(null);
     trackEvent("checkout_initiated", { tier: tier.name, plan: isMonthly ? "monthly" : "yearly" });
-    try {
-      const res = await fetch("/checkout.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId, mode, tierName: tier.name, affiliate: getAffiliate() }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.error || "Something went wrong. Please try again.");
-        setLoading(false);
-      }
-    } catch {
-      setError("Unable to connect. Please try again.");
+    const { data, error: fnErr } = await supabase.functions.invoke("create-landing-checkout", {
+      body: { tier: tier.id, plan, affiliate: getAffiliate() },
+    });
+    if (fnErr || !data?.url) {
+      setError(data?.error || "Something went wrong. Please try again.");
       setLoading(false);
+      return;
     }
+    window.location.href = data.url;
   }
 
   return (
