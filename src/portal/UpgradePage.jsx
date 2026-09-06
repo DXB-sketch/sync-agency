@@ -31,10 +31,14 @@ export default function UpgradePage() {
   return (
     <div className="portal-page">
       <div className="portal-page-head">
-        <h1 className="portal-h1">Upgrade your dashboard</h1>
+        <h1 className="portal-h1">
+          {currentRank === 0 && !profile?.grandfathered_free ? "Choose your plan" : "Upgrade your dashboard"}
+        </h1>
         <p className="portal-sub">
           {currentRank === 0
-            ? "You're on the Free Dashboard. The Depop Coaching System courses build on it — unlock more product slots, deeper pathway steps and hands-on help."
+            ? profile?.grandfathered_free
+              ? "You're on the Free Dashboard. The Depop Coaching System courses build on it — unlock more product slots, deeper pathway steps and hands-on help."
+              : "Your account doesn't have a plan yet. Choose a Depop Coaching System tier to unlock your dashboard — pathway, product slots and hands-on help."
             : `You're on ${TIERS[profile.tier].name}. Lifetime upgrades are prorated — you only pay the difference.`}
         </p>
       </div>

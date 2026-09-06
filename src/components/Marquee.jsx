@@ -1,8 +1,8 @@
 const MARQUEE_ITEMS = [
-  "Free dashboard", "1200+ clients", "100% success rate", "Australian owned",
+  "Members dashboard","1200+ clients", "100% success rate", "Australian owned",
   "Depop coaching system", "Proven system", "Private suppliers",
   "1-on-1 support", "Daily product drops", "Real results",
-  "5000+ rep items", "Free dashboard", "1200+ clients", "100% success rate",
+  "5000+ rep items", "Members dashboard","1200+ clients", "100% success rate",
   "Australian owned", "Depop coaching system", "Proven system",
   "Private suppliers", "1-on-1 support", "Daily product drops",
   "Real results", "5000+ rep items",

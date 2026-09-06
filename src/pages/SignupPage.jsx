@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
-// Free account creation — the dashboard is free for everyone. Course
-// purchases still auto-link on confirmation when the signup email matches
-// the email used at Stripe checkout.
+// Account creation for members — the portal requires a paid plan. Course
+// purchases auto-link on confirmation when the signup email matches the
+// email used at Stripe checkout; accounts without a plan are sent to the
+// upgrade page to choose one.
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +40,7 @@ export default function SignupPage() {
           </h1>
           <p className="auth-sub">
             We've sent a confirmation link to <strong>{email}</strong>. Click it to activate your
-            free account and open your dashboard.
+            account and open your dashboard.
           </p>
         </div>
       </section>
@@ -54,12 +55,12 @@ export default function SignupPage() {
           <span className="eyebrow-text">Welcome to Sync</span>
         </div>
         <h1 className="auth-title">
-          Create your <em>free account</em>
+          Create your <em>account</em>
         </h1>
         <p className="auth-sub">
-          The Sync dashboard is <strong>100% free</strong> — your pathway, product slots and
-          support, no card required. Bought a course? Sign up with the same email and it links
-          automatically.
+          Bought a plan? Sign up with the <strong>same email you used at checkout</strong> and
+          your purchase links automatically. Haven't joined yet? You can choose your plan
+          right after creating your account.
         </p>
         <form onSubmit={handleSubmit} className="auth-form">
           <label className="auth-label">
@@ -87,7 +88,7 @@ export default function SignupPage() {
           </label>
           {error && <p className="auth-error">{error}</p>}
           <button className="btn-gold auth-submit" type="submit" disabled={loading}>
-            {loading ? "Creating…" : "Create free account"}
+            {loading ? "Creating…" : "Create account"}
           </button>
         </form>
         <p className="auth-alt">

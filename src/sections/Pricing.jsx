@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { useInView } from "../components/FadeUp";
 import FadeUp from "../components/FadeUp";
 import Eyebrow from "../components/Eyebrow";
@@ -10,17 +9,17 @@ import { trackEvent } from "../utils/analytics.js";
 import { isNativeApp } from "../lib/nativeApp.js";
 
 const COMPARE_ROWS = [
-  { feature: "Step-by-step pathway", free: "✓", pro: "✓ (extended)", elite: "✓ (extended)", vip: "✓ (full tree)" },
-  { feature: "Dashboard product slots", free: "6", pro: "9", elite: "12", vip: "15" },
-  { feature: "1-on-1 calls", free: "-", pro: "Unlimited", elite: "Unlimited", vip: "Unlimited" },
-  { feature: "Store setup", free: "Self-serve", pro: "✓", elite: "✓", vip: "✓" },
-  { feature: "Store run for you", free: "-", pro: "-", elite: "-", vip: "✓" },
-  { feature: "Daily product picks", free: "-", pro: "✓ (drops)", elite: "✓ (drops)", vip: "✓ (personalised)" },
-  { feature: "Listings created for you", free: "-", pro: "-", elite: "✓", vip: "✓" },
-  { feature: "Custom supplier sourcing", free: "-", pro: "-", elite: "-", vip: "✓" },
-  { feature: "Priority support", free: "-", pro: "-", elite: "✓", vip: "Top-priority" },
-  { feature: "Store audits", free: "-", pro: "-", elite: "-", vip: "On-demand" },
-  { feature: "Daily operations oversight", free: "-", pro: "-", elite: "-", vip: "✓" },
+  { feature: "Step-by-step pathway", pro: "✓ (extended)", elite: "✓ (extended)", vip: "✓ (full tree)" },
+  { feature: "Dashboard product slots", pro: "9", elite: "12", vip: "15" },
+  { feature: "1-on-1 calls", pro: "Unlimited", elite: "Unlimited", vip: "Unlimited" },
+  { feature: "Store setup", pro: "✓", elite: "✓", vip: "✓" },
+  { feature: "Store run for you", pro: "-", elite: "-", vip: "✓" },
+  { feature: "Daily product picks", pro: "✓ (drops)", elite: "✓ (drops)", vip: "✓ (personalised)" },
+  { feature: "Listings created for you", pro: "-", elite: "✓", vip: "✓" },
+  { feature: "Custom supplier sourcing", pro: "-", elite: "-", vip: "✓" },
+  { feature: "Priority support", pro: "-", elite: "✓", vip: "Top-priority" },
+  { feature: "Store audits", pro: "-", elite: "-", vip: "On-demand" },
+  { feature: "Daily operations oversight", pro: "-", elite: "-", vip: "✓" },
 ];
 
 function CompareCell({ value }) {
@@ -53,29 +52,13 @@ export default function Pricing() {
       <div className="section-inner">
         <FadeUp>
           <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto 0" }}>
-            <Eyebrow text="Upgrades" />
-            <h2 className="section-title">Start free.<br />Upgrade when you're <em>ready.</em></h2>
+            <Eyebrow text="Pricing" />
+            <h2 className="section-title">Choose your level.<br />Start <em>today.</em></h2>
             <p className="section-sub" style={{ margin: "16px auto 0" }}>
-              The Sync dashboard is free forever. The Depop Coaching System — three levels of
-              hands-on coaching — plugs straight into it. All prices in AUD, paid securely via
-              Stripe, or join our Discord to ask questions first.
+              The Depop Coaching System — three levels of hands-on coaching, each with the
+              full Sync dashboard included. All prices in AUD, paid securely via Stripe, or
+              join our Discord to ask questions first.
             </p>
-          </div>
-        </FadeUp>
-
-        <FadeUp>
-          <div className="price-free-banner">
-            <div>
-              <div className="price-tier-label">Tier 00 · Free forever</div>
-              <div className="price-name">The Sync Dashboard</div>
-              <div className="price-tagline">
-                Step-by-step pathway, 6 product slots stocked by our team, achievements,
-                order fulfilment and support — no card required.
-              </div>
-            </div>
-            <Link to="/signup" className="btn-gold price-free-cta">
-              Create your free account →
-            </Link>
           </div>
         </FadeUp>
 
@@ -90,7 +73,7 @@ export default function Pricing() {
                 <span className="price-currency">$</span>
                 <span className="price-amount">{tier.price}</span>
               </div>
-              <div className="price-period">AUD, per month · 3-day free trial</div>
+              <div className="price-period">AUD, per month</div>
               <SpotsBadge spots={tier.spotsBase} />
               <div className="price-outcome">
                 <strong style={{ color: "var(--gold)", fontWeight: 600, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>Outcome: </strong>
@@ -131,7 +114,6 @@ export default function Pricing() {
                 <thead>
                   <tr>
                     <th>Feature</th>
-                    <th>Free Dashboard - $0</th>
                     <th>Pro Accelerator - $79/mo</th>
                     <th>Elite Scale - $127/mo</th>
                     <th>VIP Inner Circle - $349/mo</th>
@@ -141,7 +123,6 @@ export default function Pricing() {
                   {COMPARE_ROWS.map((row) => (
                     <tr key={row.feature}>
                       <td>{row.feature}</td>
-                      <CompareCell value={row.free} />
                       <CompareCell value={row.pro} />
                       <CompareCell value={row.elite} />
                       <CompareCell value={row.vip} />

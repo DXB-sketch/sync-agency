@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import FadeUp from "../components/FadeUp";
 import Eyebrow from "../components/Eyebrow";
 
@@ -10,18 +9,18 @@ export default function CTASection() {
       <div style={{ position: "relative", zIndex: 2 }}>
         <FadeUp>
           <Eyebrow text="Ready to start?" />
-          <h2>Your journey starts<br /><em>with a free account.</em></h2>
+          <h2>Your journey starts<br /><em>with one decision.</em></h2>
           <p>
-            The dashboard is free. The pathway is free. Your first product slots are free.
+            The pathway, the product slots, the coaching — it's all waiting inside.
             1200+ clients in — the only question is when you start.
           </p>
           <div className="cta-btns">
-            <Link to="/signup" className="btn-gold" style={{ fontSize: 15, padding: "18px 52px" }}>
-              Create your free account →
-            </Link>
-            <a href="#pricing" className="btn-ghost">See course upgrades</a>
+            <a href="#pricing" className="btn-gold" style={{ fontSize: 15, padding: "18px 52px" }}>
+              Choose your plan →
+            </a>
+            <a href="#faq" className="btn-ghost">Read the FAQ</a>
           </div>
-          <p className="discord-note">No card required. Upgrade to the Depop Coaching System whenever you're ready.</p>
+          <p className="discord-note">Questions first? Join our Discord and ask us anything before you commit.</p>
         </FadeUp>
       </div>
     </section>

@@ -23,7 +23,7 @@ export default function Nav() {
         <a href="/#results">Results</a>
         <a href="/#faq">FAQ</a>
         <a href="/#about">About</a>
-        <Link to="/signup" className="nav-btn">Start Free →</Link>
+        <a href="/#pricing" className="nav-btn">Join Now →</a>
       </div>
       {/* Mobile hamburger */}
       <button
@@ -41,9 +41,9 @@ export default function Nav() {
               {["How it works", "Pricing", "Results", "FAQ", "About"][i]}
             </a>
           ))}
-          <Link to="/signup" className="btn-gold" style={{ marginTop: 20, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
-            Start Free →
-          </Link>
+          <a href="/#pricing" className="btn-gold" style={{ marginTop: 20, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
+            Join Now →
+          </a>
         </div>
       )}
     </nav>

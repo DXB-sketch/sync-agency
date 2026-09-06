@@ -13,7 +13,7 @@ const WALLET_ADJUST_TYPES = [
   ["refund", "Refund"],
 ];
 const TIER_OPTIONS = [
-  ["free", "Free Dashboard"],
+  ["free", "Free Dashboard (legacy)"],
   ["pro", "Pro Accelerator"],
   ["elite", "Elite Scale"],
   ["vip", "VIP Inner Circle"],

@@ -59,7 +59,6 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: plan === "monthly" ? "subscription" : "payment",
       line_items: [{ price: plan === "monthly" ? tier.monthly : tier.yearly, quantity: 1 }],
-      ...(plan === "monthly" ? { subscription_data: { trial_period_days: 3 } } : {}),
       client_reference_id: affiliate || undefined,
       success_url: `${SITE_URL}/?checkout=success&tier=${encodeURIComponent(tier.name)}`,
       cancel_url: `${SITE_URL}/#pricing`,

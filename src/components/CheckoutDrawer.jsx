@@ -101,7 +101,6 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
                 <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}>/mo</span>
               </div>
               <div className="checkout-price-period">AUD · billed monthly · cancel anytime</div>
-              <div className="checkout-trial-badge">✦ 3-Day Free Trial Included</div>
             </>
           ) : (
             <>
@@ -123,7 +122,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
             onClick={handleCTA}
             disabled={loading}
           >
-            {loading ? "Processing..." : isMonthly ? "Start Free Trial →" : "Get 3-Year Access →"}
+            {loading ? "Processing..." : isMonthly ? "Start Monthly →" : "Get 3-Year Access →"}
           </button>
           {error && (
             <div className="checkout-error" style={{ marginTop: 10 }}>
@@ -132,7 +131,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
           )}
           <p className="checkout-smallprint" style={{ marginTop: 10 }}>
             {isMonthly
-              ? "3-day free trial. Card required. Cancel any time before trial ends."
+              ? "Billed monthly from today. Cancel any time."
               : "One-time payment. Access valid for 3 years from purchase date."}
           </p>
         </div>

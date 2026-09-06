@@ -12,6 +12,10 @@ function Loading() {
 
 // Authed + email-confirmed + active subscription. Inactive monthly subs are
 // locked out of everything except /portal/reactivate (RLS enforces this too).
+// The free tier is closed to new accounts: members grandfathered in
+// (profiles.grandfathered_free) keep their old free access, but any newer
+// account without a paid plan only sees /portal/upgrade (and /portal/support
+// so they can reach us) until a purchase links up.
 export function RequireMember({ children }) {
   const { session, profile, loading } = useAuth();
   const location = useLocation();
@@ -21,6 +25,17 @@ export function RequireMember({ children }) {
   if (!profile) return <Loading />;
   if (!profile.subscription_active && location.pathname !== "/portal/reactivate") {
     return <Navigate to="/portal/reactivate" replace />;
+  }
+  const unpaid =
+    (!profile.tier || profile.tier === "free") &&
+    !profile.grandfathered_free &&
+    profile.role !== "admin";
+  if (
+    unpaid &&
+    location.pathname !== "/portal/upgrade" &&
+    location.pathname !== "/portal/support"
+  ) {
+    return <Navigate to="/portal/upgrade" replace />;
   }
   return children;
 }

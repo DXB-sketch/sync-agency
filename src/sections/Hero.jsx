@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useInView } from "../components/FadeUp";
 import HeroPanel from "../components/HeroPanel";
 import SocialIcons from "../components/SocialIcons";
@@ -43,25 +42,25 @@ export default function Hero() {
         <div>
           <div className="hero-eyebrow">
             <div className="hero-eyebrow-line" />
-            <span className="hero-eyebrow-text">The Sync Dashboard · Free Forever</span>
+            <span className="hero-eyebrow-text">The Depop Coaching System</span>
           </div>
           <h1 className="hero-h1">
             {words.map((w, i) => (
               <span key={w} className="word" style={{ animationDelay: `${0.1 + i * 0.08}s`, marginRight: "0.28em" }}>{w}</span>
             ))}
             <br />
-            <em className="word" style={{ animationDelay: "0.44s" }}>Journey — Free.</em>
+            <em className="word" style={{ animationDelay: "0.44s" }}>Journey.</em>
           </h1>
           <p className="hero-sub" style={{ animation: "wordReveal .8s .6s cubic-bezier(.16,1,.3,1) both" }}>
-            The Sync dashboard gives you a step-by-step pathway, product slots stocked by our
-            team, and everything you need to launch your first dropshipping store — completely
-            free. Ready for more? Upgrade with our Depop Coaching System.
+            The Depop Coaching System gives you a step-by-step pathway, product slots stocked
+            by our team, and hands-on coaching — everything you need to launch your first
+            dropshipping store. Choose your level and start today.
           </p>
           <div className="hero-actions" style={{ animation: "wordReveal .8s .75s cubic-bezier(.16,1,.3,1) both" }}>
-            <Link to="/signup" className="btn-gold">
-              Create your free account <span>→</span>
-            </Link>
-            <a href="#pricing" className="btn-ghost">See course upgrades</a>
+            <a href="#pricing" className="btn-gold">
+              Choose your plan <span>→</span>
+            </a>
+            <a href="#how-it-works" className="btn-ghost">See how it works</a>
           </div>
           <SocialIcons className="hero-social hero-social-mobile" />
           <div className="hero-stats" style={{ animation: "wordReveal .8s .9s cubic-bezier(.16,1,.3,1) both" }}>

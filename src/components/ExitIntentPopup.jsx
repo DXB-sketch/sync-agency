@@ -21,10 +21,10 @@ export default function ExitIntentPopup() {
       <div className="exit-modal">
         <button className="exit-close" onClick={() => setShow(false)} aria-label="Close">×</button>
         <div className="exit-eyebrow">Wait, before you go</div>
-        <h2>The dashboard<br />is <em>free.</em></h2>
+        <h2>1200+ stores<br />launched <em>with us.</em></h2>
         <p>
-          You don't need to buy anything to start. Create a free account, follow the pathway,
-          and see the system for yourself — no card, no commitment.
+          Every client gets the step-by-step pathway, product slots stocked by our team,
+          and coaching that answers within hours. Pick your level and we handle the rest.
         </p>
         <div className="exit-stats">
           <div className="exit-stat">
@@ -41,12 +41,12 @@ export default function ExitIntentPopup() {
           </div>
         </div>
         <a
-          href="/signup"
+          href="#pricing"
           className="btn-gold"
           style={{ display: "flex", width: "100%", justifyContent: "center", fontSize: 14, padding: "16px 32px" }}
           onClick={() => setShow(false)}
         >
-          Create your free account →
+          Choose your plan →
         </a>
         <button className="exit-dismiss" onClick={() => setShow(false)}>
           No thanks, I'll figure it out myself
