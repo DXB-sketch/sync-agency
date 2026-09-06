@@ -1,8 +1,0 @@
-/* design-sync only: the app hides the native cursor and replaces it with the
-   custom <Cursor/> component, which is excluded from this bundle. Restore it. */
-body, button, a, input, select, textarea, label { cursor: auto; }
-button, a { cursor: pointer; }
-
-/* Dark-theme brand: the preview harness defaults body to white, which makes the
-   off-white brand text invisible. Assert the real page background everywhere. */
-body { background: var(--black) !important; }
