@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 
 export default function CheckoutSuccessNotification() {
-  const [visible, setVisible] = useState(false);
-  const [tierName, setTierName] = useState(null);
+  // Read the URL once on mount; the effect below only strips the params
+  const [params] = useState(() => new URLSearchParams(window.location.search));
+  const [visible, setVisible] = useState(() => params.get("checkout") === "success");
+  const tierName = params.get("tier");
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
     if (params.get("checkout") === "success") {
-      setTierName(params.get("tier") || null);
-      setVisible(true);
-
       const clean = new URL(window.location.href);
       clean.searchParams.delete("checkout");
       clean.searchParams.delete("tier");
@@ -18,7 +16,7 @@ export default function CheckoutSuccessNotification() {
       const timer = setTimeout(() => setVisible(false), 12000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [params]);
 
   if (!visible) return null;
 

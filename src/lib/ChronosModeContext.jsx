@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { ChronosModeContext } from "./useChronosMode";
 
 // Per-admin, per-device UX toggle for Project Chronos admin sections (CJ supplier tooling,
 // exception queue, margin alerts, Connect Store/Product Linking, supplier-linker modal).
@@ -7,8 +8,6 @@ import { createContext, useContext, useEffect, useState } from "react";
 // flag. The wallet is NOT part of Chronos mode — it's a live member feature, gated by normal
 // member auth only (see src/lib/walletFlag.js).
 const STORAGE_KEY = "sync_chronos_mode";
-
-const ChronosModeContext = createContext({ chronosMode: false, setChronosMode: () => {} });
 
 export function ChronosModeProvider({ children }) {
   const [chronosMode, setChronosModeState] = useState(() => {
@@ -36,8 +35,4 @@ export function ChronosModeProvider({ children }) {
       {children}
     </ChronosModeContext.Provider>
   );
-}
-
-export function useChronosMode() {
-  return useContext(ChronosModeContext);
 }

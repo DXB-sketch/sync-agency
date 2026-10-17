@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import PathwayIcon from "../components/portal/PathwayIcon";
 
 export default function AchievementsPage() {
@@ -12,13 +12,14 @@ export default function AchievementsPage() {
   const fileInput = useRef(null);
   const pendingId = useRef(null);
 
-  async function load() {
-    const [{ data: a }, { data: m }] = await Promise.all([
+  function load() {
+    return Promise.all([
       supabase.from("achievements").select("*").order("sort_order"),
       supabase.from("member_achievements").select("*"),
-    ]);
-    setAchievements(a ?? []);
-    setMine(Object.fromEntries((m ?? []).map((r) => [r.achievement_id, r])));
+    ]).then(([{ data: a }, { data: m }]) => {
+      setAchievements(a ?? []);
+      setMine(Object.fromEntries((m ?? []).map((r) => [r.achievement_id, r])));
+    });
   }
 
   useEffect(() => {

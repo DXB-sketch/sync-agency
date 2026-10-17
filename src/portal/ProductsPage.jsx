@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
 import { addToCart, loadCart } from "../lib/cart";
 import { productImages } from "../lib/productImages";
@@ -22,7 +22,7 @@ export default function ProductsPage() {
   function addAndConfirm(p) {
     setCartCount(addToCart(p).length);
     clearTimeout(toastTimer.current);
-    setToast({ name: p.name, key: Date.now() });
+    setToast({ name: p.name, key: (toast?.key ?? 0) + 1 });
     toastTimer.current = setTimeout(() => setToast(null), 2400);
   }
 

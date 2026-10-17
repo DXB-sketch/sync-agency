@@ -71,8 +71,9 @@ function Shell() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/auth/confirmed" element={<AuthConfirmedPage />} />
 
+        <Route path="/portal/reactivate" element={<Navigate to="/portal" replace />} />
         <Route
-          path="/portal/reactivate"
+          path="/portal/access-paused"
           element={
             <RequireMember>
               <ReactivatePage />

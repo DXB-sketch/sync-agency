@@ -1,6 +1,6 @@
 import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { TIERS } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 import { TutorialProvider, SaleNudges } from "./Tutorial";

@@ -1,27 +1,51 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../lib/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../lib/useAuth";
 
-// Landing page for the email confirmation link. By the time the session
-// arrives here, a DB trigger has already tried to match profiles.email to a
-// purchases.email and set the tier. No matching purchase → support state.
+// Landing page for the email confirmation link. Supabase confirms the email
+// server-side before redirecting here, and a DB trigger has already tried to
+// match profiles.email to a purchases.email and set the tier.
+//
+// The session normally arrives in the URL, but it won't if the link was opened
+// in a different browser/app than the one used to sign up (common on phones),
+// or if the link expired — so every state ends in a clear next step rather
+// than an endless "Confirming…".
+const WAIT_MS = 8000;
+
+function readLink() {
+  const hash = new URLSearchParams(window.location.hash.slice(1));
+  const query = new URLSearchParams(window.location.search);
+  return {
+    error: hash.get("error_description") ?? query.get("error_description"),
+    hasToken: hash.has("access_token") || query.has("code") || query.has("token_hash"),
+  };
+}
+
 export default function AuthConfirmedPage() {
-  const { session, profile, loading, refreshProfile } = useAuth();
+  const { session, profile, profileError, loading } = useAuth();
   const navigate = useNavigate();
-  const [checked, setChecked] = useState(false);
+  const [link] = useState(readLink);
+  const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
-    if (loading) return;
-    if (!session) return; // still exchanging the token from the URL
-    (async () => {
-      const fresh = await refreshProfile();
-      setChecked(true);
-      if (fresh?.tier) navigate("/portal", { replace: true });
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, session]);
+    const t = setTimeout(() => setTimedOut(true), WAIT_MS);
+    return () => clearTimeout(t);
+  }, []);
 
-  if (!checked || loading) {
+  const hasPlan =
+    profile &&
+    (profile.role === "admin" ||
+      (profile.tier && profile.tier !== "free") ||
+      profile.grandfathered_free);
+
+  useEffect(() => {
+    if (hasPlan) navigate(profile.role === "admin" ? "/admin" : "/portal", { replace: true });
+  }, [hasPlan, profile, navigate]);
+
+  const waitingForSession = !session && !link.error && (loading || (link.hasToken && !timedOut));
+  const waitingForProfile = session && !profile && !profileError;
+
+  if (waitingForSession || waitingForProfile || hasPlan) {
     return (
       <section className="auth-page">
         <div className="auth-card">
@@ -38,13 +62,28 @@ export default function AuthConfirmedPage() {
     return (
       <section className="auth-page">
         <div className="auth-card">
-          <h1 className="auth-title">
-            Link <em>expired</em>
-          </h1>
-          <p className="auth-sub">
-            This confirmation link is invalid or expired. Try signing in — if that fails, sign up
-            again to get a fresh link.
-          </p>
+          {link.error ? (
+            <>
+              <h1 className="auth-title">
+                Link <em>expired</em>
+              </h1>
+              <p className="auth-sub">
+                This confirmation link is invalid or has expired. Sign in with your email and
+                password — if your account still needs confirming, you can send yourself a fresh
+                link from there.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="auth-title">
+                Email <em>confirmed</em>
+              </h1>
+              <p className="auth-sub">
+                Your email is confirmed. Sign in with the email and password you signed up with
+                to open your dashboard.
+              </p>
+            </>
+          )}
           <button className="btn-gold auth-submit" onClick={() => navigate("/login")}>
             Go to sign in
           </button>
@@ -53,7 +92,7 @@ export default function AuthConfirmedPage() {
     );
   }
 
-  // Confirmed but no tier: purchase email didn't match
+  // Confirmed, but no plan is linked to this email (or the profile couldn't load)
   return (
     <section className="auth-page">
       <div className="auth-card">
@@ -62,16 +101,22 @@ export default function AuthConfirmedPage() {
           <span className="eyebrow-text">Account Confirmed</span>
         </div>
         <h1 className="auth-title">
-          We couldn't match your <em>purchase</em>
+          You're <em>in</em>
         </h1>
         <p className="auth-sub">
-          Your account ({profile?.email}) is confirmed, but we couldn't find a course purchase
-          under this email. This usually means a different email was used at checkout.
+          Your account{profile?.email ? ` (${profile.email})` : ""} is confirmed. Choose a plan to
+          unlock your dashboard.
           <br />
           <br />
-          Contact us at <strong>confirmation@syncagency.org</strong> with your checkout email and
-          we'll link your access manually.
+          Already bought one with a different email? Contact{" "}
+          <strong>confirmation@syncagency.org</strong> with your checkout email and we'll link
+          your access.
         </p>
+        <div className="auth-actions">
+          <Link className="btn-gold auth-submit" to="/portal/upgrade">
+            Choose your plan
+          </Link>
+        </div>
       </div>
     </section>
   );

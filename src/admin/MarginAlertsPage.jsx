@@ -10,18 +10,19 @@ export default function MarginAlertsPage() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState(null);
 
-  async function load() {
-    const [{ data: logs }, { data: stock }] = await Promise.all([
+  function load() {
+    return Promise.all([
       supabase.from("price_sync_log").select("*").order("run_at", { ascending: false }).limit(1),
       supabase
         .from("supplier_products")
         .select("*")
         .eq("stock_state", "out_of_stock")
         .order("last_synced_at", { ascending: false }),
-    ]);
-    setLog(logs?.[0] ?? null);
-    setOutOfStock(stock ?? []);
-    setLoading(false);
+    ]).then(([{ data: logs }, { data: stock }]) => {
+      setLog(logs?.[0] ?? null);
+      setOutOfStock(stock ?? []);
+      setLoading(false);
+    });
   }
 
   useEffect(() => {

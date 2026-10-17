@@ -1,7 +1,7 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
-import { useChronosMode } from "../lib/ChronosModeContext";
+import { useAuth } from "../lib/useAuth";
+import { useChronosMode } from "../lib/useChronosMode";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
@@ -19,7 +19,9 @@ const EMPTY_DEST = { mode: "clients", tier: "pro", memberIds: {}, asBonus: false
 
 // Groups every product ever added to a client store into one catalogue row per
 // distinct name + price, so the same item given to many members shows once.
-function buildCatalogue(products, membersById) {
+// product_catalog rows not yet in any store (e.g. imported stock) are added as
+// catalogue-only entries (ids: [], catalogId set) so they can be assigned too.
+function buildCatalogue(products, membersById, catalogRows) {
   const map = new Map();
   for (const p of products) {
     const key = `${p.name.trim().toLowerCase()}|${Number(p.price)}`;
@@ -54,7 +56,36 @@ function buildCatalogue(products, membersById) {
       });
     }
   }
+  for (const row of catalogRows) {
+    const key = `${row.name.trim().toLowerCase()}|${Number(row.price)}`;
+    if (map.has(key)) continue;
+    map.set(key, {
+      key,
+      ids: [],
+      catalogId: row.id,
+      name: row.name.trim(),
+      description: row.description,
+      price: Number(row.price),
+      listing_price: row.listing_price != null ? Number(row.listing_price) : null,
+      discount_price: row.discount_price != null ? Number(row.discount_price) : null,
+      image_url: row.image_url,
+      images: productImages(row),
+      stripe_price_id: row.stripe_price_id,
+      storeCount: 0,
+      firstMember: null,
+      category: row.category ?? null,
+      supplierProduct: null,
+    });
+  }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// Edits land on every store copy of an entry, or on its product_catalog row
+// when it isn't in any store yet.
+function updateEntry(entry, fields) {
+  return entry.catalogId
+    ? supabase.from("product_catalog").update(fields).eq("id", entry.catalogId)
+    : supabase.from("products").update(fields).in("id", entry.ids);
 }
 
 // One place to pick where products go: specific client(s) or a tier's pool.
@@ -125,7 +156,9 @@ function DestinationPicker({ dest, onChange, members, fill }) {
               return (
                 <label
                   key={m.id}
-                  className={`pool-member${disabled ? " pool-member-disabled" : ""}`}
+                  className={`pool-member${disabled ? " pool-member-disabled" : ""}${
+                    dest.memberIds[m.id] && !disabled ? " checked" : ""
+                  }`}
                 >
                   <input
                     type="checkbox"
@@ -138,10 +171,12 @@ function DestinationPicker({ dest, onChange, members, fill }) {
                       })
                     }
                   />
-                  <span className="pool-member-name">{m.full_name || m.email}</span>
-                  <span className="pool-member-meta">
-                    {TIERS[m.tier].short} · {used}/{cap} slots{atCap ? " · full" : ""}
-                    {!m.subscription_active ? " · locked" : ""}
+                  <span className="pool-member-text">
+                    <span className="pool-member-name">{m.full_name || m.email}</span>
+                    <span className="pool-member-meta">
+                      {TIERS[m.tier].short} · {used}/{cap} slots{atCap ? " · full" : ""}
+                      {!m.subscription_active ? " · locked" : ""}
+                    </span>
                   </span>
                 </label>
               );
@@ -186,54 +221,66 @@ export default function ProductsAdminPage() {
   const [newFiles, setNewFiles] = useState([]);
   const [newDest, setNewDest] = useState(EMPTY_DEST);
 
-  const load = useCallback(async () => {
-    const [{ data: prods }, { data: mem }, { data: pp }] = await Promise.all([
-      supabase
-        .from("products")
-        .select(
-          "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
-        )
-        .order("created_at"),
-      supabase
-        .from("profiles")
-        .select("id, email, full_name, tier, subscription_active")
-        .eq("role", "member")
-        .not("tier", "is", null)
-        .order("email"),
-      supabase
-        .from("pool_products")
-        .select(
-          "*, profiles!pool_products_assigned_member_id_fkey(email), supplier_products(external_sku, stock_state, display_name)"
-        )
-        .order("created_at", { ascending: false }),
-    ]);
-    const membersById = Object.fromEntries((mem ?? []).map((m) => [m.id, m]));
-    setCatalogue(buildCatalogue(prods ?? [], membersById));
-    setMembers(mem ?? []);
-    setPool(pp ?? []);
-    const counts = {};
-    const names = {};
-    (prods ?? []).forEach((p) => {
-      if (p.active && !p.is_bonus) counts[p.member_id] = (counts[p.member_id] ?? 0) + 1;
-      if (p.active) {
-        (names[p.member_id] ??= new Set()).add(p.name.trim().toLowerCase());
-      }
-    });
-    setFill(counts);
-    setMemberNames(names);
+  const load = useCallback(
+    () =>
+      Promise.all([
+        supabase
+          .from("products")
+          .select(
+            "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
+          )
+          .order("created_at"),
+        supabase
+          .from("profiles")
+          .select("id, email, full_name, tier, subscription_active")
+          .eq("role", "member")
+          .not("tier", "is", null)
+          .order("email"),
+        supabase
+          .from("pool_products")
+          .select(
+            "*, profiles!pool_products_assigned_member_id_fkey(email), supplier_products(external_sku, stock_state, display_name)"
+          )
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("product_catalog")
+          .select(
+            "id, key, name, price, description, image_url, image_urls, listing_price, discount_price, category, stripe_price_id"
+          )
+          .eq("active", true)
+          .gt("price", 0),
+      ]).then(async ([{ data: prods }, { data: mem }, { data: pp }, { data: cat }]) => {
+        const membersById = Object.fromEntries((mem ?? []).map((m) => [m.id, m]));
+        // Internal rows (e.g. the wallet top-up product) aren't sellable stock
+        const catalogRows = (cat ?? []).filter((r) => r.name && !r.key.startsWith("sync_"));
+        setCatalogue(buildCatalogue(prods ?? [], membersById, catalogRows));
+        setMembers(mem ?? []);
+        setPool(pp ?? []);
+        const counts = {};
+        const names = {};
+        (prods ?? []).forEach((p) => {
+          if (p.active && !p.is_bonus) counts[p.member_id] = (counts[p.member_id] ?? 0) + 1;
+          if (p.active) {
+            (names[p.member_id] ??= new Set()).add(p.name.trim().toLowerCase());
+          }
+        });
+        setFill(counts);
+        setMemberNames(names);
 
-    // Heal products still missing a Stripe price (e.g. auto-assigned by the
-    // slot-opened trigger, which can't call Stripe). Once per visit, non-blocking.
-    const unlinked = (prods ?? []).filter((p) => p.active && !p.stripe_price_id);
-    if (!healedRef.current && unlinked.length > 0) {
-      healedRef.current = true;
-      (async () => {
-        for (const p of unlinked) {
-          await supabase.functions.invoke("create-stripe-product", { body: { product_id: p.id } });
+        // Heal products still missing a Stripe price (e.g. auto-assigned by the
+        // slot-opened trigger, which can't call Stripe). Once per visit, non-blocking.
+        const unlinked = (prods ?? []).filter((p) => p.active && !p.stripe_price_id);
+        if (!healedRef.current && unlinked.length > 0) {
+          healedRef.current = true;
+          (async () => {
+            for (const p of unlinked) {
+              await supabase.functions.invoke("create-stripe-product", { body: { product_id: p.id } });
+            }
+          })();
         }
-      })();
-    }
-  }, []);
+      }),
+    [],
+  );
 
   useEffect(() => {
     load();
@@ -507,6 +554,18 @@ export default function ProductsAdminPage() {
   }
 
   async function deleteFromCatalogue(entry) {
+    if (entry.catalogId) {
+      if (!window.confirm(`Remove "${entry.name}" from the catalogue? It isn't in any client store.`)) return;
+      setError(null);
+      setNotice(null);
+      setBusy("delete");
+      const { error: delErr } = await supabase.from("product_catalog").delete().eq("id", entry.catalogId);
+      if (delErr) setError(delErr.message);
+      else setSelected((s) => ({ ...s, [entry.key]: false }));
+      await load();
+      setBusy(null);
+      return;
+    }
     if (
       !window.confirm(
         `Delete "${entry.name}" from the catalogue and remove it from ${entry.storeCount} client store${
@@ -547,7 +606,7 @@ export default function ProductsAdminPage() {
       listing_price: listing === "" ? null : Number(listing),
       discount_price: discount === "" ? null : Number(discount),
     };
-    const { error: upErr } = await supabase.from("products").update(prices).in("id", entry.ids);
+    const { error: upErr } = await updateEntry(entry, prices);
     if (upErr) {
       setError(upErr.message);
     } else {
@@ -568,10 +627,7 @@ export default function ProductsAdminPage() {
     setError(null);
     setBusy("category");
     const value = category || null;
-    const { error: upErr } = await supabase
-      .from("products")
-      .update({ category: value })
-      .in("id", entry.ids);
+    const { error: upErr } = await updateEntry(entry, { category: value });
     if (upErr) {
       setError(upErr.message);
     } else {
@@ -613,10 +669,10 @@ export default function ProductsAdminPage() {
   async function saveImages(entry, images) {
     setError(null);
     setBusy("images");
-    const { error: upErr } = await supabase
-      .from("products")
-      .update({ image_urls: images.length ? images : null, image_url: images[0] ?? null })
-      .in("id", entry.ids);
+    const { error: upErr } = await updateEntry(entry, {
+      image_urls: images.length ? images : null,
+      image_url: images[0] ?? null,
+    });
     if (upErr) setError(upErr.message);
     await load();
     setBusy(null);
@@ -695,14 +751,22 @@ export default function ProductsAdminPage() {
     );
   }
 
+  const allShownSelected =
+    shownCatalogue.length > 0 && shownCatalogue.every((c) => selected[c.key]);
+  const imagesEntry = catalogue.find((c) => c.key === editingImages);
+
+  function toggleSelected(key) {
+    setSelected((s) => ({ ...s, [key]: !s[key] }));
+  }
+
   return (
     <div className="portal-page">
       <div className="portal-page-head portal-page-head-row">
         <div>
           <h1 className="portal-h1">Products</h1>
           <p className="portal-sub">
-            Every product in one place. Tick catalogue products and send them to specific
-            clients or a tier's distribution pool — or create a new product below.
+            Click products to select them, then send them to specific clients or a tier's
+            distribution pool.
           </p>
         </div>
         <button
@@ -718,129 +782,116 @@ export default function ProductsAdminPage() {
       {error && <p className="auth-error">{error}</p>}
       {notice && <p className="admin-notice">{notice}</p>}
 
-      <div className="admin-product-form">
-        <h2 className="dash-card-title">Fill members to capacity</h2>
-        <p className="dash-card-sub">
-          Tops up every eligible member's store with a random mix of catalogue products —
-          skipping anything they already own — until they hit their tier's product limit. The
-          same product can go to many different members.
-        </p>
-        <div className="admin-form-grid">
-          <label className="auth-label">
-            Tier
+      <div className="admin-products-layout">
+        <section>
+          <div className="admin-search-row">
+            <input
+              className="auth-input admin-search"
+              placeholder={`Search ${catalogue.length} products…`}
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+            />
             <select
-              className="auth-input"
-              value={fillTier}
-              onChange={(e) => setFillTier(e.target.value)}
+              className="auth-input admin-category-filter"
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
             >
-              <option value="all">All tiers</option>
-              {TIER_ORDER.map((t) => (
-                <option key={t} value={t}>
-                  {TIERS[t].name}
+              <option value="all">All categories</option>
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
                 </option>
               ))}
             </select>
-          </label>
-        </div>
-        <button
-          className="btn-gold"
-          type="button"
-          disabled={busy === "fill"}
-          onClick={() => fillMembers(fillTier)}
-        >
-          {busy === "fill" ? "Filling…" : "Fill now"}
-        </button>
-      </div>
+            <div className="admin-select-tools">
+              <span>{picked.length} selected</span>
+              <button
+                type="button"
+                disabled={shownCatalogue.length === 0}
+                onClick={() =>
+                  setSelected((s) => {
+                    const next = { ...s };
+                    for (const c of shownCatalogue) next[c.key] = !allShownSelected;
+                    return next;
+                  })
+                }
+              >
+                {allShownSelected ? "Unselect shown" : "Select shown"}
+              </button>
+              <button type="button" disabled={picked.length === 0} onClick={() => setSelected({})}>
+                Clear
+              </button>
+            </div>
+          </div>
 
-      <form className="admin-product-form" onSubmit={assignSelected}>
-        <h2 className="dash-card-title">Assign selected products</h2>
-        <p className="dash-card-sub">
-          {picked.length === 0
-            ? "No products selected yet — tick them in the catalogue below."
-            : `${picked.length} selected.`}
-        </p>
-        <DestinationPicker dest={catDest} onChange={setCatDest} members={members} fill={fill} />
-        <button
-          className="btn-gold"
-          type="submit"
-          disabled={busy === "assign" || picked.length === 0}
-        >
-          {busy === "assign"
-            ? "Assigning…"
-            : `Assign ${picked.length || ""} product${picked.length === 1 ? "" : "s"}`}
-        </button>
-      </form>
-
-      <div className="admin-search-row">
-        <input
-          className="auth-input admin-search"
-          placeholder={`Search ${catalogue.length} products…`}
-          value={productSearch}
-          onChange={(e) => setProductSearch(e.target.value)}
-        />
-        <select
-          className="auth-input admin-category-filter"
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-        >
-          <option value="all">All categories</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {shownCatalogue.length === 0 ? (
-        <div className="portal-empty">
-          <p>
-            {catalogue.length === 0
-              ? "No products have been added to any store yet."
-              : "No products match your search."}
-          </p>
-        </div>
-      ) : (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th />
-                <th>Product</th>
-                <th>Cost</th>
-                <th>List → discount</th>
-                <th>Category</th>
-                <th>Supplier</th>
-                <th>In stores</th>
-                <th>Stripe</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {shownCatalogue.map((c) => (
-                <Fragment key={c.key}>
-                  <tr>
-                    <td>
-                      <input
-                        type="checkbox"
-                        checked={!!selected[c.key]}
-                        onChange={(e) =>
-                          setSelected((s) => ({ ...s, [c.key]: e.target.checked }))
-                        }
-                      />
-                    </td>
-                    <td>
-                      <div className="admin-product-cell">
-                        {c.images[0] && <img src={c.images[0]} alt="" />}
-                        <div>
-                          {c.name}
-                          {c.description && <div className="portal-sub">{c.description}</div>}
-                        </div>
+          {shownCatalogue.length === 0 ? (
+            <div className="portal-empty">
+              <p>
+                {catalogue.length === 0
+                  ? "No products in the catalogue yet."
+                  : "No products match your search."}
+              </p>
+            </div>
+          ) : (
+            <div className="catalogue-grid">
+              {shownCatalogue.map((c) => {
+                const isSelected = !!selected[c.key];
+                return (
+                  <div
+                    key={c.key}
+                    className={`catalogue-card${isSelected ? " selected" : ""}`}
+                    role="checkbox"
+                    aria-checked={isSelected}
+                    aria-label={c.name}
+                    tabIndex={0}
+                    onClick={(e) => {
+                      // Inputs, selects and buttons inside the card keep their own behaviour
+                      if (e.target.closest("button, input, select, textarea, label, a")) return;
+                      toggleSelected(c.key);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.target !== e.currentTarget) return;
+                      if (e.key === " " || e.key === "Enter") {
+                        e.preventDefault();
+                        toggleSelected(c.key);
+                      }
+                    }}
+                  >
+                    <div className="catalogue-card-media">
+                      {c.images[0] && <img src={c.images[0]} alt="" loading="lazy" />}
+                      <span className="catalogue-check" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M5 12l5 5L20 7" />
+                        </svg>
+                      </span>
+                      {c.storeCount === 0 && <span className="catalogue-badge">New</span>}
+                    </div>
+                    <div className="catalogue-card-body">
+                      <div className="catalogue-card-name" title={c.name}>
+                        {c.name}
                       </div>
-                    </td>
-                    <td>${c.price.toFixed(2)}</td>
-                    <td>
-                      {editingPrices?.key === c.key ? (
+                      <div className="catalogue-card-prices">
+                        <span className="catalogue-card-cost">${c.price.toFixed(2)}</span>
+                        {editingPrices?.key !== c.key && (
+                          <button
+                            className="btn-ghost admin-view-btn"
+                            type="button"
+                            title="Listing → discount price"
+                            onClick={() =>
+                              setEditingPrices({
+                                key: c.key,
+                                listing: c.listing_price ?? "",
+                                discount: c.discount_price ?? "",
+                              })
+                            }
+                          >
+                            {c.listing_price != null && c.discount_price != null
+                              ? `$${c.listing_price.toFixed(0)} → $${c.discount_price.toFixed(0)}`
+                              : "Set prices"}
+                          </button>
+                        )}
+                      </div>
+                      {editingPrices?.key === c.key && (
                         <div className="admin-price-edit">
                           <input
                             className="auth-input admin-price-input"
@@ -848,6 +899,7 @@ export default function ProductsAdminPage() {
                             step="0.01"
                             min="0"
                             placeholder="List"
+                            aria-label="Listing price"
                             value={editingPrices.listing}
                             onChange={(e) =>
                               setEditingPrices({ ...editingPrices, listing: e.target.value })
@@ -860,6 +912,7 @@ export default function ProductsAdminPage() {
                             step="0.01"
                             min="0"
                             placeholder="Discount"
+                            aria-label="Discount price"
                             value={editingPrices.discount}
                             onChange={(e) =>
                               setEditingPrices({ ...editingPrices, discount: e.target.value })
@@ -881,27 +934,21 @@ export default function ProductsAdminPage() {
                             Cancel
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          className="btn-ghost admin-view-btn"
-                          type="button"
-                          onClick={() =>
-                            setEditingPrices({
-                              key: c.key,
-                              listing: c.listing_price ?? "",
-                              discount: c.discount_price ?? "",
-                            })
-                          }
-                        >
-                          {c.listing_price != null && c.discount_price != null
-                            ? `$${c.listing_price.toFixed(2)} → $${c.discount_price.toFixed(2)}`
-                            : "Set prices"}
-                        </button>
                       )}
-                    </td>
-                    <td>
+                      <div className="catalogue-card-meta">
+                        <span>
+                          {c.storeCount} store{c.storeCount === 1 ? "" : "s"}
+                        </span>
+                        {c.storeCount > 0 &&
+                          (c.stripe_price_id ? (
+                            <span>Stripe linked</span>
+                          ) : (
+                            <span className="admin-warn">Stripe pending</span>
+                          ))}
+                      </div>
                       <select
                         className="auth-input admin-category-filter"
+                        aria-label="Category"
                         value={c.category ?? ""}
                         disabled={busy === "category"}
                         onChange={(e) => saveCategory(c, e.target.value)}
@@ -913,103 +960,169 @@ export default function ProductsAdminPage() {
                           </option>
                         ))}
                       </select>
-                    </td>
-                    <td>
-                      {supplierCell({
+                      {c.ids.length > 0 &&
+                        supplierCell({
                         table: "products",
                         allIds: c.ids,
                         singleId: c.ids[0],
                         label: c.name,
                         supplierProduct: c.supplierProduct,
                       })}
-                    </td>
-                    <td>{c.storeCount}</td>
-                    <td>
-                      {c.stripe_price_id ? "Linked" : <span className="admin-warn">Pending</span>}
-                    </td>
-                    <td>
-                      <button
-                        className="btn-ghost admin-view-btn"
-                        type="button"
-                        onClick={() =>
-                          setEditingImages(editingImages === c.key ? null : c.key)
-                        }
-                      >
-                        Images ({c.images.length})
-                      </button>{" "}
-                      <button
-                        className="btn-ghost admin-view-btn"
-                        type="button"
-                        disabled={busy === "delete"}
-                        onClick={() => deleteFromCatalogue(c)}
-                      >
-                        {busy === "delete" ? "Deleting…" : "Delete"}
-                      </button>
-                    </td>
-                  </tr>
-                  {editingImages === c.key && (
-                    <tr>
-                      <td colSpan={9}>
-                        <div className="catalogue-images">
-                          {c.images.map((url, i) => (
-                            <div key={url} className="catalogue-image">
-                              <img src={url} alt="" />
-                              {i === 0 ? (
-                                <span className="catalogue-image-cover">Cover</span>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="btn-ghost admin-view-btn"
-                                  disabled={busy === "images"}
-                                  onClick={() =>
-                                    saveImages(c, [url, ...c.images.filter((u) => u !== url)])
-                                  }
-                                >
-                                  Make cover
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                className="btn-ghost admin-view-btn"
-                                disabled={busy === "images"}
-                                onClick={() =>
-                                  saveImages(c, c.images.filter((u) => u !== url))
-                                }
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          ))}
-                          <label className="auth-label catalogue-image-add">
-                            {busy === "images" ? "Saving…" : "Add images"}
-                            <input
-                              className="auth-input"
-                              type="file"
-                              accept="image/*"
-                              multiple
-                              disabled={busy === "images"}
-                              onChange={(e) => {
-                                addImages(c, e.target.files);
-                                e.target.value = "";
-                              }}
-                            />
-                          </label>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
+                      <div className="catalogue-card-actions">
+                        <button
+                          className="btn-ghost admin-view-btn"
+                          type="button"
+                          onClick={() => setEditingImages(c.key)}
+                        >
+                          Images ({c.images.length})
+                        </button>
+                        <button
+                          className="btn-ghost admin-view-btn"
+                          type="button"
+                          disabled={busy === "delete"}
+                          onClick={() => deleteFromCatalogue(c)}
+                        >
+                          {busy === "delete" ? "Deleting…" : "Delete"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <aside className="admin-products-side" id="assign-panel">
+          <form className="admin-product-form" onSubmit={assignSelected}>
+            <h2 className="dash-card-title">Assign selected products</h2>
+            <p className="dash-card-sub">
+              {picked.length === 0
+                ? "No products selected yet — click products to select them."
+                : `${picked.length} selected.`}
+            </p>
+            <DestinationPicker dest={catDest} onChange={setCatDest} members={members} fill={fill} />
+            <button
+              className="btn-gold"
+              type="submit"
+              disabled={busy === "assign" || picked.length === 0}
+            >
+              {busy === "assign"
+                ? "Assigning…"
+                : `Assign ${picked.length || ""} product${picked.length === 1 ? "" : "s"}`}
+            </button>
+          </form>
+
+          <div className="admin-product-form">
+            <h2 className="dash-card-title">Fill members to capacity</h2>
+            <p className="dash-card-sub">
+              Tops up every eligible member's store with a random mix of catalogue products they
+              don't already own, up to their tier's limit.
+            </p>
+            <div className="admin-form-grid">
+              <label className="auth-label">
+                Tier
+                <select
+                  className="auth-input"
+                  value={fillTier}
+                  onChange={(e) => setFillTier(e.target.value)}
+                >
+                  <option value="all">All tiers</option>
+                  {TIER_ORDER.map((t) => (
+                    <option key={t} value={t}>
+                      {TIERS[t].name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <button
+              className="btn-gold"
+              type="button"
+              disabled={busy === "fill"}
+              onClick={() => fillMembers(fillTier)}
+            >
+              {busy === "fill" ? "Filling…" : "Fill now"}
+            </button>
+          </div>
+        </aside>
+      </div>
+
+      {picked.length > 0 && (
+        <div className="admin-selected-bar">
+          <span>
+            {picked.length} selected
+          </span>
+          <button
+            className="btn-gold"
+            type="button"
+            onClick={() => document.getElementById("assign-panel")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            Assign →
+          </button>
         </div>
       )}
 
-      <form className="admin-product-form pool-tier" onSubmit={createProduct}>
-        <div className="pool-tier-head">
+      {imagesEntry && (
+        <div className="admin-modal-overlay" onClick={() => setEditingImages(null)}>
+          <div className="admin-modal admin-modal-wide" onClick={(e) => e.stopPropagation()}>
+            <h2 className="dash-card-title">Images — {imagesEntry.name}</h2>
+            <div className="catalogue-images">
+              {imagesEntry.images.map((url, i) => (
+                <div key={url} className="catalogue-image">
+                  <img src={url} alt="" />
+                  {i === 0 ? (
+                    <span className="catalogue-image-cover">Cover</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="btn-ghost admin-view-btn"
+                      disabled={busy === "images"}
+                      onClick={() =>
+                        saveImages(imagesEntry, [url, ...imagesEntry.images.filter((u) => u !== url)])
+                      }
+                    >
+                      Make cover
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-ghost admin-view-btn"
+                    disabled={busy === "images"}
+                    onClick={() => saveImages(imagesEntry, imagesEntry.images.filter((u) => u !== url))}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <label className="auth-label catalogue-image-add">
+                {busy === "images" ? "Saving…" : "Add images"}
+                <input
+                  className="auth-input"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={busy === "images"}
+                  onChange={(e) => {
+                    addImages(imagesEntry, e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <button className="btn-ghost admin-view-btn" type="button" onClick={() => setEditingImages(null)}>
+              Done
+            </button>
+          </div>
+        </div>
+      )}
+
+      <details className="admin-product-form admin-collapsible">
+        <summary>
           <h2 className="dash-card-title">Create a new product</h2>
           <span className="pool-tier-stats">Goes straight to clients or a tier's pool</span>
-        </div>
+        </summary>
+        <form className="admin-create-form" onSubmit={createProduct}>
         <div className="admin-form-grid">
           <label className="auth-label">
             Name
@@ -1092,7 +1205,8 @@ export default function ProductsAdminPage() {
         <button className="btn-gold" type="submit" disabled={busy === "create"}>
           {busy === "create" ? "Creating…" : "Create & assign"}
         </button>
-      </form>
+        </form>
+      </details>
 
       {TIER_ORDER.map((tier) => {
         const waiting = pool.filter((p) => p.tier === tier && !p.assigned_member_id);

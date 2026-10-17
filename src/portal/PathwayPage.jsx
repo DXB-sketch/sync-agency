@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { meetsTier, tierRank, TIERS } from "../lib/tiers";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import NodeBody from "../components/portal/NodeBody";
@@ -39,7 +39,7 @@ export default function PathwayPage() {
   const [progress, setProgress] = useState({});
   const [pathways, setPathways] = useState([]); // owned pathways: [{id, slug, name}]
   const [activeId, setActiveId] = useState(null);
-  const [openId, setOpenId] = useState(null);
+  const [openId, setOpenIdState] = useState(null);
   const [saving, setSaving] = useState(false);
   const [groupsOpen, setGroupsOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -118,6 +118,18 @@ export default function PathwayPage() {
     return { groups, laidOut, width: C.width, height: y };
   }, [branchNodes, activeSlug, isDesktop]);
 
+  // ?start=1 → the first node is open until the member picks another one
+  const effectiveOpenId = searchParams.get("start") ? laidOut[0]?.id ?? null : openId;
+
+  function setOpenId(id) {
+    setOpenIdState(id);
+    if (searchParams.has("start")) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("start");
+      setSearchParams(next, { replace: true });
+    }
+  }
+
   const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
 
   // Initial view: centre the trunk horizontally, starting from the top.
@@ -127,17 +139,15 @@ export default function PathwayPage() {
     el.scrollLeft = Math.max(0, width / 2 - el.clientWidth / 2);
   }, [laidOut, isDesktop, width]);
 
-  // ?start=1 → open the first node and scroll to it (getting-started popup lands here)
+  // ?start=1 → scroll to the first node (getting-started popup lands here)
   useEffect(() => {
     if (searchParams.get("start") && laidOut.length) {
-      setOpenId(laidOut[0].id);
       const el = scrollRef.current;
       el?.scrollTo({
         top: 0,
         left: Math.max(0, laidOut[0].x - el.clientWidth / 2),
         behavior: "smooth",
       });
-      setSearchParams({}, { replace: true });
     }
   }, [laidOut, searchParams, setSearchParams]);
 
@@ -225,7 +235,7 @@ export default function PathwayPage() {
     setSaving(false);
   }
 
-  const open = openId ? byId[openId] : null;
+  const open = effectiveOpenId ? byId[effectiveOpenId] : null;
   const openState = open ? nodeState(open) : null;
 
   // Connector styling mirrors progression: bright while a group is live,
@@ -425,7 +435,7 @@ export default function PathwayPage() {
                 <button
                   key={node.id}
                   type="button"
-                  className={`pathway-node pathway-node-${state}${openId === node.id ? " open" : ""}`}
+                  className={`pathway-node pathway-node-${state}${effectiveOpenId === node.id ? " open" : ""}`}
                   style={{ left: node.x, top: node.y }}
                   onClick={() => {
                     if (dragMoved.current) return; // was a pan, not a click

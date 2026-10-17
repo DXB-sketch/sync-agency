@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
 import { TabIcon } from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
-import { useChronosMode } from "../lib/ChronosModeContext";
+import { useChronosMode } from "../lib/useChronosMode";
 
 const Chevron = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

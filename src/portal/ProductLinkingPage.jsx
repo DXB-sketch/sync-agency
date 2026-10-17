@@ -12,35 +12,34 @@ export default function ProductLinkingPage() {
   const [pendingChoice, setPendingChoice] = useState({}); // variant id -> chosen product id
   const [busyVariant, setBusyVariant] = useState(null);
 
-  async function loadAll() {
-    setLoading(true);
-    setError(null);
-
-    const { data: storeRow } = await supabase
+  function loadAll() {
+    return supabase
       .from("shopify_stores")
       .select("id, shop_domain, status")
-      .maybeSingle();
-    setStore(storeRow ?? null);
+      .maybeSingle()
+      .then(async ({ data: storeRow }) => {
+        setStore(storeRow ?? null);
 
-    if (!storeRow || storeRow.status !== "connected") {
-      setLoading(false);
-      return;
-    }
+        if (!storeRow || storeRow.status !== "connected") {
+          setLoading(false);
+          return;
+        }
 
-    const [{ data: catalogueRows }, { data: linkRows }, { data: fnData, error: fnErr }] = await Promise.all([
-      supabase.from("products").select("id, name, image_url").eq("active", true).order("name"),
-      supabase.from("product_links").select("id, shopify_variant_id, product_id"),
-      supabase.functions.invoke("shopify-connect", { body: { action: "products" } }),
-    ]);
+        const [{ data: catalogueRows }, { data: linkRows }, { data: fnData, error: fnErr }] = await Promise.all([
+          supabase.from("products").select("id, name, image_url").eq("active", true).order("name"),
+          supabase.from("product_links").select("id, shopify_variant_id, product_id"),
+          supabase.functions.invoke("shopify-connect", { body: { action: "products" } }),
+        ]);
 
-    setCatalogue(catalogueRows ?? []);
-    setLinks(linkRows ?? []);
-    if (fnErr || fnData?.error) {
-      setError(fnData?.error ?? "Could not load products from Shopify.");
-    } else {
-      setShopifyProducts(fnData?.products ?? []);
-    }
-    setLoading(false);
+        setCatalogue(catalogueRows ?? []);
+        setLinks(linkRows ?? []);
+        if (fnErr || fnData?.error) {
+          setError(fnData?.error ?? "Could not load products from Shopify.");
+        } else {
+          setShopifyProducts(fnData?.products ?? []);
+        }
+        setLoading(false);
+      });
   }
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useInView } from "../components/FadeUp";
+import { useInView } from "../components/useInView";
 import HeroPanel from "../components/HeroPanel";
 import SocialIcons from "../components/SocialIcons";
 

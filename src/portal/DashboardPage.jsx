@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { TIERS, meetsTier } from "../lib/tiers";
 import PathwayIcon from "../components/portal/PathwayIcon";
-import { useTutorial, STEPS, TAB_STEPS } from "./Tutorial";
+import { useTutorial, STEPS, TAB_STEPS } from "./tutorialSteps";
 
 const StatIcon = ({ d }) => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -125,7 +125,7 @@ export default function DashboardPage() {
           <p className="portal-sub">
             {tier.rank === 0
               ? "Free Dashboard · upgrade anytime for more slots and steps"
-              : `${tier.name} · ${profile.billing_type === "monthly" ? "Monthly" : "Lifetime"} access`}
+              : `${tier.name} · One-time purchase`}
           </p>
         )}
       </div>

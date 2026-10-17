@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { walletEnabled } from "../lib/walletFlag";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 
 const PRESETS = [5000, 10000, 25000];
 
@@ -74,7 +74,7 @@ export default function WalletPage() {
       setToppingUp(false);
       return;
     }
-    window.location.href = data.url;
+    window.location.assign(data.url);
   }
 
   async function saveThreshold(e) {

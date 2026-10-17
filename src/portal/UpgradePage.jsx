@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 
 export default function UpgradePage() {
   const { profile } = useAuth();
-  const [billing, setBilling] = useState("lifetime");
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const native = isNativeApp();
@@ -18,14 +17,14 @@ export default function UpgradePage() {
     setError(null);
     setBusy(tierKey);
     const { data, error: fnErr } = await supabase.functions.invoke("create-checkout-session", {
-      body: { kind: "upgrade", target_tier: tierKey, target_billing: billing },
+      body: { kind: "upgrade", target_tier: tierKey, target_billing: "lifetime" },
     });
     if (fnErr || !data?.url) {
       setError(data?.error ?? "Could not start the upgrade checkout.");
       setBusy(null);
       return;
     }
-    window.location.href = data.url;
+    window.location.assign(data.url);
   }
 
   return (
@@ -39,7 +38,7 @@ export default function UpgradePage() {
             ? profile?.grandfathered_free
               ? "You're on the Free Dashboard. The Depop Coaching System courses build on it — unlock more product slots, deeper pathway steps and hands-on help."
               : "Your account doesn't have a plan yet. Choose a Depop Coaching System tier to unlock your dashboard — pathway, product slots and hands-on help."
-            : `You're on ${TIERS[profile.tier].name}. Lifetime upgrades are prorated — you only pay the difference.`}
+            : `You're on ${TIERS[profile.tier].name}. One-time upgrades credit the amount you've already paid. All prices are in AUD.`}
         </p>
       </div>
 
@@ -52,21 +51,6 @@ export default function UpgradePage() {
         </div>
       ) : (
         <>
-          <div className="upgrade-toggle">
-            <button
-              className={`upgrade-toggle-btn${billing === "lifetime" ? " active" : ""}`}
-              onClick={() => setBilling("lifetime")}
-            >
-              Lifetime
-            </button>
-            <button
-              className={`upgrade-toggle-btn${billing === "monthly" ? " active" : ""}`}
-              onClick={() => setBilling("monthly")}
-            >
-              Monthly
-            </button>
-          </div>
-
           {error && <p className="auth-error">{error}</p>}
 
           <div className="upgrade-grid">
@@ -74,24 +58,14 @@ export default function UpgradePage() {
               const t = TIERS[key];
               const isCurrent = profile?.tier === key;
               const isLower = t.rank < currentRank;
-              const prorated =
-                billing === "lifetime" && profile?.billing_type === "lifetime"
-                  ? Math.max(t.lifetime - paid, 1)
-                  : null;
+              // Credit what's already been paid; minimum charge $1, rounded to cents
+              const prorated = Math.max(Math.round((t.lifetime - paid) * 100), 100) / 100;
               return (
                 <div key={key} className={`upgrade-card${isCurrent ? " current" : ""}`}>
                   <span className={`tier-badge tier-${key}`}>{t.short}</span>
                   <h2 className="upgrade-name">{t.name}</h2>
                   <div className="upgrade-price">
-                    {billing === "lifetime" ? (
-                      <>
-                        <strong>${t.lifetime}</strong> once
-                      </>
-                    ) : (
-                      <>
-                        <strong>${t.monthly}</strong>/month
-                      </>
-                    )}
+                    <strong>${t.lifetime}</strong> AUD once
                   </div>
                   {isCurrent ? (
                     <span className="upgrade-current-label">Your current tier</span>
@@ -99,9 +73,9 @@ export default function UpgradePage() {
                     <span className="upgrade-current-label">Included in your tier</span>
                   ) : (
                     <>
-                      {prorated !== null && prorated !== t.lifetime && (
+                      {prorated !== t.lifetime && (
                         <p className="upgrade-prorate">
-                          You pay <strong>${prorated}</strong> (${t.lifetime} − ${paid} already paid)
+                          You pay <strong>${prorated.toFixed(2)}</strong> (${t.lifetime} − ${Number(paid).toFixed(2)} already paid)
                         </p>
                       )}
                       <button

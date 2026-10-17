@@ -3,7 +3,7 @@ import { supabase } from "../lib/supabase";
 import { isNativeApp } from "../lib/nativeApp";
 import BottomTabBar from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
-import { useChronosMode } from "../lib/ChronosModeContext";
+import { useChronosMode } from "../lib/useChronosMode";
 
 const BASE_LINKS = [
   { to: "/admin", label: "Clients", end: true, icon: "clients" },
@@ -46,6 +46,7 @@ export default function AdminLayout() {
             <span>Chronos Mode</span>
             <input
               type="checkbox"
+              aria-label="Chronos Mode"
               checked={chronosMode}
               onChange={(e) => setChronosMode(e.target.checked)}
             />

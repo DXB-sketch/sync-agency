@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { TIERS } from "../lib/tiers";
 import { uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
@@ -50,19 +50,9 @@ export default function ClientDetailPage() {
   const [priceEdits, setPriceEdits] = useState({});
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  const load = useCallback(async () => {
-    const [
-      { data: c },
-      { data: pr },
-      { data: o },
-      { data: pg },
-      { data: ma },
-      { data: ap },
-      { data: mp },
-      { data: w },
-      { data: wt },
-      { data: wh },
-    ] = await Promise.all([
+  const load = useCallback(
+    () =>
+      Promise.all([
         supabase.from("profiles").select("*").eq("id", id).single(),
         supabase.from("products").select("*").eq("member_id", id).order("created_at"),
         supabase
@@ -88,26 +78,40 @@ export default function ClientDetailPage() {
           .order("created_at", { ascending: false })
           .limit(10),
         supabase.from("wallet_order_holds").select("*").eq("member_id", id),
-      ]);
-    setClient(c);
-    if (c) {
-      setAccount({
-        tier: c.tier ?? "free",
-        billing_type: c.billing_type ?? "lifetime",
-        tier_price_paid: c.tier_price_paid ?? "",
-        subscription_active: c.subscription_active,
-      });
-    }
-    setProducts(pr ?? []);
-    setOrders(o ?? []);
-    setProgress(pg ?? []);
-    setAchievements(ma ?? []);
-    setAllPathways(ap ?? []);
-    setMemberPathways(mp ?? []);
-    setWallet(w ?? null);
-    setWalletLedger(wt ?? []);
-    setWalletHolds(wh ?? []);
-  }, [id]);
+      ]).then(
+        ([
+          { data: c },
+          { data: pr },
+          { data: o },
+          { data: pg },
+          { data: ma },
+          { data: ap },
+          { data: mp },
+          { data: w },
+          { data: wt },
+          { data: wh },
+        ]) => {
+          setClient(c);
+          if (c) {
+            setAccount({
+              tier: c.tier ?? "free",
+              tier_price_paid: c.tier_price_paid ?? "",
+              subscription_active: c.subscription_active,
+            });
+          }
+          setProducts(pr ?? []);
+          setOrders(o ?? []);
+          setProgress(pg ?? []);
+          setAchievements(ma ?? []);
+          setAllPathways(ap ?? []);
+          setMemberPathways(mp ?? []);
+          setWallet(w ?? null);
+          setWalletLedger(wt ?? []);
+          setWalletHolds(wh ?? []);
+        },
+      ),
+    [id],
+  );
 
   useEffect(() => {
     load();
@@ -122,7 +126,7 @@ export default function ClientDetailPage() {
     const { error: rpcErr } = await supabase.rpc("admin_set_member_tier", {
       p_member_id: id,
       p_tier: account.tier,
-      p_billing: isPaid ? account.billing_type : null,
+      p_billing: isPaid ? "lifetime" : null,
       p_price_paid:
         !isPaid || account.tier_price_paid === "" ? null : Number(account.tier_price_paid),
       p_active: account.subscription_active,
@@ -274,9 +278,9 @@ export default function ClientDetailPage() {
           <p className="portal-sub">
             {client.email} ·{" "}
             {client.tier
-              ? `${TIERS[client.tier].name}${client.billing_type ? ` (${client.billing_type})` : ""}`
+              ? `${TIERS[client.tier].name} (one-time)`
               : "No tier linked"}{" "}
-            · {client.subscription_active ? "Active" : "Subscription inactive"}
+            · {client.subscription_active ? "Active" : "Access paused"}
           </p>
         </div>
       </div>
@@ -319,23 +323,12 @@ export default function ClientDetailPage() {
               </select>
             </label>
             <label className="auth-label">
-              Billing type
-              <select
-                className="auth-input"
-                value={account.billing_type}
-                onChange={(e) => setAccount({ ...account, billing_type: e.target.value })}
-                disabled={account.tier === "free"}
-              >
-                <option value="lifetime">Lifetime</option>
-                <option value="monthly">Monthly</option>
-              </select>
-            </label>
-            <label className="auth-label">
               Price paid (AUD) — drives upgrade proration
               <input
                 className="auth-input"
                 type="number"
                 min="0"
+                step="0.01"
                 value={account.tier_price_paid}
                 onChange={(e) => setAccount({ ...account, tier_price_paid: e.target.value })}
                 disabled={account.tier === "free"}
@@ -351,7 +344,7 @@ export default function ClientDetailPage() {
                 }
               >
                 <option value="active">Active</option>
-                <option value="inactive">Locked (subscription inactive)</option>
+                <option value="inactive">Access paused</option>
               </select>
             </label>
           </div>

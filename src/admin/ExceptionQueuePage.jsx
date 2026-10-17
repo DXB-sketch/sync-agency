@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 
 // Exceptions the fulfilment engine couldn't resolve on its own (docs/PHASE1_PLAN.md §3.1).
 const STAGE_LABELS = {
@@ -20,15 +20,17 @@ export default function ExceptionQueuePage() {
   const [expanded, setExpanded] = useState({}); // exception id -> payload shown
   const [error, setError] = useState(null);
 
-  async function load() {
-    const { data } = await supabase
+  function load() {
+    return supabase
       .from("fulfilment_exceptions")
       .select(
         "*, orders(*, profiles!orders_member_id_fkey(email), order_items(*, products(name))), order_dispatches(*)"
       )
-      .order("created_at", { ascending: false });
-    setExceptions(data ?? []);
-    setLoading(false);
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setExceptions(data ?? []);
+        setLoading(false);
+      });
   }
 
   useEffect(() => {

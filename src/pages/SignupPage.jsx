@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import ResendConfirmation from "../components/ResendConfirmation";
 
 // Account creation for members — the portal requires a paid plan. Course
 // purchases auto-link on confirmation when the signup email matches the
@@ -12,19 +13,35 @@ export default function SignupPage() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
+  const [exists, setExists] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+    setExists(false);
     setLoading(true);
-    const { error: err } = await supabase.auth.signUp({
-      email,
+    const { data, error: err } = await supabase.auth.signUp({
+      email: email.trim(),
       password,
       options: { emailRedirectTo: `${window.location.origin}/auth/confirmed` },
     });
     setLoading(false);
-    if (err) setError(err.message);
-    else setSent(true);
+    if (err) {
+      setError(
+        err.status === 429
+          ? "Too many sign-up attempts — please wait a few minutes and try again."
+          : err.message
+      );
+    } else if (data.user && data.user.identities?.length === 0) {
+      // Supabase hides "already registered" (and sends no email) to stop
+      // account probing — an empty identities list is the tell.
+      setExists(true);
+    } else if (data.session) {
+      navigate("/portal", { replace: true });
+    } else {
+      setSent(true);
+    }
   }
 
   if (sent) {
@@ -39,8 +56,15 @@ export default function SignupPage() {
             Check your <em>email</em>
           </h1>
           <p className="auth-sub">
-            We've sent a confirmation link to <strong>{email}</strong>. Click it to activate your
-            account and open your dashboard.
+            We've sent a confirmation link to <strong>{email.trim()}</strong>. Click it to activate
+            your account and open your dashboard. It usually arrives within a minute.
+          </p>
+          <ResendConfirmation email={email.trim()} />
+          <p className="auth-alt">
+            Wrong email?{" "}
+            <button type="button" className="auth-link-btn" onClick={() => setSent(false)}>
+              Start again
+            </button>
           </p>
         </div>
       </section>
@@ -87,6 +111,12 @@ export default function SignupPage() {
             />
           </label>
           {error && <p className="auth-error">{error}</p>}
+          {exists && (
+            <p className="auth-error">
+              An account with this email already exists. <Link to="/login">Sign in instead</Link>{" "}
+              — if you never confirmed it, signing in lets you resend the confirmation email.
+            </p>
+          )}
           <button className="btn-gold auth-submit" type="submit" disabled={loading}>
             {loading ? "Creating…" : "Create account"}
           </button>

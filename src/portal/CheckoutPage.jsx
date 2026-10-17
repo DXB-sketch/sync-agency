@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 import { loadCart, saveCart, clearCart, cartTotal, EMPTY_ADDRESS } from "../lib/cart";
+
+// Paying from wallet credit takes 7% off the order total
+const WALLET_DISCOUNT = 0.07;
 
 const ADDRESS_FIELDS = [
   ["ship_name", "Buyer name", true],
@@ -234,8 +237,8 @@ export default function CheckoutPage() {
                 <p className="checkout-hint">Fill in every item's shipping address to pay.</p>
               )}
               {walletBalanceCents !== null && (() => {
-                const totalCents = Math.round(cartTotal(items) * 100);
-                const canPayWithWallet = walletBalanceCents >= totalCents;
+                const walletTotalCents = Math.round(cartTotal(items) * 100 * (1 - WALLET_DISCOUNT));
+                const canPayWithWallet = walletBalanceCents >= walletTotalCents;
                 return (
                   <div className="checkout-wallet-option">
                     <button
@@ -245,7 +248,7 @@ export default function CheckoutPage() {
                     >
                       {paying
                         ? "Preparing payment…"
-                        : `Pay with wallet credit — $${(walletBalanceCents / 100).toFixed(2)} balance`}
+                        : `Pay with wallet credit — $${(walletTotalCents / 100).toFixed(2)} (7% off)`}
                     </button>
                     {!canPayWithWallet && (
                       <span className="checkout-wallet-hint">

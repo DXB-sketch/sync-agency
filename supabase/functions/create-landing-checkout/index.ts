@@ -8,21 +8,18 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOL
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
 // Must stay in sync with COURSE_PRICE_MAP in stripe-webhook/index.ts.
-// "yearly" = the 3-year-access one-time price (billing_type "lifetime" in the webhook).
-const TIERS: Record<string, { monthly: string; yearly: string; name: string }> = {
+// Course access is purchased with a one-time payment.
+const TIERS: Record<string, { price: string; name: string }> = {
   pro: {
-    monthly: "price_1TcdJaPDABwVk3W5hRkD3gyK",
-    yearly: "price_1TgJSTPDABwVk3W5i4YpTAdD",
+    price: "price_1UF36jPDABwVk3W5A4RJnrro",
     name: "Pro Accelerator",
   },
   elite: {
-    monthly: "price_1TcdNBPDABwVk3W5rWIalCC2",
-    yearly: "price_1TgJSAPDABwVk3W5NnPCnL0W",
+    price: "price_1UF371PDABwVk3W5F336GwQC",
     name: "Elite Scale",
   },
   vip: {
-    monthly: "price_1TcdNzPDABwVk3W5MVIkLkpj",
-    yearly: "price_1TgJRUPDABwVk3W5cbOkwqVs",
+    price: "price_1UF376PDABwVk3W5S6Qlld9v",
     name: "VIP Inner Circle",
   },
 };
@@ -44,8 +41,8 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => ({}));
   const tier = TIERS[body.tier as string];
-  const plan = body.plan as string;
-  if (!tier || (plan !== "monthly" && plan !== "yearly")) {
+  const plan = (body.plan as string) ?? "lifetime";
+  if (!Object.hasOwn(TIERS, body.tier) || (plan !== "lifetime" && plan !== "yearly")) {
     return json({ error: "Unknown tier or plan" }, 400);
   }
 
@@ -57,8 +54,9 @@ Deno.serve(async (req) => {
 
   try {
     const session = await stripe.checkout.sessions.create({
-      mode: plan === "monthly" ? "subscription" : "payment",
-      line_items: [{ price: plan === "monthly" ? tier.monthly : tier.yearly, quantity: 1 }],
+      mode: "payment",
+      allow_promotion_codes: true,
+      line_items: [{ price: tier.price, quantity: 1 }],
       client_reference_id: affiliate || undefined,
       success_url: `${SITE_URL}/?checkout=success&tier=${encodeURIComponent(tier.name)}`,
       cancel_url: `${SITE_URL}/#pricing`,

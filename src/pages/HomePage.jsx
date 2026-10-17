@@ -9,7 +9,6 @@ import CTASection from "../sections/CTASection";
 import Marquee from "../components/Marquee";
 import ExitIntentPopup from "../components/ExitIntentPopup";
 import StickyCTABar from "../components/StickyCTABar";
-import SocialProofTicker from "../components/SocialProofTicker";
 
 export default function HomePage() {
   useEffect(() => {
@@ -23,7 +22,6 @@ export default function HomePage() {
     <>
       <ExitIntentPopup />
       <StickyCTABar />
-      <SocialProofTicker />
       <Hero />
       <Pricing />
       <Marquee />

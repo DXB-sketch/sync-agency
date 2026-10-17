@@ -73,7 +73,7 @@ export default function ClientsPage() {
                       <span className="admin-warn">No tier</span>
                     )}
                   </td>
-                  <td data-label="Billing">{c.billing_type ?? "—"}</td>
+                  <td data-label="Billing">{c.billing_type ? "One-time" : "—"}</td>
                   <td data-label="Status">
                     {c.subscription_active ? (
                       "Active"

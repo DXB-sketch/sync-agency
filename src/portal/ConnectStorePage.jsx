@@ -18,17 +18,19 @@ export default function ConnectStorePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
-  async function loadStore() {
+  function loadStore() {
     // No .eq('member_id', ...) needed — RLS already scopes this to the
     // signed-in member's own row. access_token_enc is deliberately left out
     // of the column list: it's revoked from the authenticated role at the DB
     // level, so a select('*') here would fail outright.
-    const { data } = await supabase
+    return supabase
       .from("shopify_stores")
       .select("id, shop_domain, status, last_health_check_at, created_at")
-      .maybeSingle();
-    setStore(data ?? null);
-    setLoading(false);
+      .maybeSingle()
+      .then(({ data }) => {
+        setStore(data ?? null);
+        setLoading(false);
+      });
   }
 
   useEffect(() => {

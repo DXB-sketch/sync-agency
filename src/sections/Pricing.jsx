@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useInView } from "../components/FadeUp";
+import { useInView } from "../components/useInView";
 import FadeUp from "../components/FadeUp";
 import Eyebrow from "../components/Eyebrow";
 import CheckoutDrawer from "../components/CheckoutDrawer";
@@ -27,17 +27,6 @@ function CompareCell({ value }) {
     <td>
       {value === "✓" ? <span className="check">✦</span> : value === "-" ? <span className="dash">-</span> : value}
     </td>
-  );
-}
-
-function SpotsBadge({ spots }) {
-  return (
-    <div className="spots-badge">
-      <div className="spots-dot" />
-      <span className="spots-text">
-        <span className="spots-count">{spots} spot{spots !== 1 ? "s" : ""}</span> remaining this month
-      </span>
-    </div>
   );
 }
 
@@ -73,8 +62,7 @@ export default function Pricing() {
                 <span className="price-currency">$</span>
                 <span className="price-amount">{tier.price}</span>
               </div>
-              <div className="price-period">AUD, per month</div>
-              <SpotsBadge spots={tier.spotsBase} />
+              <div className="price-period">AUD, one-time payment</div>
               <div className="price-outcome">
                 <strong style={{ color: "var(--gold)", fontWeight: 600, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>Outcome: </strong>
                 {tier.outcome}
@@ -114,9 +102,7 @@ export default function Pricing() {
                 <thead>
                   <tr>
                     <th>Feature</th>
-                    <th>Pro Accelerator - $79/mo</th>
-                    <th>Elite Scale - $127/mo</th>
-                    <th>VIP Inner Circle - $349/mo</th>
+                    {TIERS.map((t) => <th key={t.id}>{t.name} - ${t.price} once</th>)}
                   </tr>
                 </thead>
                 <tbody>

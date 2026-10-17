@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 
 const STATUS_LABELS = { open: "Open", answered: "Answered", closed: "Closed" };
 
@@ -13,25 +13,29 @@ export default function SupportQueuePage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
 
-  async function loadTickets() {
-    const { data } = await supabase
+  function loadTickets() {
+    return supabase
       .from("support_tickets")
       .select("*, profiles(full_name, email)")
-      .order("updated_at", { ascending: false });
-    setTickets(data ?? []);
+      .order("updated_at", { ascending: false })
+      .then(({ data }) => {
+        setTickets(data ?? []);
+      });
   }
 
   useEffect(() => {
     loadTickets();
   }, []);
 
-  async function loadMessages(ticketId) {
-    const { data } = await supabase
+  function loadMessages(ticketId) {
+    return supabase
       .from("support_messages")
       .select("*")
       .eq("ticket_id", ticketId)
-      .order("created_at");
-    setMessages(data ?? []);
+      .order("created_at")
+      .then(({ data }) => {
+        setMessages(data ?? []);
+      });
   }
 
   useEffect(() => {

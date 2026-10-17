@@ -1,4 +1,4 @@
-import { useInView } from "./FadeUp";
+import { useInView } from "./useInView";
 
 export default function StaggerGrid({ children, className = "" }) {
   const [ref, visible] = useInView(0.1);

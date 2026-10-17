@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
-import { useAuth } from "../lib/AuthContext";
+import { useAuth } from "../lib/useAuth";
 
 // Review queue for member-submitted proof screenshots. Approved proofs double
 // as a browsable promo-content library (the "Verified" tab).
@@ -11,35 +11,37 @@ export default function AchievementsReviewPage() {
   const [urls, setUrls] = useState({});
   const [loading, setLoading] = useState(true);
 
-  async function load(which) {
-    setLoading(true);
-    const { data } = await supabase
+  // Callers set loading=true before loading (initial state, tab click, review)
+  function load(which) {
+    return supabase
       .from("member_achievements")
       .select("*, achievements(title), profiles!member_achievements_member_id_fkey(email)")
       .eq("status", which === "Pending" ? "proof_submitted" : "verified")
-      .order("submitted_at", { ascending: false });
-    const list = data ?? [];
-    setRows(list);
+      .order("submitted_at", { ascending: false })
+      .then(async ({ data }) => {
+        const list = data ?? [];
+        setRows(list);
 
-    // proofs are in a private bucket — sign URLs for display
-    const paths = list.map((r) => r.proof_image_url).filter(Boolean);
-    if (paths.length) {
-      const { data: signed } = await supabase.storage
-        .from("achievement-proofs")
-        .createSignedUrls(paths, 3600);
-      setUrls(Object.fromEntries((signed ?? []).map((s) => [s.path, s.signedUrl])));
-    } else {
-      setUrls({});
-    }
-    setLoading(false);
+        // proofs are in a private bucket — sign URLs for display
+        const paths = list.map((r) => r.proof_image_url).filter(Boolean);
+        if (paths.length) {
+          const { data: signed } = await supabase.storage
+            .from("achievement-proofs")
+            .createSignedUrls(paths, 3600);
+          setUrls(Object.fromEntries((signed ?? []).map((s) => [s.path, s.signedUrl])));
+        } else {
+          setUrls({});
+        }
+        setLoading(false);
+      });
   }
 
   useEffect(() => {
     load(tab);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
   async function review(row, approve) {
+    setLoading(true);
     await supabase
       .from("member_achievements")
       .update({
@@ -62,7 +64,16 @@ export default function AchievementsReviewPage() {
 
       <div className="admin-tabs">
         {["Pending", "Verified"].map((t) => (
-          <button key={t} className={`admin-tab${tab === t ? " active" : ""}`} onClick={() => setTab(t)}>
+          <button
+            key={t}
+            className={`admin-tab${tab === t ? " active" : ""}`}
+            onClick={() => {
+              if (t !== tab) {
+                setLoading(true);
+                setTab(t);
+              }
+            }}
+          >
             {t}
           </button>
         ))}

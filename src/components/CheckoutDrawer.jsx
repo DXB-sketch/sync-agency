@@ -7,39 +7,31 @@ function trackEvent(name, props) {
 }
 
 export default function CheckoutDrawer({ open, onClose, tier }) {
-  const [plan, setPlan] = useState("monthly");
+  // Keyed by tier so each open starts with fresh state (no reset effect needed)
+  return open && tier ? <CheckoutDrawerInner key={tier.id} onClose={onClose} tier={tier} /> : null;
+}
+
+function CheckoutDrawerInner({ onClose, tier }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      setPlan("monthly");
-      setError(null);
-      const id = requestAnimationFrame(() => setAnimate(true));
-      return () => cancelAnimationFrame(id);
-    } else {
-      document.body.style.overflow = "";
-      setAnimate(false);
-      return undefined;
-    }
-  }, [open]);
-
-  useEffect(() => {
-    return () => { document.body.style.overflow = ""; };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const id = requestAnimationFrame(() => setAnimate(true));
+    return () => {
+      cancelAnimationFrame(id);
+      document.body.style.overflow = prevOverflow;
+    };
   }, []);
-
-  if (!open || !tier) return null;
-
-  const isMonthly = plan === "monthly";
 
   async function handleCTA() {
     setLoading(true);
     setError(null);
-    trackEvent("checkout_initiated", { tier: tier.name, plan: isMonthly ? "monthly" : "yearly" });
+    trackEvent("checkout_initiated", { tier: tier.name, plan: "lifetime" });
     const { data, error: fnErr } = await supabase.functions.invoke("create-landing-checkout", {
-      body: { tier: tier.id, plan, affiliate: getAffiliate() },
+      body: { tier: tier.id, plan: "lifetime", affiliate: getAffiliate() },
     });
     if (fnErr || !data?.url) {
       setError(data?.error || "Something went wrong. Please try again.");
@@ -78,42 +70,12 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
           </div>
         </div>
 
-        <div className="checkout-plan-toggle">
-          <button
-            className={`checkout-plan-btn${isMonthly ? " active" : ""}`}
-            onClick={() => setPlan("monthly")}
-          >
-            Monthly
-          </button>
-          <button
-            className={`checkout-plan-btn${!isMonthly ? " active" : ""}`}
-            onClick={() => setPlan("yearly")}
-          >
-            3-Year Access
-          </button>
-        </div>
-
         <div>
-          {isMonthly ? (
-            <>
-              <div className="checkout-price-display">
-                ${tier.price}
-                <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}>/mo</span>
-              </div>
-              <div className="checkout-price-period">AUD · billed monthly · cancel anytime</div>
-            </>
-          ) : (
-            <>
-              <div className="checkout-price-display">
-                ${tier.priceYearly}
-                <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}> one-time</span>
-              </div>
-              <div className="checkout-price-period">AUD · 3 years access · renew after 3 years</div>
-              <div className="checkout-savings-badge">
-                ✦ Save {tier.savingsPct}% vs monthly, ${tier.monthlyTotal36} over 3 years
-              </div>
-            </>
-          )}
+          <div className="checkout-price-display">
+            ${tier.price}
+            <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}> one-time</span>
+          </div>
+          <div className="checkout-price-period">AUD · 3 years access</div>
         </div>
 
         <div>
@@ -122,7 +84,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
             onClick={handleCTA}
             disabled={loading}
           >
-            {loading ? "Processing..." : isMonthly ? "Start Monthly →" : "Get 3-Year Access →"}
+            {loading ? "Processing..." : "Get 3-Year Access →"}
           </button>
           {error && (
             <div className="checkout-error" style={{ marginTop: 10 }}>
@@ -130,9 +92,7 @@ export default function CheckoutDrawer({ open, onClose, tier }) {
             </div>
           )}
           <p className="checkout-smallprint" style={{ marginTop: 10 }}>
-            {isMonthly
-              ? "Billed monthly from today. Cancel any time."
-              : "One-time payment. Access valid for 3 years from purchase date."}
+            One-time payment. Access valid for 3 years from purchase date.
           </p>
         </div>
 

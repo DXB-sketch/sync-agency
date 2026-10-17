@@ -15,14 +15,16 @@ export default function OrdersQueuePage() {
   const [tracking, setTracking] = useState({});
   const [showDone, setShowDone] = useState(false);
 
-  async function load() {
-    const { data } = await supabase
+  function load() {
+    return supabase
       .from("orders")
       .select("*, profiles!orders_member_id_fkey(email), order_items(*, products(name))")
       .neq("status", "pending_payment")
-      .order("created_at", { ascending: false });
-    setOrders(data ?? []);
-    setLoading(false);
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setOrders(data ?? []);
+        setLoading(false);
+      });
   }
 
   useEffect(() => {
