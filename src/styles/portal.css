@@ -470,6 +470,26 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .catalogue-card-actions .admin-view-btn, .catalogue-card-prices .admin-view-btn { padding: 6px 10px; font-size: 9.5px; }
 .catalogue-card .admin-category-filter { max-width: none; width: 100%; padding: 7px 10px; font-size: 12px; }
 .catalogue-card .admin-price-input { width: 72px; }
+/* Category folders: grid of tiles (Drive-style) on desktop, compact rows on mobile */
+.catalogue-folders { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; align-items: start; }
+.catalogue-folder { display: flex; flex-direction: column; padding: 0; text-align: left; background: var(--p-grad-card); border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-md); overflow: hidden; color: var(--p-text); font-family: var(--p-font); cursor: none; transition: border-color .2s, transform .2s, box-shadow .2s; }
+.catalogue-folder:hover { border-color: var(--p-line-gold); transform: translateY(-1px); box-shadow: 0 12px 28px -18px oklch(78% 0.13 86 / .45); }
+.catalogue-folder:focus-visible { outline: 2px solid var(--p-gold-bright); outline-offset: 2px; }
+.catalogue-folder-thumbs { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 2px; aspect-ratio: 16 / 10; overflow: hidden; background: var(--p-card-lo); }
+.catalogue-folder-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 0; }
+.catalogue-folder-thumbs img:first-child { grid-row: 1 / 3; }
+.catalogue-folder-thumbs img:only-child { grid-column: 1 / 3; }
+.catalogue-folder-thumbs img:first-child:nth-last-child(2) { grid-column: 1; }
+.catalogue-folder-thumbs img:nth-child(2):last-child { grid-row: 1 / 3; }
+.catalogue-folder-row { display: flex; align-items: center; gap: 10px; padding: 12px 14px; }
+.catalogue-folder-icon { color: var(--p-gold); flex-shrink: 0; }
+.catalogue-folder-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.catalogue-folder-name { font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.catalogue-folder-count { font-size: 11px; color: var(--p-dim); }
+.catalogue-folder-chevron { color: var(--p-dim); flex-shrink: 0; }
+.catalogue-crumbs { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; color: var(--p-dim); min-width: 0; }
+.catalogue-crumb-back { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; padding: 4px 2px; color: var(--p-gold); font-family: var(--p-font); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: none; flex-shrink: 0; }
+.catalogue-crumb-current { color: var(--p-text); font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .admin-selected-bar { display: none; }
 .admin-create-form { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; width: 100%; }
 .admin-collapsible { margin-top: 24px; }
@@ -489,6 +509,13 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 @media (max-width: 768px) {
   .catalogue-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
   .catalogue-card-body { padding: 10px; }
+  .catalogue-folders { grid-template-columns: 1fr; gap: 6px; }
+  .catalogue-folder { border-radius: var(--p-radius-sm); }
+  .catalogue-folder:hover { transform: none; }
+  .catalogue-folder-thumbs { display: none; }
+  .catalogue-folder-row { padding: 12px 14px; }
+  .catalogue-folder-text { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .catalogue-folder-count { flex-shrink: 0; }
   .admin-selected-bar { position: fixed; left: 12px; right: 12px; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 150; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 16px; border-radius: var(--p-radius-md); background: var(--p-grad-card); border: 1px solid var(--p-gold-deep); box-shadow: 0 12px 40px rgba(0,0,0,.55); font-size: 13px; color: var(--p-gold); }
   .admin-selected-bar .btn-gold { padding: 10px 16px; font-size: 10.5px; }
   .admin-selected-bar span { white-space: nowrap; }

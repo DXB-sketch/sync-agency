@@ -16,6 +16,11 @@ const EMPTY_FORM = {
   category: "",
 };
 const EMPTY_DEST = { mode: "clients", tier: "pro", memberIds: {}, asBonus: false };
+const UNCATEGORISED = "Uncategorised";
+
+function folderOf(entry) {
+  return CATEGORIES.includes(entry.category) ? entry.category : UNCATEGORISED;
+}
 
 // Groups every product ever added to a client store into one catalogue row per
 // distinct name + price, so the same item given to many members shows once.
@@ -202,7 +207,7 @@ export default function ProductsAdminPage() {
   const [memberNames, setMemberNames] = useState({}); // member_id -> set of product names
   const [selected, setSelected] = useState({});
   const [productSearch, setProductSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [folder, setFolder] = useState(null); // open category folder | null = folder view
   const [busy, setBusy] = useState(null); // "assign" | "create" | "merge" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
   const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
@@ -288,11 +293,23 @@ export default function ProductsAdminPage() {
 
   const picked = catalogue.filter((c) => selected[c.key]);
   const q = productSearch.trim().toLowerCase();
-  const shownCatalogue = catalogue.filter(
-    (c) =>
-      (categoryFilter === "all" || c.category === categoryFilter) &&
-      (!q || c.name.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q))
-  );
+  // Top level shows category folders; searching from there searches every folder.
+  const showFolders = folder === null && !q;
+  const folders = [...CATEGORIES, UNCATEGORISED]
+    .map((name) => ({ name, items: catalogue.filter((c) => folderOf(c) === name) }))
+    .filter((f) => f.name !== UNCATEGORISED || f.items.length > 0);
+  const shownCatalogue = showFolders
+    ? []
+    : catalogue.filter(
+        (c) =>
+          (folder === null || folderOf(c) === folder) &&
+          (!q || c.name.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q))
+      );
+
+  function openFolder(name) {
+    setFolder(name);
+    setProductSearch("");
+  }
 
   // Sends items (name/description/price/images) to the chosen destination:
   // pool -> pool_products rows; clients -> one products row per client, with
@@ -784,25 +801,31 @@ export default function ProductsAdminPage() {
 
       <div className="admin-products-layout">
         <section>
+          {folder !== null && (
+            <nav className="catalogue-crumbs" aria-label="Catalogue location">
+              <button type="button" className="catalogue-crumb-back" onClick={() => openFolder(null)}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                All categories
+              </button>
+              <span aria-hidden="true">/</span>
+              <span className="catalogue-crumb-current" aria-current="page">
+                {folder}
+              </span>
+            </nav>
+          )}
           <div className="admin-search-row">
             <input
               className="auth-input admin-search"
-              placeholder={`Search ${catalogue.length} products…`}
+              placeholder={
+                folder === null
+                  ? `Search all ${catalogue.length} products…`
+                  : `Search ${folder}…`
+              }
               value={productSearch}
               onChange={(e) => setProductSearch(e.target.value)}
             />
-            <select
-              className="auth-input admin-category-filter"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="all">All categories</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
             <div className="admin-select-tools">
               <span>{picked.length} selected</span>
               <button
@@ -824,12 +847,52 @@ export default function ProductsAdminPage() {
             </div>
           </div>
 
-          {shownCatalogue.length === 0 ? (
+          {showFolders ? (
+            <div className="catalogue-folders">
+              {folders.map((f) => {
+                const pickedHere = f.items.filter((c) => selected[c.key]).length;
+                return (
+                  <button
+                    key={f.name}
+                    type="button"
+                    className="catalogue-folder"
+                    onClick={() => openFolder(f.name)}
+                  >
+                    <span className="catalogue-folder-thumbs" aria-hidden="true">
+                      {f.items
+                        .filter((c) => c.images[0])
+                        .slice(0, 3)
+                        .map((c) => (
+                          <img key={c.key} src={c.images[0]} alt="" loading="lazy" />
+                        ))}
+                    </span>
+                    <span className="catalogue-folder-row">
+                      <svg className="catalogue-folder-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      </svg>
+                      <span className="catalogue-folder-text">
+                        <span className="catalogue-folder-name">{f.name}</span>
+                        <span className="catalogue-folder-count">
+                          {f.items.length} item{f.items.length === 1 ? "" : "s"}
+                          {pickedHere > 0 ? ` · ${pickedHere} selected` : ""}
+                        </span>
+                      </span>
+                      <svg className="catalogue-folder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M9 6l6 6-6 6" />
+                      </svg>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : shownCatalogue.length === 0 ? (
             <div className="portal-empty">
               <p>
                 {catalogue.length === 0
                   ? "No products in the catalogue yet."
-                  : "No products match your search."}
+                  : q
+                    ? "No products match your search."
+                    : "No products in this category yet."}
               </p>
             </div>
           ) : (
