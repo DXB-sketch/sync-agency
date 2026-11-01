@@ -545,39 +545,6 @@ footer { border-top: 1px solid var(--border); padding: 40px 80px; background: va
 .btn-gold.price-cta-btn { background: var(--gold); color: var(--black); border: none; padding: 16px; }
 .btn-gold.price-cta-btn:hover { background: var(--gold-lt); }
 
-/* ── ABOUT PAGE ── */
-.about-page { background: var(--black); }
-.about-page-block { margin-top: 96px; }
-.about-page-h2 { font-size: clamp(28px, 3vw, 44px); }
-.about-page-hero .section-sub { max-width: 620px; }
-.about-page-story { max-width: 720px; margin-top: 28px; }
-.about-page-story p { font-size: 15px; color: var(--text-md); line-height: 1.85; }
-.about-page-story p + p { margin-top: 20px; }
-
-/* Founders */
-.founder-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
-.founder-card { background: var(--card); border: 1px solid var(--border); border-radius: 4px; padding: 36px 32px; height: 100%; transition: border-color .3s, transform .3s; }
-.founder-card:hover { border-color: var(--border-md); transform: translateY(-3px); }
-.founder-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--gold-subtle); border: 1px solid var(--border-md); display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--gold); letter-spacing: 0.04em; margin-bottom: 24px; }
-.founder-name { font-family: var(--font-display); font-size: 26px; font-weight: 700; line-height: 1.1; }
-.founder-role { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-top: 6px; }
-.founder-bio { font-size: 14px; color: var(--text-md); line-height: 1.75; margin-top: 18px; }
-
-/* Mission / proof strip */
-.about-page-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
-
-/* Closing CTA */
-.about-page-cta { margin-top: 96px; text-align: center; border-top: 1px solid var(--border); padding-top: 80px; }
-.about-page-cta p { font-size: 16px; color: var(--text-md); line-height: 1.75; max-width: 480px; margin: 20px auto 36px; }
-
-@media (max-width: 768px) {
-  .about-page-block { margin-top: 64px; }
-  .founder-grid { grid-template-columns: 1fr; gap: 16px; }
-  .about-page-stats { grid-template-columns: 1fr 1fr; }
-  .about-page-cta { margin-top: 64px; padding-top: 56px; }
-  .about-page-cta .btn-gold { width: 100%; justify-content: center; }
-}
-
 /* Keep dark text on the gold nav button — overrides the muted `.nav-links a` colour (and its gold hover) that would otherwise make the label illegible on gold. */
 .nav-links a.nav-btn, .nav-links a.nav-btn:hover { color: var(--black); }
 

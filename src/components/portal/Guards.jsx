@@ -25,7 +25,7 @@ function ProfileProblem() {
         </h1>
         <p className="auth-sub">
           Check your connection and try again. If this keeps happening, contact{" "}
-          <a href="mailto:confirmation@syncagency.org">confirmation@syncagency.org</a>.
+          <a href="mailto:hello@syncagency.org">hello@syncagency.org</a>.
         </p>
         <button
           className="btn-gold auth-submit"

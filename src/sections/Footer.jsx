@@ -8,7 +8,6 @@ export default function Footer() {
           <a href="#pricing">Pricing</a>
           <a href="#results">Results</a>
           <a href="#faq">FAQ</a>
-          <a href="#about">About</a>
           <a href="#pricing">Enrol</a>
         </div>
         <div className="footer-copy">© 2025 Sync Agency · All prices AUD</div>

@@ -109,7 +109,7 @@ export default function AuthConfirmedPage() {
           <br />
           <br />
           Already bought one with a different email? Contact{" "}
-          <strong>confirmation@syncagency.org</strong> with your checkout email and we'll link
+          <strong>hello@syncagency.org</strong> with your checkout email and we'll link
           your access.
         </p>
         <div className="auth-actions">

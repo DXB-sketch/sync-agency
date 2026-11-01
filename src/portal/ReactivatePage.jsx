@@ -15,7 +15,7 @@ export default function ReactivatePage() {
           Your access is <em>paused</em>
         </h1>
         <p className="auth-sub">
-          Contact <a href="mailto:confirmation@syncagency.org">confirmation@syncagency.org</a> for help restoring your access.
+          Contact <a href="mailto:hello@syncagency.org">hello@syncagency.org</a> for help restoring your access.
         </p>
       </div>
     </section>

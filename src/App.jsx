@@ -11,7 +11,6 @@ import Footer from "./sections/Footer";
 import UTMIndicator from "./components/UTMIndicator";
 import HomePage from "./pages/HomePage";
 import RepListPage from "./pages/RepListPage";
-import AboutPage from "./pages/AboutPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthConfirmedPage from "./pages/AuthConfirmedPage";
@@ -63,7 +62,6 @@ function Shell() {
             <>
               <HomePage />
               <RepListPage />
-              <AboutPage />
             </>
           }
         />
