@@ -16,7 +16,7 @@ export default function StickyCTABar() {
     <div className={`sticky-cta${show ? " visible" : ""}`}>
       <div className="sticky-cta-inner">
         <p className="sticky-cta-text">
-          <strong>1200+ clients · 100% success rate.</strong> Spots are limited — start today.
+          <strong>1200+ clients · 100% success rate.</strong> Start today.
         </p>
         <div className="sticky-cta-actions">
           <a href="#pricing" className="btn-gold" style={{ padding: "11px 28px", fontSize: 12 }}>
