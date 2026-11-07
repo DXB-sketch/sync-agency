@@ -1,10 +1,10 @@
 import { TIERS, PAID_TIERS } from "./tiers";
 
-// Sync Plus — $43.99/month portal subscription for members who already own a course.
+// Sync Plus — $34/month portal subscription for members who already own a course.
 // Mirrors is_plus_active() / member_product_limit() in the database.
 export const PLUS = {
   name: "Sync Plus",
-  monthly: 43.99,
+  monthly: 34,
   discount: 0.1,
   bonusSlots: 1,
   drawAmount: 500,

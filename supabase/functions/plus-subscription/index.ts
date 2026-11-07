@@ -1,4 +1,4 @@
-// plus-subscription — member-facing Sync Plus ($43.99 AUD/month) actions.
+// plus-subscription — member-facing Sync Plus ($34 AUD/month) actions.
 // action "subscribe": Stripe Checkout Session in subscription mode. Course owners only.
 //   The profile's plus_* columns are only ever switched on by stripe-webhook once Stripe
 //   confirms the subscription — this function writes nothing for that path.
@@ -15,7 +15,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOL
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
 const PLUS_LOOKUP_KEY = "sync_plus_monthly";
-const PLUS_AMOUNT_CENTS = 4399;
+const PLUS_AMOUNT_CENTS = 3400;
 const COURSE_TIERS = ["pro", "elite", "vip"];
 let cachedPriceId: string | null = null;
 
