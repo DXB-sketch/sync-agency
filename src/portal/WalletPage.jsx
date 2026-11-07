@@ -5,7 +5,9 @@ import { walletEnabled } from "../lib/walletFlag";
 import { useAuth } from "../lib/useAuth";
 import { fetchLivePromo, rewardText, requirementText } from "../lib/walletPromo";
 
-const PRESETS = [5000, 10000, 25000];
+const PRESETS = [5000, 10000, 25000, 50000];
+// Bonus credit per top-up amount (cents). Credited by stripe-webhook, which holds the same table.
+const TOPUP_BONUSES = { 50000: 8000 };
 
 const TYPE_LABELS = {
   topup: "Top-up",
@@ -196,6 +198,7 @@ export default function WalletPage() {
               onClick={() => topUp(p)}
             >
               {money(p)}
+              {TOPUP_BONUSES[p] && <span className="wallet-bonus-badge">Bonus {money(TOPUP_BONUSES[p])}!</span>}
             </button>
           ))}
         </div>

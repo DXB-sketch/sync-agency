@@ -33,6 +33,9 @@ const COURSE_PRICE_MAP: Record<
   price_1TcdNzPDABwVk3W5MVIkLkpj: { tier: "vip", billing_type: "monthly" },
 };
 
+// Top-up packs with bonus credit (top-up cents -> bonus cents). Mirrored in WalletPage.jsx.
+const TOPUP_BONUSES: Record<number, number> = { 50000: 8000 };
+
 function isPlusActive(status: string | null | undefined) {
   return status === "active" || status === "trialing";
 }
@@ -123,6 +126,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       p_stripe_ref: stripeRef,
     });
     if (error) throw error;
+
+    // Pack bonus is decided here from the amount actually paid, never from client input.
+    const bonusCents = TOPUP_BONUSES[amountCents];
+    if (bonusCents) {
+      const { error: bonusErr } = await supabase.rpc("wallet_topup_bonus", {
+        p_member_id: session.metadata.member_id,
+        p_bonus_cents: bonusCents,
+        p_stripe_ref: stripeRef,
+        p_reason: `Top-up bonus: $${bonusCents / 100} on $${amountCents / 100}`,
+      });
+      if (bonusErr) throw bonusErr;
+    }
 
     // Promo pinned by wallet-topup at checkout. Idempotent per top-up, so a retried
     // webhook (after the credit above already landed) just grants any missing reward.

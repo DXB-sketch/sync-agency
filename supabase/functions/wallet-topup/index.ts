@@ -27,7 +27,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOLDER");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
-const PRESET_AMOUNTS = [5000, 10000, 25000];
+const PRESET_AMOUNTS = [5000, 10000, 25000, 50000];
 
 const TOPUP_CATALOG_KEY = "sync_wallet_topup_product";
 const TOPUP_CATALOG_PRICE = 0;
@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
     const isPreset = PRESET_AMOUNTS.includes(amount);
     const isValidCustom = Number.isInteger(amount) && amount >= 1000 && amount <= 100000;
     if (!isPreset && !isValidCustom) {
-      return json({ error: "amount_cents must be a preset ($50/$100/$250) or between $10 and $1,000" }, 400);
+      return json({ error: "amount_cents must be a preset ($50/$100/$250/$500) or between $10 and $1,000" }, 400);
     }
 
     try {
