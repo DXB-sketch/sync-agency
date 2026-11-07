@@ -1,6 +1,7 @@
 // stripe-webhook — single Stripe webhook endpoint for the whole business.
 // Handles BOTH course purchases (marketing site) and portal stock orders/upgrades,
-// plus wallet top-ups. Course access is independent of recurring billing.
+// plus wallet top-ups and Sync Plus subscriptions. Course access is independent of
+// recurring billing.
 // Deployed with verify_jwt=false; authenticity comes from Stripe signature verification.
 import Stripe from "npm:stripe@18";
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -32,6 +33,48 @@ const COURSE_PRICE_MAP: Record<
   price_1TcdNzPDABwVk3W5MVIkLkpj: { tier: "vip", billing_type: "monthly" },
 };
 
+function isPlusActive(status: string | null | undefined) {
+  return status === "active" || status === "trialing";
+}
+
+// Mirrors a Sync Plus subscription onto the member's profile. Always re-reads the
+// subscription from Stripe so out-of-order webhook deliveries can't apply stale state.
+async function syncPlus(subscriptionId: string, memberIdHint?: string) {
+  const sub = await stripe.subscriptions.retrieve(subscriptionId);
+  if (sub.metadata?.kind !== "plus") return;
+
+  const memberId = sub.metadata.member_id ?? memberIdHint;
+  if (!memberId) return;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("plus_subscription_id, plus_status")
+    .eq("id", memberId)
+    .single();
+  if (!profile) return;
+  // A newer active subscription wins over an older one ending
+  if (
+    profile.plus_subscription_id &&
+    profile.plus_subscription_id !== sub.id &&
+    isPlusActive(profile.plus_status) &&
+    !isPlusActive(sub.status)
+  ) {
+    return;
+  }
+
+  const periodEnd =
+    (sub as unknown as { current_period_end?: number }).current_period_end ??
+    sub.items.data[0]?.current_period_end;
+  const update: Record<string, unknown> = {
+    plus_status: sub.status,
+    plus_subscription_id: sub.id,
+    plus_current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
+    plus_cancel_at_period_end: sub.cancel_at_period_end,
+  };
+  const { error } = await supabase.from("profiles").update(update).eq("id", memberId);
+  if (error) throw error;
+}
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") return;
   const kind = session.metadata?.kind;
@@ -42,6 +85,18 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       .update({ status: "paid", stripe_session_id: session.id })
       .eq("id", session.metadata.order_id)
       .eq("status", "pending_payment");
+    return;
+  }
+
+  if (kind === "plus_subscription" && session.metadata?.member_id && typeof session.subscription === "string") {
+    await syncPlus(session.subscription, session.metadata.member_id);
+    if (typeof session.customer === "string") {
+      await supabase
+        .from("profiles")
+        .update({ stripe_customer_id: session.customer })
+        .eq("id", session.metadata.member_id)
+        .is("stripe_customer_id", null);
+    }
     return;
   }
 
@@ -154,6 +209,11 @@ Deno.serve(async (req) => {
       case "checkout.session.completed":
       case "checkout.session.async_payment_succeeded":
         await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        break;
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+      case "customer.subscription.deleted":
+        await syncPlus((event.data.object as Stripe.Subscription).id);
         break;
     }
   } catch (err) {

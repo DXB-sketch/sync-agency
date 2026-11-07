@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
+import { PLUS, isPlus, canGetPlus } from "../lib/plus";
 import { addToCart, loadCart } from "../lib/cart";
 import { productImages } from "../lib/productImages";
 import { isNativeApp } from "../lib/nativeApp";
@@ -44,7 +45,12 @@ export default function ProductsPage() {
   const limit = TIERS[profile?.tier]?.productLimit ?? 0;
   const normal = products.filter((p) => !p.is_bonus);
   const bonus = products.filter((p) => p.is_bonus);
-  const emptySlots = Math.max(limit - normal.length, 0);
+  const plus = isPlus(profile);
+  // The Sync Plus slot is shown on its own, separate from course-tier slots
+  const tierProducts = plus ? normal.slice(0, limit) : normal;
+  const plusProducts = plus ? normal.slice(limit) : [];
+  const emptySlots = Math.max(limit - tierProducts.length, 0);
+  const emptyPlusSlots = plus ? Math.max(PLUS.bonusSlots - plusProducts.length, 0) : 0;
 
   // Higher tiers appear as locked sections showing the extra slots an upgrade unlocks
   const lockedTiers = PAID_TIERS.filter((t) => TIERS[t].rank > myRank).map((t, i, arr) => {
@@ -196,11 +202,11 @@ export default function ProductsPage() {
               <div className="slot-section-head">
                 <span className="slot-section-title">{TIERS[profile.tier].name}</span>
                 <span className="slot-count">
-                  {normal.length}/{limit} product slots filled
+                  {Math.min(tierProducts.length, limit)}/{limit} product slots filled
                 </span>
               </div>
               <div className="product-grid">
-                {normal.map(productCard)}
+                {tierProducts.map(productCard)}
                 {bonus.map(productCard)}
                 {Array.from({ length: emptySlots }, (_, i) => (
                   <div key={`empty-${i}`} className="product-slot-empty">
@@ -210,6 +216,54 @@ export default function ProductsPage() {
                     </span>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {limit > 0 && plus && (
+            <div className="slot-section">
+              <div className="slot-section-head">
+                <span className="slot-section-title">{PLUS.name}</span>
+                <span className="slot-count">
+                  {plusProducts.length}/{PLUS.bonusSlots} bonus slot filled
+                </span>
+              </div>
+              <div className="product-grid">
+                {plusProducts.map(productCard)}
+                {Array.from({ length: emptyPlusSlots }, (_, i) => (
+                  <div key={`plus-empty-${i}`} className="product-slot-empty">
+                    <span className="slot-plus">+</span>
+                    <span className="slot-empty-label">
+                      Sync Plus slot — the Sync team stocks this for you
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {limit > 0 && !plus && canGetPlus(profile) && (
+            <div className="slot-section slot-section-locked">
+              <div className="slot-section-head">
+                <span className="slot-section-title">
+                  {PLUS.name} <span className="slot-lock">🔒</span>
+                </span>
+                <span className="slot-count">+{PLUS.bonusSlots} product slot</span>
+              </div>
+              <div className="product-grid">
+                <div className="product-slot-locked">
+                  <span className="slot-lock-icon">🔒</span>
+                </div>
+              </div>
+              <div className="slot-unlock-row">
+                <span>
+                  Join {PLUS.name} to unlock {PLUS.bonusSlots} extra product slot, plus 10% off every purchase.
+                </span>
+                {!isNativeApp() && (
+                  <Link to="/portal/plus" className="btn-gold slot-unlock-btn">
+                    See Sync Plus
+                  </Link>
+                )}
               </div>
             </div>
           )}

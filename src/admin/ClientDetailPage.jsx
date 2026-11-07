@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS } from "../lib/tiers";
+import { productLimit } from "../lib/plus";
 import { uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
 
@@ -358,7 +359,7 @@ export default function ClientDetailPage() {
       )}
 
       {tab === "Products" && (() => {
-        const cap = client.tier ? TIERS[client.tier].productLimit : 0;
+        const cap = client.tier ? productLimit(client) : 0;
         const used = products.filter((p) => p.active && !p.is_bonus).length;
         const atCap = client.tier && used >= cap;
         const shownProducts = products.filter(

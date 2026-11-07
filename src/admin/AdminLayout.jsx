@@ -12,6 +12,7 @@ const BASE_LINKS = [
   { to: "/admin/achievements", label: "Achievements review", icon: "achievements" },
   { to: "/admin/support", label: "Support", icon: "support" },
   { to: "/admin/promos", label: "Promos", icon: "wallet" },
+  { to: "/admin/plus", label: "Sync Plus", icon: "plus" },
 ];
 
 // Chronos-only admin nav — hidden unless Chronos Mode is on (route itself also

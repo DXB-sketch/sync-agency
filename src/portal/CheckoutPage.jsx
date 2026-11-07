@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { PLUS, isPlus } from "../lib/plus";
 import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
@@ -91,6 +92,9 @@ export default function CheckoutPage() {
     setItems(next);
     saveCart(next);
   }
+
+  const plus = isPlus(profile);
+  const plusRate = plus ? 1 - PLUS.discount : 1;
 
   const incomplete = items.some((i) =>
     ADDRESS_FIELDS.some(([field, , required]) => required && !i.address?.[field]?.trim())
@@ -240,7 +244,17 @@ export default function CheckoutPage() {
 
             <div className="checkout-footer">
               <span className="checkout-total">
-                Total <strong>${cartTotal(items).toFixed(2)}</strong> AUD
+                {plus ? (
+                  <>
+                    Total <s>${cartTotal(items).toFixed(2)}</s>{" "}
+                    <strong>${(Math.round(cartTotal(items) * 100 * plusRate) / 100).toFixed(2)}</strong> AUD
+                    <span className="checkout-wallet-hint"> {PLUS.name}: 10% off</span>
+                  </>
+                ) : (
+                  <>
+                    Total <strong>${cartTotal(items).toFixed(2)}</strong> AUD
+                  </>
+                )}
               </span>
               {error && <p className="auth-error">{error}</p>}
               {incomplete && (
@@ -248,7 +262,7 @@ export default function CheckoutPage() {
               )}
               {walletBalanceCents !== null && (() => {
                 const walletTotalCents = Math.round(
-                  cartTotal(items) * 100 * (1 - WALLET_DISCOUNT) * (1 - promoPercent / 100)
+                  cartTotal(items) * 100 * plusRate * (1 - WALLET_DISCOUNT) * (1 - promoPercent / 100)
                 );
                 const canPayWithWallet = walletBalanceCents >= walletTotalCents;
                 return (
@@ -260,9 +274,9 @@ export default function CheckoutPage() {
                     >
                       {paying
                         ? "Preparing payment…"
-                        : `Pay with wallet credit — $${(walletTotalCents / 100).toFixed(2)} (7% off${
-                            promoPercent ? ` + ${promoPercent}% promo` : ""
-                          })`}
+                        : `Pay with wallet credit — $${(walletTotalCents / 100).toFixed(2)} (${
+                            plus ? "10% Sync Plus + " : ""
+                          }7% off${promoPercent ? ` + ${promoPercent}% promo` : ""})`}
                     </button>
                     {!canPayWithWallet && (
                       <span className="checkout-wallet-hint">

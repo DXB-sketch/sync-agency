@@ -5,6 +5,7 @@ import { useChronosMode } from "../lib/useChronosMode";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
+import { productLimit } from "../lib/plus";
 
 const TIER_ORDER = ["free", "pro", "elite", "vip"];
 const EMPTY_FORM = {
@@ -166,7 +167,7 @@ function DestinationPicker({ dest, onChange, members, fill }) {
           />
           <div className="pool-member-list">
             {shown.map((m) => {
-              const cap = TIERS[m.tier].productLimit;
+              const cap = productLimit(m);
               const used = fill[m.id] ?? 0;
               const atCap = used >= cap;
               const disabled = !dest.asBonus && atCap;
@@ -249,7 +250,7 @@ export default function ProductsAdminPage() {
           .order("created_at"),
         supabase
           .from("profiles")
-          .select("id, email, full_name, tier, subscription_active")
+          .select("id, email, full_name, tier, subscription_active, plus_status")
           .eq("role", "member")
           .not("tier", "is", null)
           .order("email"),
@@ -370,7 +371,7 @@ export default function ProductsAdminPage() {
             continue;
           }
           if (!dest.asBonus) {
-            const free = TIERS[m.tier].productLimit - (fill[m.id] ?? 0);
+            const free = productLimit(m) - (fill[m.id] ?? 0);
             if (toAdd.length > free) {
               skippedFull += 1;
               continue;
@@ -465,7 +466,7 @@ export default function ProductsAdminPage() {
       let filledCount = 0;
       let partialCount = 0;
       for (const m of targets) {
-        const free = TIERS[m.tier].productLimit - (fill[m.id] ?? 0);
+        const free = productLimit(m) - (fill[m.id] ?? 0);
         if (free <= 0) continue;
         const owned = memberNames[m.id] ?? new Set();
         const eligible = catalogue.filter((c) => !owned.has(c.name.trim().toLowerCase()));
@@ -1288,7 +1289,7 @@ export default function ProductsAdminPage() {
         const assigned = pool.filter((p) => p.tier === tier && p.assigned_member_id).slice(0, 8);
         const tierMembers = members.filter((m) => m.tier === tier && m.subscription_active);
         const openSlots = tierMembers.reduce(
-          (sum, m) => sum + Math.max(TIERS[tier].productLimit - (fill[m.id] ?? 0), 0),
+          (sum, m) => sum + Math.max(productLimit(m) - (fill[m.id] ?? 0), 0),
           0
         );
         if (waiting.length === 0 && assigned.length === 0) return null;

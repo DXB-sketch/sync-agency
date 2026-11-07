@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
+import { PLUS, isPlus, plusPrice } from "../lib/plus";
 
 export default function UpgradePage() {
   const { profile } = useAuth();
@@ -60,6 +61,7 @@ export default function UpgradePage() {
               const isLower = t.rank < currentRank;
               // Credit what's already been paid; minimum charge $1, rounded to cents
               const prorated = Math.max(Math.round((t.lifetime - paid) * 100), 100) / 100;
+              const youPay = plusPrice(Math.round(prorated * 100), profile) / 100;
               return (
                 <div key={key} className={`upgrade-card${isCurrent ? " current" : ""}`}>
                   <span className={`tier-badge tier-${key}`}>{t.short}</span>
@@ -75,7 +77,15 @@ export default function UpgradePage() {
                     <>
                       {prorated !== t.lifetime && (
                         <p className="upgrade-prorate">
-                          You pay <strong>${prorated.toFixed(2)}</strong> (${t.lifetime} − ${Number(paid).toFixed(2)} already paid)
+                          ${t.lifetime} − ${Number(paid).toFixed(2)} already paid = ${prorated.toFixed(2)}
+                        </p>
+                      )}
+                      {isPlus(profile) && (
+                        <p className="upgrade-prorate">{PLUS.name}: 10% off</p>
+                      )}
+                      {(prorated !== t.lifetime || isPlus(profile)) && (
+                        <p className="upgrade-prorate">
+                          You pay <strong>${youPay.toFixed(2)}</strong>
                         </p>
                       )}
                       <button

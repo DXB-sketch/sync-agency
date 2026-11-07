@@ -13,6 +13,7 @@
 // Promo "% off next order" rewards (member_order_discounts) stack on top of the wallet
 // discount. claim_order_discount() attaches the oldest unused one to this order and is
 // idempotent per order, so a retried/parked order keeps the same discount.
+// Sync Plus members (profiles.plus_status active/trialing) also get 10% off, with no cap.
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -22,6 +23,8 @@ const corsHeaders = {
 
 // Wallet incentive: paying with store credit is 7% cheaper than one-time/Stripe payment.
 const WALLET_DISCOUNT_RATE = 0.07;
+// Sync Plus perk: 10% off every portal purchase.
+const PLUS_DISCOUNT_RATE = 0.1;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -103,12 +106,18 @@ Deno.serve(async (req) => {
     return json({ error: "Pricing verification failed — order not charged. Contact support." }, 500);
   }
 
-  const totalCents = Math.round(fullPriceCents * (1 - WALLET_DISCOUNT_RATE) * (1 - promoRate));
+  const plusRate =
+    profile.plus_status === "active" || profile.plus_status === "trialing" ? PLUS_DISCOUNT_RATE : 0;
+  const totalCents = Math.round(
+    fullPriceCents * (1 - plusRate) * (1 - WALLET_DISCOUNT_RATE) * (1 - promoRate)
+  );
 
   // Tripwire: the amount actually debited must equal (sum of sell-price line amounts) minus
-  // exactly the documented wallet discount and any claimed promo discount — nothing else may
+  // exactly the documented Sync Plus, wallet and claimed promo discounts — nothing else may
   // have inflated it.
-  const expectedTotalCents = Math.round(fullPriceCents * (1 - WALLET_DISCOUNT_RATE) * (1 - promoRate));
+  const expectedTotalCents = Math.round(
+    fullPriceCents * (1 - plusRate) * (1 - WALLET_DISCOUNT_RATE) * (1 - promoRate)
+  );
   if (totalCents !== expectedTotalCents || totalCents > fullPriceCents) {
     console.error("wallet totalCents mismatch", { order_id: orderId, totalCents, expectedTotalCents });
     return json({ error: "Pricing verification failed — order not charged. Contact support." }, 500);

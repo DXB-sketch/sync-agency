@@ -8,6 +8,7 @@ import BottomTabBar from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
 import WalletPromoPopup from "./WalletPromoPopup";
+import PlusPopup from "./PlusPopup";
 
 // Desktop top-strip navigation — every destination.
 const NAV_LINKS = [
@@ -18,6 +19,7 @@ const NAV_LINKS = [
   { to: "/portal/achievements", label: "Achievements", icon: "achievements" },
   { to: "/portal/support", label: "Support", icon: "support" },
   { to: "/portal/upgrade", label: "Upgrade", icon: "upgrade" },
+  { to: "/portal/plus", label: "Sync Plus", icon: "plus" },
 ].filter((l) => l.to !== "/portal/upgrade" || !isNativeApp());
 
 // Mobile + native bottom tab bar — five icon tabs; the rest lives under More.
@@ -26,7 +28,7 @@ const TAB_LINKS = [
   { to: "/portal/pathway", label: "Pathway", icon: "pathway" },
   { to: "/portal/products", label: "Products", icon: "products" },
   { to: "/portal/achievements", label: "Achieve", icon: "achievements" },
-  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout", "/portal/wallet"] },
+  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout", "/portal/wallet", "/portal/plus"] },
 ];
 
 export default function PortalLayout() {
@@ -77,6 +79,7 @@ export default function PortalLayout() {
         </main>
         <SaleNudges />
         <WalletPromoPopup />
+        <PlusPopup />
         <BottomTabBar links={TAB_LINKS} />
       </div>
     </TutorialProvider>

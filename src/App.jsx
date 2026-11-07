@@ -28,6 +28,7 @@ import ReactivatePage from "./portal/ReactivatePage";
 import ConnectStorePage from "./portal/ConnectStorePage";
 import ProductLinkingPage from "./portal/ProductLinkingPage";
 import WalletPage from "./portal/WalletPage";
+import PlusPage from "./portal/PlusPage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
 import ClientDetailPage from "./admin/ClientDetailPage";
@@ -36,6 +37,7 @@ import OrdersQueuePage from "./admin/OrdersQueuePage";
 import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
 import PromosAdminPage from "./admin/PromosAdminPage";
+import PlusAdminPage from "./admin/PlusAdminPage";
 import ExceptionQueuePage from "./admin/ExceptionQueuePage";
 import MarginAlertsPage from "./admin/MarginAlertsPage";
 import ChronosPreviewPage from "./admin/ChronosPreviewPage";
@@ -115,6 +117,7 @@ function Shell() {
               member auth only (RequireMember on the parent /portal route), never by
               Chronos Mode or admin role. */}
           <Route path="wallet" element={<WalletPage />} />
+          <Route path="plus" element={<PlusPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>
 
@@ -133,6 +136,7 @@ function Shell() {
           <Route path="catalogue" element={<Navigate to="/admin/products" replace />} />
           <Route path="orders" element={<OrdersQueuePage />} />
           <Route path="promos" element={<PromosAdminPage />} />
+          <Route path="plus" element={<PlusAdminPage />} />
           <Route
             path="exceptions"
             element={

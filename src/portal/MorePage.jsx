@@ -58,6 +58,13 @@ export default function MorePage() {
             <Chevron />
           </Link>
         )}
+        <Link to="/portal/plus" className="more-row" data-nav="plus">
+          <span className="more-row-main">
+            <TabIcon name="plus" size={17} />
+            Sync Plus
+          </span>
+          <Chevron />
+        </Link>
         <Link to="/portal/checkout" className="more-row" data-nav="checkout">
           <span className="more-row-main">
             <TabIcon name="checkout" size={17} />
