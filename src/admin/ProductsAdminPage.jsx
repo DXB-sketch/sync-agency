@@ -23,13 +23,22 @@ function folderOf(entry) {
 }
 
 // Groups every product ever added to a client store into one catalogue row per
-// distinct name + price, so the same item given to many members shows once.
-// product_catalog rows not yet in any store (e.g. imported stock) are added as
-// catalogue-only entries (ids: [], catalogId set) so they can be assigned too.
+// Stripe product, so the same item given to many members shows once — even
+// after one member's price is changed. The entry's price is the one most
+// stores pay. product_catalog rows not yet in any store (e.g. imported stock)
+// are added as catalogue-only entries (ids: [], catalogId set) so they can be
+// assigned too.
 function buildCatalogue(products, membersById, catalogRows) {
   const map = new Map();
+  const namePriceKeys = new Set();
+  const priceCounts = new Map();
   for (const p of products) {
-    const key = `${p.name.trim().toLowerCase()}|${Number(p.price)}`;
+    const namePrice = `${p.name.trim().toLowerCase()}|${Number(p.price)}`;
+    namePriceKeys.add(namePrice);
+    const key = p.stripe_product_id ?? namePrice;
+    const counts = priceCounts.get(key) ?? new Map();
+    counts.set(Number(p.price), (counts.get(Number(p.price)) ?? 0) + 1);
+    priceCounts.set(key, counts);
     const entry = map.get(key);
     if (entry) {
       entry.ids.push(p.id);
@@ -61,9 +70,12 @@ function buildCatalogue(products, membersById, catalogRows) {
       });
     }
   }
+  for (const [key, counts] of priceCounts) {
+    map.get(key).price = [...counts].sort((a, b) => b[1] - a[1])[0][0];
+  }
   for (const row of catalogRows) {
     const key = `${row.name.trim().toLowerCase()}|${Number(row.price)}`;
-    if (map.has(key)) continue;
+    if (namePriceKeys.has(key) || map.has(row.stripe_product_id)) continue;
     map.set(key, {
       key,
       ids: [],
@@ -232,7 +244,7 @@ export default function ProductsAdminPage() {
         supabase
           .from("products")
           .select(
-            "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
+            "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, stripe_product_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
           )
           .order("created_at"),
         supabase
@@ -250,7 +262,7 @@ export default function ProductsAdminPage() {
         supabase
           .from("product_catalog")
           .select(
-            "id, key, name, price, description, image_url, image_urls, listing_price, discount_price, category, stripe_price_id"
+            "id, key, name, price, description, image_url, image_urls, listing_price, discount_price, category, stripe_price_id, stripe_product_id"
           )
           .eq("active", true)
           .gt("price", 0),
