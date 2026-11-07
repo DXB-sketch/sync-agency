@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
-import { PLUS, isPlus, canGetPlus } from "../lib/plus";
+import { PLUS, isPlus, canGetPlus, usePlusPrice } from "../lib/plus";
 
 const PERKS = [
   {
@@ -31,6 +31,7 @@ export default function PlusPage() {
   const [error, setError] = useState(null);
   const native = isNativeApp();
   const active = isPlus(profile);
+  const price = usePlusPrice();
   const justJoined = params.get("joined") === "1";
 
   // The webhook switches Sync Plus on a moment after Stripe redirects back
@@ -62,7 +63,7 @@ export default function PlusPage() {
       <div className="portal-page-head">
         <h1 className="portal-h1">{PLUS.name}</h1>
         <p className="portal-sub">
-          ${PLUS.monthly} AUD per month. Cancel any time — you keep the perks until the end of the month you've paid for.
+          {price ? `$${price} AUD per month. ` : ""}Cancel any time — you keep the perks until the end of the month you've paid for.
         </p>
       </div>
 
@@ -118,9 +119,9 @@ export default function PlusPage() {
         ) : (
           <>
             <h2 className="dash-card-title">Join {PLUS.name}</h2>
-            <p className="dash-card-sub">${PLUS.monthly} AUD/month, billed monthly until you cancel.</p>
+            <p className="dash-card-sub">{price ? `$${price} AUD/month, b` : "B"}illed monthly until you cancel.</p>
             <button className="btn-gold" disabled={busy} onClick={() => call("subscribe")}>
-              {busy ? "Preparing…" : `Join for $${PLUS.monthly}/month`}
+              {busy ? "Preparing…" : price ? `Join for $${price}/month` : `Join ${PLUS.name}`}
             </button>
           </>
         )}

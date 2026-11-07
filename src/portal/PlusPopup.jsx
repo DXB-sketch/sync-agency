@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
-import { PLUS, isPlus, canGetPlus } from "../lib/plus";
+import { PLUS, isPlus, canGetPlus, usePlusPrice } from "../lib/plus";
 import { useTutorial } from "./tutorialSteps";
 
 const SHOWN_KEY = "sync:plus-popup-last";
@@ -31,6 +31,7 @@ export default function PlusPopup() {
   const { active: tutorialActive } = useTutorial();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const price = usePlusPrice();
   const eligible = canGetPlus(profile) && !isPlus(profile) && !isNativeApp();
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function PlusPopup() {
         </h2>
         <p className="tut-pop-body">
           10% off every stock order and course upgrade with no spending limit, an extra product slot, and a
-          monthly draw for ${PLUS.drawAmount} of wallet credit. ${PLUS.monthly}/month, cancel any time.
+          monthly draw for ${PLUS.drawAmount} of wallet credit. {price ? `$${price}/month, c` : "C"}ancel any time.
         </p>
         <div className="tut-pop-btns">
           <button className="btn-ghost" onClick={() => setOpen(false)}>

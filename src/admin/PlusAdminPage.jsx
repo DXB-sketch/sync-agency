@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../lib/useAuth";
 import { PLUS, isPlus } from "../lib/plus";
 
 function date(iso) {
@@ -9,7 +10,10 @@ function date(iso) {
 // Sync Plus subscribers and the monthly $500 wallet-credit draw (draw_plus_winner RPC:
 // admin-only, one draw per month, credits the winner through wallet_adjust).
 export default function PlusAdminPage() {
+  const { profile: admin } = useAuth();
   const [members, setMembers] = useState([]);
+  const [monthlyCents, setMonthlyCents] = useState(null);
+  const [priceInput, setPriceInput] = useState("");
   const [draws, setDraws] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
@@ -27,9 +31,12 @@ export default function PlusAdminPage() {
           .from("plus_draws")
           .select("*, winner:profiles!plus_draws_winner_id_fkey(email, full_name)")
           .order("draw_month", { ascending: false }),
-      ]).then(([m, d]) => {
+        supabase.from("plus_settings").select("monthly_cents").single(),
+      ]).then(([m, d, s]) => {
         setMembers(m.data ?? []);
         setDraws(d.data ?? []);
+        setMonthlyCents(s.data?.monthly_cents ?? null);
+        setPriceInput(s.data ? String(s.data.monthly_cents / 100) : "");
       }),
     []
   );
@@ -39,6 +46,32 @@ export default function PlusAdminPage() {
   }, [load]);
 
   const active = members.filter(isPlus);
+
+  async function savePrice(e) {
+    e.preventDefault();
+    const cents = Math.round(Number(priceInput) * 100);
+    if (!Number.isFinite(cents) || cents < 100 || cents > 100000) {
+      setError("Enter a monthly price between $1 and $1,000.");
+      return;
+    }
+    if (
+      !window.confirm(
+        `Change ${PLUS.name} to $${(cents / 100).toFixed(2)}/month? New members pay the new price straight away. Existing members stay on the price they joined at.`
+      )
+    )
+      return;
+    setError(null);
+    setNotice(null);
+    setBusy(true);
+    const { error: upErr } = await supabase
+      .from("plus_settings")
+      .update({ monthly_cents: cents, updated_by: admin.id, updated_at: new Date().toISOString() })
+      .eq("id", true);
+    setBusy(false);
+    if (upErr) setError(upErr.message);
+    else setNotice(`${PLUS.name} is now $${(cents / 100).toFixed(2)}/month for new members.`);
+    await load();
+  }
 
   async function draw() {
     if (
@@ -72,12 +105,37 @@ export default function PlusAdminPage() {
       <div className="portal-page-head">
         <h1 className="portal-h1">{PLUS.name}</h1>
         <p className="portal-sub">
-          {active.length} active member{active.length === 1 ? "" : "s"} · ${PLUS.monthly}/month each.
+          {active.length} active member{active.length === 1 ? "" : "s"}
+          {monthlyCents !== null && ` · $${(monthlyCents / 100).toFixed(2)}/month for new members`}.
         </p>
       </div>
 
       {error && <p className="auth-error">{error}</p>}
       {notice && <p className="admin-notice">{notice}</p>}
+
+      <form className="dash-card plus-status-card" onSubmit={savePrice}>
+        <h2 className="dash-card-title">Monthly price</h2>
+        <p className="dash-card-sub">
+          Updates the portal and Stripe checkout immediately — no site upload needed. Existing members keep the
+          price they joined at.
+        </p>
+        <label className="auth-label">
+          AUD per month
+          <input
+            className="auth-input"
+            type="number"
+            min="1"
+            max="1000"
+            step="0.01"
+            required
+            value={priceInput}
+            onChange={(e) => setPriceInput(e.target.value)}
+          />
+        </label>
+        <button className="btn-gold" type="submit" disabled={busy}>
+          Save price
+        </button>
+      </form>
 
       <div className="dash-card plus-status-card">
         <h2 className="dash-card-title">Monthly ${PLUS.drawAmount} draw</h2>

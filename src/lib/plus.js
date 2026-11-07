@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
+import { supabase } from "./supabase";
 import { TIERS, PAID_TIERS } from "./tiers";
 
-// Sync Plus — $34/month portal subscription for members who already own a course.
-// Mirrors is_plus_active() / member_product_limit() in the database.
+// Sync Plus — monthly portal subscription for members who already own a course.
+// Mirrors is_plus_active() / member_product_limit() in the database. The monthly price lives
+// in public.plus_settings (admin-editable) — read it with usePlusPrice(), never hardcode it.
 export const PLUS = {
   name: "Sync Plus",
-  monthly: 34,
   discount: 0.1,
   bonusSlots: 1,
   drawAmount: 500,
@@ -27,4 +29,21 @@ export function plusPrice(cents, profile) {
 // Course-tier slots plus the Sync Plus bonus slot
 export function productLimit(member) {
   return (TIERS[member?.tier]?.productLimit ?? 0) + (isPlus(member) ? PLUS.bonusSlots : 0);
+}
+
+// Monthly price in dollars as a display string (e.g. "34" or "43.99"); null while loading.
+export function usePlusPrice() {
+  const [price, setPrice] = useState(null);
+  useEffect(() => {
+    supabase
+      .from("plus_settings")
+      .select("monthly_cents")
+      .single()
+      .then(({ data }) => {
+        if (!data) return;
+        const dollars = data.monthly_cents / 100;
+        setPrice(Number.isInteger(dollars) ? String(dollars) : dollars.toFixed(2));
+      });
+  }, []);
+  return price;
 }

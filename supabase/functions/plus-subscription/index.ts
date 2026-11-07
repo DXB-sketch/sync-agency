@@ -1,13 +1,16 @@
-// plus-subscription — member-facing Sync Plus ($34 AUD/month) actions.
+// plus-subscription — member-facing Sync Plus (monthly, AUD) actions. The price comes from
+// public.plus_settings, which admins edit on the admin Sync Plus page.
 // action "subscribe": Stripe Checkout Session in subscription mode. Course owners only.
 //   The profile's plus_* columns are only ever switched on by stripe-webhook once Stripe
 //   confirms the subscription — this function writes nothing for that path.
 // action "cancel" / "resume": toggles cancel_at_period_end on the member's subscription, so
 //   cancelling keeps the perks until the end of the paid month.
 //
-// Stripe product hygiene (docs/INCIDENT_2026-07-17): the one Sync Plus Price is found by its
-// lookup_key (exact match, not the eventually-consistent Search API) and only created if
-// it's missing — never a new Product/Price per checkout.
+// Stripe product hygiene (docs/INCIDENT_2026-07-17): the current Sync Plus Price is found by its
+// lookup_key (exact match, not the eventually-consistent Search API). A new Price is only
+// created when the admin-set amount changes, and it takes over the lookup_key; the Product is
+// reused — never a new Product/Price per checkout. Existing subscribers stay on the Price they
+// joined at.
 import Stripe from "npm:stripe@18";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
@@ -15,30 +18,36 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOL
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
 const PLUS_LOOKUP_KEY = "sync_plus_monthly";
-const PLUS_AMOUNT_CENTS = 3400;
 const COURSE_TIERS = ["pro", "elite", "vip"];
-let cachedPriceId: string | null = null;
+let cachedPrice: { amount: number; id: string } | null = null;
 
-async function getOrCreatePlusPrice(): Promise<string> {
-  if (cachedPriceId) return cachedPriceId;
+async function getOrCreatePlusPrice(amountCents: number): Promise<string> {
+  if (cachedPrice?.amount === amountCents) return cachedPrice.id;
   const found = await stripe.prices.list({ lookup_keys: [PLUS_LOOKUP_KEY], active: true, limit: 1 });
-  if (found.data.length > 0) {
-    cachedPriceId = found.data[0].id;
-    return cachedPriceId;
+  const current = found.data[0];
+  if (current && current.unit_amount === amountCents) {
+    cachedPrice = { amount: amountCents, id: current.id };
+    return current.id;
   }
-  const product = await stripe.products.create({
-    name: "Sync Plus",
-    description: "10% off every portal purchase, +1 product slot and a monthly $500 wallet credit draw.",
-  });
+  const productId =
+    (typeof current?.product === "string" ? current.product : current?.product?.id) ??
+    (
+      await stripe.products.create({
+        name: "Sync Plus",
+        description: "10% off every portal purchase, +1 product slot and a monthly $500 wallet credit draw.",
+      })
+    ).id;
   const price = await stripe.prices.create({
-    product: product.id,
+    product: productId,
     currency: "aud",
-    unit_amount: PLUS_AMOUNT_CENTS,
+    unit_amount: amountCents,
     recurring: { interval: "month" },
     lookup_key: PLUS_LOOKUP_KEY,
+    transfer_lookup_key: true,
   });
-  cachedPriceId = price.id;
-  return cachedPriceId;
+  if (current) await stripe.prices.update(current.id, { active: false });
+  cachedPrice = { amount: amountCents, id: price.id };
+  return price.id;
 }
 
 const corsHeaders = {
@@ -88,7 +97,9 @@ Deno.serve(async (req) => {
       if (isPlusActive(profile.plus_status)) {
         return json({ error: "You're already a Sync Plus member" }, 409);
       }
-      const priceId = await getOrCreatePlusPrice();
+      const { data: settings } = await admin.from("plus_settings").select("monthly_cents").single();
+      if (!settings) return json({ error: "Sync Plus price isn't set" }, 500);
+      const priceId = await getOrCreatePlusPrice(settings.monthly_cents);
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         line_items: [{ price: priceId, quantity: 1 }],
