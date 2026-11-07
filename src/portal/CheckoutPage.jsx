@@ -43,6 +43,7 @@ export default function CheckoutPage() {
   const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [walletBalanceCents, setWalletBalanceCents] = useState(null);
+  const [promoPercent, setPromoPercent] = useState(0);
   const [params] = useSearchParams();
   const justPaid = params.get("paid") === "1";
 
@@ -60,6 +61,15 @@ export default function CheckoutPage() {
       .select("balance_cents")
       .maybeSingle()
       .then(({ data }) => setWalletBalanceCents(data?.balance_cents ?? 0));
+    // Oldest unused promo discount — the one wallet-pay-order will apply next
+    supabase
+      .from("member_order_discounts")
+      .select("percent")
+      .is("order_id", null)
+      .order("created_at")
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => setPromoPercent(Number(data?.percent ?? 0)));
   }, []);
 
   function update(lineId, patch) {
@@ -237,7 +247,9 @@ export default function CheckoutPage() {
                 <p className="checkout-hint">Fill in every item's shipping address to pay.</p>
               )}
               {walletBalanceCents !== null && (() => {
-                const walletTotalCents = Math.round(cartTotal(items) * 100 * (1 - WALLET_DISCOUNT));
+                const walletTotalCents = Math.round(
+                  cartTotal(items) * 100 * (1 - WALLET_DISCOUNT) * (1 - promoPercent / 100)
+                );
                 const canPayWithWallet = walletBalanceCents >= walletTotalCents;
                 return (
                   <div className="checkout-wallet-option">
@@ -248,7 +260,9 @@ export default function CheckoutPage() {
                     >
                       {paying
                         ? "Preparing payment…"
-                        : `Pay with wallet credit — $${(walletTotalCents / 100).toFixed(2)} (7% off)`}
+                        : `Pay with wallet credit — $${(walletTotalCents / 100).toFixed(2)} (7% off${
+                            promoPercent ? ` + ${promoPercent}% promo` : ""
+                          })`}
                     </button>
                     {!canPayWithWallet && (
                       <span className="checkout-wallet-hint">

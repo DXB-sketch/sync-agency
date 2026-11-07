@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { walletEnabled } from "../lib/walletFlag";
 import { useAuth } from "../lib/useAuth";
+import { fetchLivePromo, rewardText, requirementText } from "../lib/walletPromo";
 
 const PRESETS = [5000, 10000, 25000];
 
@@ -28,11 +29,13 @@ export default function WalletPage() {
   const [holds, setHolds] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [customAmount, setCustomAmount] = useState("");
+  const [customAmount, setCustomAmount] = useState(params.get("amount") ?? "");
   const [toppingUp, setToppingUp] = useState(false);
   const [thresholdInput, setThresholdInput] = useState("");
   const [savingThreshold, setSavingThreshold] = useState(false);
   const [error, setError] = useState(null);
+  const [promo, setPromo] = useState(null);
+  const [discounts, setDiscounts] = useState([]);
 
   function load() {
     return Promise.all([
@@ -43,7 +46,11 @@ export default function WalletPage() {
         .order("created_at", { ascending: false })
         .limit(50),
       supabase.from("wallet_order_holds").select("*, orders(id, created_at, status)"),
-    ]).then(([w, t, h]) => {
+      fetchLivePromo(),
+      supabase.from("member_order_discounts").select("id, percent").is("order_id", null),
+    ]).then(([w, t, h, p, d]) => {
+      setPromo(p);
+      setDiscounts(d.data ?? []);
       setWallet(w.data ?? null);
       setLedger(t.data ?? []);
       setHolds(h.data ?? []);
@@ -136,6 +143,19 @@ export default function WalletPage() {
         <div className="wallet-banner-warn">Balance below your alert threshold.</div>
       )}
       {error && <p className="auth-error">{error}</p>}
+
+      {promo && (
+        <div className="wallet-promo-banner">
+          <strong>{promo.title}</strong> — {requirementText(promo)} to get {rewardText(promo)}.
+        </div>
+      )}
+      {discounts.length > 0 && (
+        <div className="portal-banner-ok">
+          You have {discounts.length === 1 ? "a" : discounts.length} promo discount
+          {discounts.length === 1 ? "" : "s"} waiting: {discounts.map((d) => `${Number(d.percent)}%`).join(", ")} off
+          your next order{discounts.length === 1 ? "" : "s"} paid with wallet credit.
+        </div>
+      )}
 
       <div className="dash-card wallet-balance-card">
         <h2 className="dash-card-title">Balance</h2>

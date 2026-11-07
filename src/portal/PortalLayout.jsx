@@ -7,6 +7,7 @@ import { TutorialProvider, SaleNudges } from "./Tutorial";
 import BottomTabBar from "../components/BottomTabBar";
 import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
+import WalletPromoPopup from "./WalletPromoPopup";
 
 // Desktop top-strip navigation — every destination.
 const NAV_LINKS = [
@@ -75,6 +76,7 @@ export default function PortalLayout() {
           <Outlet />
         </main>
         <SaleNudges />
+        <WalletPromoPopup />
         <BottomTabBar links={TAB_LINKS} />
       </div>
     </TutorialProvider>

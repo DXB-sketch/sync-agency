@@ -35,6 +35,7 @@ import ProductsAdminPage from "./admin/ProductsAdminPage";
 import OrdersQueuePage from "./admin/OrdersQueuePage";
 import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
+import PromosAdminPage from "./admin/PromosAdminPage";
 import ExceptionQueuePage from "./admin/ExceptionQueuePage";
 import MarginAlertsPage from "./admin/MarginAlertsPage";
 import ChronosPreviewPage from "./admin/ChronosPreviewPage";
@@ -131,6 +132,7 @@ function Shell() {
           <Route path="pool" element={<Navigate to="/admin/products" replace />} />
           <Route path="catalogue" element={<Navigate to="/admin/products" replace />} />
           <Route path="orders" element={<OrdersQueuePage />} />
+          <Route path="promos" element={<PromosAdminPage />} />
           <Route
             path="exceptions"
             element={

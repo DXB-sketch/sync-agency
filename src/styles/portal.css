@@ -712,3 +712,9 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
   .pathway-page .portal-page-head { margin-bottom: 18px; }
   .pathway-scroll { height: calc(100vh - 235px); }
 }
+
+/* Wallet promo popup + wallet page promo banner */
+.wallet-promo-modal { position: relative; }
+.wallet-promo-terms { font-size: 12.5px; color: var(--p-gold); line-height: 1.6; }
+.wallet-promo-banner { border: 1px solid var(--p-line-gold); background: var(--p-card-hi); border-radius: var(--p-radius-sm); padding: 14px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; }
+.wallet-promo-banner strong { color: var(--p-gold); }
