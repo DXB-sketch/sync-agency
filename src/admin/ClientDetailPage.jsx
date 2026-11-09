@@ -18,6 +18,7 @@ const TIER_OPTIONS = [
   ["pro", "Pro Accelerator"],
   ["elite", "Elite Scale"],
   ["vip", "VIP Inner Circle"],
+  ["executive", "Executive Partner"],
 ];
 
 export default function ClientDetailPage() {
@@ -144,7 +145,7 @@ export default function ClientDetailPage() {
     setSaving(true);
     try {
       const image_urls = await uploadProductImages(imageFiles, id);
-      const { data: product, error: insErr } = await supabase
+      const { error: insErr } = await supabase
         .from("products")
         .insert({
           member_id: id,
@@ -155,19 +156,8 @@ export default function ClientDetailPage() {
           image_urls: image_urls.length ? image_urls : null,
           is_bonus: isBonus,
           created_by: admin.id,
-        })
-        .select()
-        .single();
+        });
       if (insErr) throw insErr;
-
-      // Create the Stripe Product/Price (non-fatal until Stripe keys are configured)
-      const { data: fnData, error: fnErr } = await supabase.functions.invoke(
-        "create-stripe-product",
-        { body: { product_id: product.id } }
-      );
-      if (fnErr || fnData?.error) {
-        setError("Product saved. Stripe price not created yet (Stripe keys not configured?).");
-      }
       setForm({ name: "", description: "", price: "" });
       setIsBonus(false);
       setImageFiles([]);
@@ -449,7 +439,6 @@ export default function ClientDetailPage() {
                 <tr>
                   <th>Product</th>
                   <th>Price</th>
-                  <th>Stripe</th>
                   <th>Active</th>
                   <th />
                 </tr>
@@ -483,7 +472,6 @@ export default function ClientDetailPage() {
                           )}
                       </div>
                     </td>
-                    <td>{p.stripe_price_id ? "Linked" : <span className="admin-warn">Pending</span>}</td>
                     <td>{p.active ? "Yes" : "No"}</td>
                     <td>
                       <button className="btn-ghost admin-view-btn" onClick={() => toggleActive(p)}>

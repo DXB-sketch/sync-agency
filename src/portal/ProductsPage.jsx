@@ -49,7 +49,8 @@ export default function ProductsPage() {
   // The Sync Plus slot is shown on its own, separate from course-tier slots
   const tierProducts = plus ? normal.slice(0, limit) : normal;
   const plusProducts = plus ? normal.slice(limit) : [];
-  const emptySlots = Math.max(limit - tierProducts.length, 0);
+  const unlimited = !!TIERS[profile?.tier]?.unlimited;
+  const emptySlots = unlimited ? 0 : Math.max(limit - tierProducts.length, 0);
   const emptyPlusSlots = plus ? Math.max(PLUS.bonusSlots - plusProducts.length, 0) : 0;
 
   // Higher tiers appear as locked sections showing the extra slots an upgrade unlocks
@@ -202,7 +203,9 @@ export default function ProductsPage() {
               <div className="slot-section-head">
                 <span className="slot-section-title">{TIERS[profile.tier].name}</span>
                 <span className="slot-count">
-                  {Math.min(tierProducts.length, limit)}/{limit} product slots filled
+                  {unlimited
+                    ? `${tierProducts.length} products · full catalogue access`
+                    : `${Math.min(tierProducts.length, limit)}/${limit} product slots filled`}
                 </span>
               </div>
               <div className="product-grid">
@@ -274,10 +277,12 @@ export default function ProductsPage() {
                 <span className="slot-section-title">
                   {TIERS[tier].name} <span className="slot-lock">🔒</span>
                 </span>
-                <span className="slot-count">+{extra} product slots</span>
+                <span className="slot-count">
+                  {TIERS[tier].unlimited ? "Full catalogue" : `+${extra} product slots`}
+                </span>
               </div>
               <div className="product-grid">
-                {Array.from({ length: extra }, (_, i) => (
+                {Array.from({ length: TIERS[tier].unlimited ? 1 : extra }, (_, i) => (
                   <div key={`locked-${tier}-${i}`} className="product-slot-locked">
                     <span className="slot-lock-icon">🔒</span>
                   </div>
@@ -285,7 +290,9 @@ export default function ProductsPage() {
               </div>
               <div className="slot-unlock-row">
                 <span>
-                  Upgrade to {TIERS[tier].name} to unlock {extra} more products in your store.
+                  {TIERS[tier].unlimited
+                    ? `Upgrade to ${TIERS[tier].name} to unlock the entire product catalogue — no slot limits.`
+                    : `Upgrade to ${TIERS[tier].name} to unlock ${extra} more products in your store.`}
                 </span>
                 {!isNativeApp() && (
                   <Link to="/portal/upgrade" className="btn-gold slot-unlock-btn">

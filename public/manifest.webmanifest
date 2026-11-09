@@ -1,7 +1,7 @@
 {
   "name": "Sync Agency",
   "short_name": "Sync",
-  "description": "Your free ecommerce dashboard — step-by-step pathway, product slots and order fulfilment.",
+  "description": "Your Sync Agency dashboard — step-by-step pathway, product slots and order fulfilment.",
   "start_url": "/portal",
   "scope": "/",
   "display": "standalone",

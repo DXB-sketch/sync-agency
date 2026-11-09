@@ -63,8 +63,8 @@ export default function PlusPopup() {
           Get 10% off everything with {PLUS.name}
         </h2>
         <p className="tut-pop-body">
-          10% off every stock order and course upgrade with no spending limit, an extra product slot, and a
-          monthly draw for ${PLUS.drawAmount} of wallet credit. {price ? `$${price}/month, c` : "C"}ancel any time.
+          10% off every stock order and course upgrade with no spending limit, and an extra product slot.{" "}
+          {price ? `$${price}/month, c` : "C"}ancel any time.
         </p>
         <div className="tut-pop-btns">
           <button className="btn-ghost" onClick={() => setOpen(false)}>

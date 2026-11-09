@@ -9,7 +9,6 @@ export const PLUS = {
   name: "Sync Plus",
   discount: 0.1,
   bonusSlots: 1,
-  drawAmount: 500,
 };
 
 export function isPlus(profile) {

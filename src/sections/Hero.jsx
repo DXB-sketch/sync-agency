@@ -1,34 +1,4 @@
-import { useState, useEffect } from "react";
-import { useInView } from "../components/useInView";
 import HeroPanel from "../components/HeroPanel";
-import SocialIcons from "../components/SocialIcons";
-
-function useCountUp(target, duration = 1800, active = false) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let start = null;
-    const step = (ts) => {
-      if (!start) start = ts;
-      const prog = Math.min((ts - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - prog, 3);
-      setVal(Math.floor(ease * target));
-      if (prog < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [active, target, duration]);
-  return val;
-}
-
-function StatCounter({ target, suffix = "", prefix = "" }) {
-  const [ref, visible] = useInView(0.3);
-  const val = useCountUp(target, 1600, visible);
-  return (
-    <span ref={ref}>
-      {prefix}{visible || val > 0 ? val : 0}{suffix}
-    </span>
-  );
-}
 
 export default function Hero() {
   const words = ["Start", "Your", "Ecommerce"];
@@ -62,30 +32,8 @@ export default function Hero() {
             </a>
             <a href="#how-it-works" className="btn-ghost">See how it works</a>
           </div>
-          <SocialIcons className="hero-social hero-social-mobile" />
-          <div className="hero-stats" style={{ animation: "wordReveal .8s .9s cubic-bezier(.16,1,.3,1) both" }}>
-            <div className="hero-stat">
-              <div className="hero-stat-num">
-                <StatCounter target={1200} suffix="+" />
-              </div>
-              <div className="hero-stat-label">Clients helped</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-num">
-                <StatCounter target={100} suffix="%" />
-              </div>
-              <div className="hero-stat-label">Success rate</div>
-            </div>
-            <div className="hero-stat">
-              <div className="hero-stat-num">
-                $<StatCounter target={800} />
-              </div>
-              <div className="hero-stat-label">Avg monthly profit</div>
-            </div>
-          </div>
         </div>
         <div style={{ animation: "wordReveal .9s .5s cubic-bezier(.16,1,.3,1) both" }}>
-          <SocialIcons className="hero-social hero-social-desktop" />
           <HeroPanel />
         </div>
       </div>

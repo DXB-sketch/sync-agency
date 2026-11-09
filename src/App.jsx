@@ -10,7 +10,8 @@ import Nav from "./components/Nav";
 import Footer from "./sections/Footer";
 import UTMIndicator from "./components/UTMIndicator";
 import HomePage from "./pages/HomePage";
-import RepListPage from "./pages/RepListPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthConfirmedPage from "./pages/AuthConfirmedPage";
@@ -61,13 +62,10 @@ function Shell() {
       <Routes>
         <Route
           path="/"
-          element={
-            <>
-              <HomePage />
-              <RepListPage />
-            </>
-          }
+          element={<HomePage />}
         />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/auth/confirmed" element={<AuthConfirmedPage />} />

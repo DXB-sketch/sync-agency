@@ -122,6 +122,10 @@ export default function SignupPage() {
           </button>
         </form>
         <p className="auth-alt">
+          By creating an account you agree to our <Link to="/terms">Terms of Service</Link> and{" "}
+          <Link to="/privacy">Privacy Policy</Link>.
+        </p>
+        <p className="auth-alt">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>

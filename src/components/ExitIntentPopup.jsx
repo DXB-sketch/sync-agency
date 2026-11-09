@@ -21,20 +21,12 @@ export default function ExitIntentPopup() {
       <div className="exit-modal">
         <button className="exit-close" onClick={() => setShow(false)} aria-label="Close">×</button>
         <div className="exit-eyebrow">Wait, before you go</div>
-        <h2>1200+ stores<br />launched <em>with us.</em></h2>
+        <h2>Questions before<br />you <em>decide?</em></h2>
         <p>
           Every client gets the step-by-step pathway, product slots stocked by our team,
-          and coaching that answers within hours. Pick your level and we handle the rest.
+          and coaching that answers within hours. Pick the level of support that suits you.
         </p>
         <div className="exit-stats">
-          <div className="exit-stat">
-            <div className="exit-stat-num">1200+</div>
-            <div className="exit-stat-label">Clients</div>
-          </div>
-          <div className="exit-stat">
-            <div className="exit-stat-num">100%</div>
-            <div className="exit-stat-label">Success</div>
-          </div>
           <div className="exit-stat">
             <div className="exit-stat-num">&lt;2hr</div>
             <div className="exit-stat-label">Response</div>

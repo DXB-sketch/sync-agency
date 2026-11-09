@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SocialIcons from "./SocialIcons";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -15,12 +14,11 @@ export default function Nav() {
       <div className="nav-left">
         <div className="nav-logo">Sync Agency</div>
         <Link to="/login" className="nav-login">Login</Link>
-        <SocialIcons className="nav-social" />
       </div>
       <div className="nav-links">
         <a href="/#how-it-works">How it works</a>
         <a href="/#pricing">Pricing</a>
-        <a href="/#results">Results</a>
+        <a href="/#expectations">Expectations</a>
         <a href="/#faq">FAQ</a>
         <a href="/#pricing" className="nav-btn">Join Now →</a>
       </div>
@@ -35,9 +33,9 @@ export default function Nav() {
       </button>
       {menuOpen && (
         <div style={{ position: "fixed", top: 60, left: 0, right: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", padding: "24px 20px", zIndex: 499, display: "flex", flexDirection: "column", gap: 0 }}>
-          {["/#how-it-works", "/#pricing", "/#results", "/#faq"].map((href, i) => (
+          {["/#how-it-works", "/#pricing", "/#expectations", "/#faq"].map((href, i) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{ padding: "16px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-md)", fontWeight: 500 }}>
-              {["How it works", "Pricing", "Results", "FAQ"][i]}
+              {["How it works", "Pricing", "Expectations", "FAQ"][i]}
             </a>
           ))}
           <a href="/#pricing" className="btn-gold" style={{ marginTop: 20, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>

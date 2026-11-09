@@ -5,7 +5,6 @@ import { TIERS } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 import { TutorialProvider, SaleNudges } from "./Tutorial";
 import BottomTabBar from "../components/BottomTabBar";
-import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
 import WalletPromoPopup from "./WalletPromoPopup";
 import PlusPopup from "./PlusPopup";
@@ -47,7 +46,6 @@ export default function PortalLayout() {
             <Link to="/portal" className="portal-logo">
               SYNC<span>/PORTAL</span>
             </Link>
-            <SocialIcons className="portal-social" />
           </div>
           <div className="portal-topbar-right">
             {tier && <span className={`tier-badge tier-${profile.tier}`}>{tier.short}</span>}

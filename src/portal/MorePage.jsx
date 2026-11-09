@@ -4,7 +4,6 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
 import { TabIcon } from "../components/BottomTabBar";
-import SocialIcons from "../components/SocialIcons";
 import { walletEnabled } from "../lib/walletFlag";
 import { useChronosMode } from "../lib/useChronosMode";
 
@@ -100,6 +99,14 @@ export default function MorePage() {
           </span>
           <Chevron />
         </Link>
+        <Link to="/terms" className="more-row">
+          <span className="more-row-main">Terms of Service</span>
+          <Chevron />
+        </Link>
+        <Link to="/privacy" className="more-row">
+          <span className="more-row-main">Privacy Policy</span>
+          <Chevron />
+        </Link>
         <button className="more-row" onClick={() => supabase.auth.signOut()}>
           <span className="more-row-main">
             <TabIcon name="signout" size={17} />
@@ -107,8 +114,6 @@ export default function MorePage() {
           </span>
         </button>
       </div>
-
-      <SocialIcons className="more-social" />
 
       {profile?.role !== "admin" && (
         <div className="danger-zone">

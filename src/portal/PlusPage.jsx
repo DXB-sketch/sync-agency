@@ -14,10 +14,6 @@ const PERKS = [
     title: "+1 extra product slot",
     body: "An extra item in your store on top of your course tier's slots, stocked by the Sync team.",
   },
-  {
-    title: `Monthly $${PLUS.drawAmount} wallet credit draw`,
-    body: `Every active ${PLUS.name} member is entered into a draw each month for $${PLUS.drawAmount} of wallet credit.`,
-  },
 ];
 
 function date(iso) {

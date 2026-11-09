@@ -12,19 +12,19 @@ export default function WhatIsDropshipping() {
               <Eyebrow text="What is dropshipping?" />
               <h2 className="section-title">Sell products.<br />Never hold <em>stock.</em></h2>
               <p className="section-sub">
-                Dropshipping is one of the simplest business models online, you list products,
-                take orders, buy from a supplier, keep the margin. No warehouse. No upfront inventory.
-                Depop makes it even more powerful: millions of active buyers, less competition than
-                Amazon, and higher margins on the right products. Your Sync dashboard walks
-                you through this exact process, step by step.
+                Dropshipping is a simple business model to understand: you list products, take
+                orders, buy from a supplier and keep whatever margin is left after costs. No warehouse
+                and no upfront bulk inventory. Depop gives you access to a large, established
+                marketplace of buyers. Your Sync dashboard walks you through the process, step by step.
+                Like any business, it takes work, and results vary from person to person.
               </p>
             </FadeUp>
             <StaggerGrid className="ds-cards">
               {[
                 { icon: "📦", title: "No inventory needed", desc: "Products ship direct from supplier to buyer. You're the middleman, and you keep the margin." },
                 { icon: "📱", title: "Phone-based business", desc: "List products, manage orders, and grow your store entirely from your phone." },
-                { icon: "💸", title: "Keep the difference", desc: "Buy low from private suppliers, sell higher on Depop. Clients average $300–$800/mo." },
-                { icon: "🎯", title: "Why Depop?", desc: "Built-in audience of millions actively searching resale items. Less competition, better margins." },
+                { icon: "💸", title: "Keep the difference", desc: "Buy from a supplier, list on Depop, and keep the margin left after fees, shipping and other costs." },
+                { icon: "🎯", title: "Why Depop?", desc: "An established marketplace with a large built-in audience already searching for items to buy." },
               ].map((c) => (
                 <div key={c.title} className="ds-card">
                   <div className="ds-card-icon">{c.icon}</div>
@@ -42,11 +42,11 @@ export default function WhatIsDropshipping() {
               </div>
               <div className="ds-steps">
                 {[
-                  { n: "01", title: "Find a winning product", desc: "Our research system identifies high-demand products with strong Depop search volume and low supplier cost. We also send daily winning product drops." },
-                  { n: "02", title: "List on your store", desc: "Create an optimised listing using our proven frameworks, titles, photos, pricing, and descriptions engineered to convert." },
-                  { n: "03", title: "Customer buys from you", desc: "Depop handles payment. A buyer purchases your listing and the money hits your account." },
-                  { n: "04", title: "Order from supplier", desc: "You buy the item from your private supplier at cost and they ship directly to your buyer. You pocket the difference." },
-                  { n: "05", title: "Scale & compound", desc: "More listings, better niches, smarter pricing. Your income grows as you do, and our team scales with you." },
+                  { n: "01", title: "Choose a product", desc: "Our research process looks at Depop search demand and supplier cost to help you choose products to test. We also share regular product drops." },
+                  { n: "02", title: "List on your store", desc: "Create your listing using our frameworks for titles, photos, pricing and descriptions." },
+                  { n: "03", title: "Customer buys from you", desc: "When a buyer purchases your listing, Depop processes the payment and pays you out after its fees." },
+                  { n: "04", title: "Order from supplier", desc: "You buy the item from the supplier and it ships directly to your buyer. What remains after all costs is your margin." },
+                  { n: "05", title: "Review & improve", desc: "Review what sells and what doesn't, adjust your listings, niches and pricing, and keep learning with our support." },
                 ].map((s) => (
                   <div key={s.n} className="ds-step">
                     <div className="ds-step-num">{s.n}</div>

@@ -18,7 +18,7 @@ const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOL
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
 const PLUS_LOOKUP_KEY = "sync_plus_monthly";
-const COURSE_TIERS = ["pro", "elite", "vip"];
+const COURSE_TIERS = ["pro", "elite", "vip", "executive"];
 let cachedPrice: { amount: number; id: string } | null = null;
 
 async function getOrCreatePlusPrice(amountCents: number): Promise<string> {
@@ -34,7 +34,7 @@ async function getOrCreatePlusPrice(amountCents: number): Promise<string> {
     (
       await stripe.products.create({
         name: "Sync Plus",
-        description: "10% off every portal purchase, +1 product slot and a monthly $500 wallet credit draw.",
+        description: "10% off every portal purchase and +1 product slot.",
       })
     ).id;
   const price = await stripe.prices.create({

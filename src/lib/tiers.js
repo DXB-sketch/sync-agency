@@ -6,10 +6,13 @@ export const TIERS = {
   pro: { name: "Pro Accelerator", short: "Pro", rank: 1, lifetime: 97, productLimit: 9 },
   elite: { name: "Elite Scale", short: "Elite", rank: 2, lifetime: 247, productLimit: 12 },
   vip: { name: "VIP Inner Circle", short: "VIP", rank: 3, lifetime: 689, productLimit: 15 },
+  // Full catalogue: the cap is set well above the catalogue size so it never binds
+  // (mirrors tier_product_limit() in the database)
+  executive: { name: "Executive Partner", short: "Executive", rank: 4, lifetime: 3799, productLimit: 1000, unlimited: true },
 };
 
 // Course tiers, lowest first ('free' is legacy-only, closed to new accounts)
-export const PAID_TIERS = ["pro", "elite", "vip"];
+export const PAID_TIERS = ["pro", "elite", "vip", "executive"];
 
 export function tierRank(tier) {
   return TIERS[tier]?.rank ?? 0;

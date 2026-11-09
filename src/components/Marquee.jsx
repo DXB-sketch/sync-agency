@@ -1,11 +1,9 @@
 const MARQUEE_ITEMS = [
-  "Members dashboard","1200+ clients", "100% success rate", "Australian owned",
-  "Depop coaching system", "Proven system", "Private suppliers",
-  "1-on-1 support", "Daily product drops", "Real results",
-  "5000+ rep items", "Members dashboard","1200+ clients", "100% success rate",
-  "Australian owned", "Depop coaching system", "Proven system",
-  "Private suppliers", "1-on-1 support", "Daily product drops",
-  "Real results", "5000+ rep items",
+  "Members dashboard", "Australian owned", "Depop coaching system",
+  "Step-by-step pathway", "Supplier network", "1-on-1 support",
+  "Daily product drops", "Members dashboard", "Australian owned",
+  "Depop coaching system", "Step-by-step pathway", "Supplier network",
+  "1-on-1 support", "Daily product drops",
 ];
 
 export default function Marquee() {

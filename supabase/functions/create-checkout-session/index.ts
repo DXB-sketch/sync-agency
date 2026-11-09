@@ -10,17 +10,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOLDER");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
-const TIER_PRICES: Record<string, { lifetime: number }> = {
-  pro: { lifetime: 97 },
-  elite: { lifetime: 247 },
-  vip: { lifetime: 689 },
-};
-const TIER_RANK: Record<string, number> = { free: 0, pro: 1, elite: 2, vip: 3 };
-const TIER_NAMES: Record<string, string> = {
-  pro: "Pro Accelerator",
-  elite: "Elite Scale",
-  vip: "VIP Inner Circle",
-};
+// Tier names, ranks and prices live in public.course_tiers (Supabase is the source of truth).
+type CourseTier = { id: string; name: string; rank: number; price_cents: number };
 
 // Sync Plus perk: 10% off every portal purchase. Applied per line in cents.
 const PLUS_DISCOUNT_RATE = 0.1;
@@ -35,7 +26,7 @@ const PLUS_DISCOUNT_RATE = 0.1;
 const UPGRADE_PRODUCT_METADATA_KEY = "sync_tier_upgrade_product";
 const cachedUpgradeProductIds: Record<string, string> = {};
 
-async function getOrCreateUpgradeProduct(tier: string): Promise<string> {
+async function getOrCreateUpgradeProduct(tier: string, tierName: string): Promise<string> {
   if (cachedUpgradeProductIds[tier]) return cachedUpgradeProductIds[tier];
 
   const found = await stripe.products.search({
@@ -48,11 +39,33 @@ async function getOrCreateUpgradeProduct(tier: string): Promise<string> {
   }
 
   const product = await stripe.products.create({
-    name: `Upgrade to ${TIER_NAMES[tier]} (lifetime)`,
+    name: `Upgrade to ${tierName} (lifetime)`,
     metadata: { [UPGRADE_PRODUCT_METADATA_KEY]: tier },
   });
   cachedUpgradeProductIds[tier] = product.id;
   return cachedUpgradeProductIds[tier];
+}
+
+// Every stock order is charged as one total against a single generic Stripe Product (the
+// wallet top-up pattern). Item names, descriptions and photos stay in Supabase only.
+const STOCK_ORDER_PRODUCT_METADATA_KEY = "sync_stock_order_product";
+let cachedStockOrderProductId: string | null = null;
+
+async function getOrCreateStockOrderProduct(): Promise<string> {
+  if (cachedStockOrderProductId) return cachedStockOrderProductId;
+  const found = await stripe.products.search({
+    query: `active:'true' AND metadata['${STOCK_ORDER_PRODUCT_METADATA_KEY}']:'true'`,
+    limit: 1,
+  });
+  cachedStockOrderProductId =
+    found.data[0]?.id ??
+    (
+      await stripe.products.create({
+        name: "Sync stock order",
+        metadata: { [STOCK_ORDER_PRODUCT_METADATA_KEY]: "true" },
+      })
+    ).id;
+  return cachedStockOrderProductId;
 }
 
 const corsHeaders = {
@@ -94,18 +107,17 @@ Deno.serve(async (req) => {
     profile.plus_status === "active" || profile.plus_status === "trialing" ? 1 - PLUS_DISCOUNT_RATE : 1;
 
   try {
-    // ── Stock order: single lump-sum payment, one line item per order item ──
+    // ── Stock order: single lump-sum payment ──
     // Amount is always resolved server-side from the DB (never trusts the client-sent
-    // unit_price) and passed as inline price_data referencing the product's existing
-    // canonical Stripe Product — never product_data, which would mint a new Stripe
-    // Product per checkout (docs/INCIDENT_2026-07-17). No stored Stripe Price is used
-    // or required for this path anymore.
+    // unit_price) and charged as one inline price_data line against the generic stock-order
+    // Product — never product_data, which would mint a new Stripe Product per checkout
+    // (docs/INCIDENT_2026-07-17). Itemisation stays in order_items.
     if (kind === "stock_order") {
       if (!profile.subscription_active) return json({ error: "Portal access paused" }, 403);
       const { data: order } = await admin
         .from("orders")
         .select(
-          "*, order_items(*, products(name, price, stripe_product_id))"
+          "*, order_items(*, products(name, price))"
         )
         .eq("id", body.order_id)
         .eq("member_id", user.id)
@@ -118,17 +130,8 @@ Deno.serve(async (req) => {
         products: {
           name: string;
           price: number;
-          stripe_product_id: string | null;
         };
       };
-
-      const unlinked = order.order_items.find((item: OrderItem) => !item.products.stripe_product_id);
-      if (unlinked) {
-        return json(
-          { error: `"${unlinked.products.name}" isn't linked to Stripe yet — contact support` },
-          409
-        );
-      }
 
       // Charge = client sell price ONLY (less the Sync Plus discount for members). Never add
       // profit/margin/resale/fees here. products.listing_price / products.discount_price are
@@ -150,23 +153,28 @@ Deno.serve(async (req) => {
         );
       }
 
-      const line_items = order.order_items.map((item: OrderItem, i: number) => ({
-        price_data: {
-          currency: "aud",
-          product: item.products.stripe_product_id as string,
-          unit_amount: amounts[i],
-        },
-        quantity: item.quantity,
-      }));
-
       const expectedTotal = order.order_items.reduce(
         (sum: number, item: OrderItem, i: number) => sum + amounts[i] * item.quantity,
         0
       );
+      const itemCount = order.order_items.reduce((n: number, item: OrderItem) => n + item.quantity, 0);
+      const orderRef = String(order.id).slice(0, 8).toUpperCase();
 
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
-        line_items,
+        line_items: [
+          {
+            price_data: {
+              currency: "aud",
+              product: await getOrCreateStockOrderProduct(),
+              unit_amount: expectedTotal,
+            },
+            quantity: 1,
+          },
+        ],
+        payment_intent_data: {
+          description: `Stock order ${orderRef} (${itemCount} item${itemCount === 1 ? "" : "s"})`,
+        },
         customer_email: profile.email ?? undefined,
         success_url: `${SITE_URL}/portal/checkout?paid=1`,
         cancel_url: `${SITE_URL}/portal/checkout`,
@@ -198,9 +206,12 @@ Deno.serve(async (req) => {
     if (kind === "upgrade") {
       const target = body.target_tier as string;
       const targetBilling = (body.target_billing as string) ?? "lifetime";
-      if (!Object.hasOwn(TIER_PRICES, target)) return json({ error: "Unknown tier" }, 400);
+      const { data: tiers } = await admin.from("course_tiers").select("id, name, rank, price_cents");
+      const tierById = Object.fromEntries((tiers ?? []).map((t: CourseTier) => [t.id, t]));
+      const targetTier: CourseTier | undefined = tierById[target];
+      if (!targetTier) return json({ error: "Unknown tier" }, 400);
       // Free accounts (or legacy tier-less profiles) upgrade from rank 0 at full price
-      if (TIER_RANK[target] <= (TIER_RANK[profile.tier] ?? 0)) {
+      if (targetTier.rank <= (tierById[profile.tier]?.rank ?? 0)) {
         return json({ error: "Can only upgrade to a higher tier" }, 400);
       }
 
@@ -211,9 +222,10 @@ Deno.serve(async (req) => {
       // Lifetime upgrade: one-time payment of (target lifetime price − what they already paid),
       // less the Sync Plus discount for members
       const alreadyPaid = profile.tier_price_paid ?? 0;
-      const diff = Math.max(TIER_PRICES[target].lifetime - alreadyPaid, 1);
+      const targetPrice = targetTier.price_cents / 100;
+      const diff = Math.max(targetPrice - alreadyPaid, 1);
       const unitAmount = Math.round(Math.round(diff * 100) * plusRate);
-      const upgradeProductId = await getOrCreateUpgradeProduct(target);
+      const upgradeProductId = await getOrCreateUpgradeProduct(target, targetTier.name);
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         line_items: [
@@ -234,7 +246,7 @@ Deno.serve(async (req) => {
           member_id: user.id,
           target_tier: target,
           target_billing: "lifetime",
-          new_price_paid: String(TIER_PRICES[target].lifetime),
+          new_price_paid: String(targetPrice),
         },
       });
       return json({ url: session.url });

@@ -1,28 +1,14 @@
 // create-landing-checkout — public checkout for the marketing site's coaching tiers.
 // No signed-in user required: Stripe collects the buyer's email, and stripe-webhook's
-// course-purchase path (COURSE_PRICE_MAP) records the purchase and links/upgrades the
-// matching profile by email. Replaces the dead /checkout.php endpoint from the old host.
+// course-purchase path (metadata kind "course") records the purchase and links/upgrades the
+// matching profile by email.
+// Prices come from public.course_tiers and are charged as inline price_data against the
+// plan's existing Stripe Product — Supabase is the source of truth, no fixed Stripe Prices.
 import Stripe from "npm:stripe@18";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOLDER");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
-
-// Must stay in sync with COURSE_PRICE_MAP in stripe-webhook/index.ts.
-// Course access is purchased with a one-time payment.
-const TIERS: Record<string, { price: string; name: string }> = {
-  pro: {
-    price: "price_1UF36jPDABwVk3W5A4RJnrro",
-    name: "Pro Accelerator",
-  },
-  elite: {
-    price: "price_1UF371PDABwVk3W5F336GwQC",
-    name: "Elite Scale",
-  },
-  vip: {
-    price: "price_1UF376PDABwVk3W5S6Qlld9v",
-    name: "VIP Inner Circle",
-  },
-};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -40,11 +26,18 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const body = await req.json().catch(() => ({}));
-  const tier = TIERS[body.tier as string];
   const plan = (body.plan as string) ?? "lifetime";
-  if (!Object.hasOwn(TIERS, body.tier) || (plan !== "lifetime" && plan !== "yearly")) {
+  if (typeof body.tier !== "string" || plan !== "lifetime") {
     return json({ error: "Unknown tier or plan" }, 400);
   }
+
+  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+  const { data: tier } = await admin
+    .from("course_tiers")
+    .select("id, name, price_cents, stripe_product_id")
+    .eq("id", body.tier)
+    .maybeSingle();
+  if (!tier) return json({ error: "Unknown tier or plan" }, 400);
 
   // Same sanitisation as src/utils/affiliate.js — Stripe's client_reference_id rules.
   const affiliate =
@@ -56,7 +49,14 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       allow_promotion_codes: true,
-      line_items: [{ price: tier.price, quantity: 1 }],
+      line_items: [
+        {
+          price_data: { currency: "aud", product: tier.stripe_product_id, unit_amount: tier.price_cents },
+          quantity: 1,
+        },
+      ],
+      payment_intent_data: { description: `${tier.name} coaching plan (lifetime access)` },
+      metadata: { kind: "course", tier: tier.id },
       client_reference_id: affiliate || undefined,
       success_url: `${SITE_URL}/?checkout=success&tier=${encodeURIComponent(tier.name)}`,
       cancel_url: `${SITE_URL}/#pricing`,

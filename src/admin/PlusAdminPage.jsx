@@ -7,14 +7,12 @@ function date(iso) {
   return iso ? new Date(iso).toLocaleDateString() : "—";
 }
 
-// Sync Plus subscribers and the monthly $500 wallet-credit draw (draw_plus_winner RPC:
-// admin-only, one draw per month, credits the winner through wallet_adjust).
+// Sync Plus subscribers and the admin-editable monthly price.
 export default function PlusAdminPage() {
   const { profile: admin } = useAuth();
   const [members, setMembers] = useState([]);
   const [monthlyCents, setMonthlyCents] = useState(null);
   const [priceInput, setPriceInput] = useState("");
-  const [draws, setDraws] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
@@ -27,14 +25,9 @@ export default function PlusAdminPage() {
           .select("id, email, full_name, plus_status, plus_current_period_end, plus_cancel_at_period_end")
           .not("plus_status", "is", null)
           .order("email"),
-        supabase
-          .from("plus_draws")
-          .select("*, winner:profiles!plus_draws_winner_id_fkey(email, full_name)")
-          .order("draw_month", { ascending: false }),
         supabase.from("plus_settings").select("monthly_cents").single(),
-      ]).then(([m, d, s]) => {
+      ]).then(([m, s]) => {
         setMembers(m.data ?? []);
-        setDraws(d.data ?? []);
         setMonthlyCents(s.data?.monthly_cents ?? null);
         setPriceInput(s.data ? String(s.data.monthly_cents / 100) : "");
       }),
@@ -70,33 +63,6 @@ export default function PlusAdminPage() {
     setBusy(false);
     if (upErr) setError(upErr.message);
     else setNotice(`${PLUS.name} is now $${(cents / 100).toFixed(2)}/month for new members.`);
-    await load();
-  }
-
-  async function draw() {
-    if (
-      !window.confirm(
-        `Draw this month's winner from ${active.length} active ${PLUS.name} member${
-          active.length === 1 ? "" : "s"
-        }? $${PLUS.drawAmount} is credited to their wallet straight away.`
-      )
-    )
-      return;
-    setError(null);
-    setNotice(null);
-    setBusy(true);
-    const { data, error: rpcErr } = await supabase.rpc("draw_plus_winner");
-    setBusy(false);
-    if (rpcErr) {
-      setError(rpcErr.message);
-    } else if (data?.status === "already_drawn") {
-      setError("This month's winner has already been drawn.");
-    } else if (data?.status === "no_entrants") {
-      setError(`There are no active ${PLUS.name} members to draw from.`);
-    } else {
-      const winner = members.find((m) => m.id === data.winner_id);
-      setNotice(`Winner: ${winner?.full_name || winner?.email || data.winner_id} — $${PLUS.drawAmount} credited.`);
-    }
     await load();
   }
 
@@ -136,42 +102,6 @@ export default function PlusAdminPage() {
           Save price
         </button>
       </form>
-
-      <div className="dash-card plus-status-card">
-        <h2 className="dash-card-title">Monthly ${PLUS.drawAmount} draw</h2>
-        <p className="dash-card-sub">
-          Picks one active {PLUS.name} member at random and credits ${PLUS.drawAmount} to their wallet. Once per
-          calendar month (Brisbane time).
-        </p>
-        <button className="btn-gold" disabled={busy || active.length === 0} onClick={draw}>
-          {busy ? "Drawing…" : "Draw this month's winner"}
-        </button>
-      </div>
-
-      {draws.length > 0 && (
-        <div className="admin-table-wrap">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Winner</th>
-                <th>Entrants</th>
-                <th>Drawn</th>
-              </tr>
-            </thead>
-            <tbody>
-              {draws.map((d) => (
-                <tr key={d.id}>
-                  <td>{new Date(d.draw_month).toLocaleDateString(undefined, { month: "long", year: "numeric" })}</td>
-                  <td>{d.winner?.full_name || d.winner?.email}</td>
-                  <td>{d.entrants}</td>
-                  <td>{date(d.created_at)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
 
       <div className="admin-table-wrap">
         <table className="admin-table">

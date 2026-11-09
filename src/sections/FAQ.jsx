@@ -4,11 +4,11 @@ import Eyebrow from "../components/Eyebrow";
 
 const FAQS = [
   { q: "What do I get when I join?", a: "Every plan includes the Sync dashboard — a step-by-step pathway, product slots stocked by our team, achievements, order fulfilment and support — plus the hands-on coaching for your tier. You get access as soon as your payment goes through." },
-  { q: "Do I need any experience to start?", a: "Zero experience needed. Most of our clients had never sold anything online before joining. The pathway walks you through every single step, from creating your account to making your first sale, and we're there whenever questions come up." },
-  { q: "How long until I start making money?", a: "Most clients make their first sale within 1–2 weeks. Consistent monthly income typically comes within 30–45 days. Speed depends on how quickly you implement, which is why we handle the heavy lifting in our higher tiers." },
+  { q: "Do I need any experience to start?", a: "No experience is needed to start. The pathway walks you through each step, from creating your account to listing products and fulfilling orders, and we're there whenever questions come up." },
+  { q: "Will I make money?", a: "We can't promise that, and nobody honestly can. Sync Agency provides education, coaching and tools, not a business opportunity or an income. Your results depend on your own effort and decisions, product choice, pricing, fees, competition and Depop itself. Many people who try dropshipping make little or no profit, and you could lose money on products, fees and costs. Please only join if you're comfortable with that." },
   { q: "What's the difference between the tiers?", a: "Pro Accelerator is coaching + guidance — you execute with our direction. Elite Scale adds done-for-you store management. VIP Inner Circle is maximum access, daily personal picks, real-time oversight, and a fully operated store." },
   { q: "Do I need capital to run the business?", a: "Since you only pay the supplier after a buyer pays you, you can start with very little. A small buffer of $100–$200 AUD is recommended so you can move fast when orders come in, but there's no bulk inventory to buy upfront." },
-  { q: "Is Depop dropshipping allowed?", a: "Yes, reselling on Depop is completely allowed and it's what the platform is built for. Our system is fully compliant with Depop's terms of service. We've helped 1200+ clients do this without any platform issues." },
+  { q: "Can I get a refund?", a: "Plans are generally non-refundable, including for change of mind or because you didn't get the results you hoped for. If you believe something has genuinely gone wrong with what we provided, email founder@syncagency.org to discuss it, with evidence supporting your claim. Nothing in our policy limits your rights under the Australian Consumer Law. See our Terms of Service for the full policy." },
   { q: "How much time does it take per week?", a: "Pro Accelerator: 1–3 hours/day to start. Elite Scale reduces this significantly as we handle most tasks. VIP Inner Circle can be as little as 20–30 minutes per day to approve decisions, we handle the rest." },
 ];
 
@@ -41,18 +41,16 @@ export default function FAQ() {
                 <div className="faq-aside-label">Still unsure?</div>
                 <h3>Ask us directly.</h3>
                 <p>
-                  Jump into our Discord and ask anything before you commit. We answer
+                  Email us and ask anything before you commit. We answer
                   every question, no sales pressure, no scripts. Just straight answers
                   from the people running the programme.
                 </p>
-                <a href="https://discord.gg/pVzjXumpbP" target="_blank" rel="noreferrer" className="btn-gold" style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-                  Join the Discord →
+                <a href="mailto:founder@syncagency.org" className="btn-gold" style={{ display: "flex", width: "100%", justifyContent: "center" }}>
+                  Email us →
                 </a>
                 <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
                   {[
-                    { label: "Response time", value: "< 2 hours" },
-                    { label: "Clients enrolled", value: "1200+" },
-                    { label: "Success rate", value: "100%" },
+                    { label: "Typical response time", value: "< 2 hours" },
                   ].map(({ label, value }) => (
                     <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.04)", fontSize: 13 }}>
                       <span style={{ color: "var(--text-dim)" }}>{label}</span>

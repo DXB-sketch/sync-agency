@@ -12,7 +12,7 @@ export default function CTASection() {
           <h2>Your journey starts<br /><em>with one decision.</em></h2>
           <p>
             The pathway, the product slots, the coaching — it's all waiting inside.
-            1200+ clients in — the only question is when you start.
+            Results depend on you and aren't guaranteed, so ask us anything before you commit.
           </p>
           <div className="cta-btns">
             <a href="#pricing" className="btn-gold" style={{ fontSize: 15, padding: "18px 52px" }}>
@@ -20,7 +20,7 @@ export default function CTASection() {
             </a>
             <a href="#faq" className="btn-ghost">Read the FAQ</a>
           </div>
-          <p className="discord-note">Questions first? Join our Discord and ask us anything before you commit.</p>
+          <p className="discord-note">Questions first? Email us at <a href="mailto:founder@syncagency.org">founder@syncagency.org</a> before you commit.</p>
         </FadeUp>
       </div>
     </section>

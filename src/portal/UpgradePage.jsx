@@ -4,6 +4,9 @@ import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 import { PLUS, isPlus, plusPrice } from "../lib/plus";
+import { TIERS as PLAN_COPY } from "../data/pricing";
+
+const EXECUTIVE = PLAN_COPY.find((t) => t.id === "executive");
 
 export default function UpgradePage() {
   const { profile } = useAuth();
@@ -26,6 +29,63 @@ export default function UpgradePage() {
       return;
     }
     window.location.assign(data.url);
+  }
+
+  function card(key) {
+    const t = TIERS[key];
+    const isCurrent = profile?.tier === key;
+    const isLower = t.rank < currentRank;
+    // Credit what's already been paid; minimum charge $1, rounded to cents
+    const prorated = Math.max(Math.round((t.lifetime - paid) * 100), 100) / 100;
+    const youPay = plusPrice(Math.round(prorated * 100), profile) / 100;
+    return (
+      <div key={key} className={`upgrade-card${isCurrent ? " current" : ""}${t.unlimited ? " flagship" : ""}`}>
+        <span className={`tier-badge tier-${key}`}>{t.unlimited ? "Flagship · The Ultimate Tier" : t.short}</span>
+        <h2 className="upgrade-name">{t.name}</h2>
+        {t.unlimited && <p className="upgrade-tagline">{EXECUTIVE.tagline}</p>}
+        <div className="upgrade-price">
+          <strong>${t.lifetime.toLocaleString("en-AU")}</strong> AUD once
+        </div>
+        {t.unlimited && (
+          <ul className="upgrade-features">
+            {EXECUTIVE.features.map((f) => <li key={f}>{f}</li>)}
+          </ul>
+        )}
+        {isCurrent ? (
+          <span className="upgrade-current-label">Your current tier</span>
+        ) : isLower ? (
+          <span className="upgrade-current-label">Included in your tier</span>
+        ) : (
+          <>
+            {prorated !== t.lifetime && (
+              <p className="upgrade-prorate">
+                ${t.lifetime} − ${Number(paid).toFixed(2)} already paid = ${prorated.toFixed(2)}
+              </p>
+            )}
+            {isPlus(profile) && (
+              <p className="upgrade-prorate">{PLUS.name}: 10% off</p>
+            )}
+            {(prorated !== t.lifetime || isPlus(profile)) && (
+              <p className="upgrade-prorate">
+                You pay <strong>${youPay.toFixed(2)}</strong>
+              </p>
+            )}
+            <button
+              className="btn-gold"
+              disabled={busy !== null}
+              onClick={() => upgrade(key)}
+            >
+              {busy === key ? "Preparing…" : t.unlimited ? "Become an Executive Partner" : `Upgrade to ${t.short}`}
+            </button>
+          </>
+        )}
+        {t.unlimited && currentRank < TIERS.vip.rank && (
+          <p className="upgrade-anchor-note">
+            Not ready for the full partnership? {TIERS.vip.name} gets you a fully run store for under a fifth of the price.
+          </p>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -55,52 +115,9 @@ export default function UpgradePage() {
           {error && <p className="auth-error">{error}</p>}
 
           <div className="upgrade-grid">
-            {PAID_TIERS.map((key) => {
-              const t = TIERS[key];
-              const isCurrent = profile?.tier === key;
-              const isLower = t.rank < currentRank;
-              // Credit what's already been paid; minimum charge $1, rounded to cents
-              const prorated = Math.max(Math.round((t.lifetime - paid) * 100), 100) / 100;
-              const youPay = plusPrice(Math.round(prorated * 100), profile) / 100;
-              return (
-                <div key={key} className={`upgrade-card${isCurrent ? " current" : ""}`}>
-                  <span className={`tier-badge tier-${key}`}>{t.short}</span>
-                  <h2 className="upgrade-name">{t.name}</h2>
-                  <div className="upgrade-price">
-                    <strong>${t.lifetime}</strong> AUD once
-                  </div>
-                  {isCurrent ? (
-                    <span className="upgrade-current-label">Your current tier</span>
-                  ) : isLower ? (
-                    <span className="upgrade-current-label">Included in your tier</span>
-                  ) : (
-                    <>
-                      {prorated !== t.lifetime && (
-                        <p className="upgrade-prorate">
-                          ${t.lifetime} − ${Number(paid).toFixed(2)} already paid = ${prorated.toFixed(2)}
-                        </p>
-                      )}
-                      {isPlus(profile) && (
-                        <p className="upgrade-prorate">{PLUS.name}: 10% off</p>
-                      )}
-                      {(prorated !== t.lifetime || isPlus(profile)) && (
-                        <p className="upgrade-prorate">
-                          You pay <strong>${youPay.toFixed(2)}</strong>
-                        </p>
-                      )}
-                      <button
-                        className="btn-gold"
-                        disabled={busy !== null}
-                        onClick={() => upgrade(key)}
-                      >
-                        {busy === key ? "Preparing…" : `Upgrade to ${t.short}`}
-                      </button>
-                    </>
-                  )}
-                </div>
-              );
-            })}
+            {PAID_TIERS.filter((key) => !TIERS[key].unlimited).map(card)}
           </div>
+          <div className="upgrade-flagship">{card("executive")}</div>
         </>
       )}
     </div>

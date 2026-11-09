@@ -2,7 +2,6 @@ import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { isNativeApp } from "../lib/nativeApp";
 import BottomTabBar from "../components/BottomTabBar";
-import SocialIcons from "../components/SocialIcons";
 import { useChronosMode } from "../lib/useChronosMode";
 
 const BASE_LINKS = [
@@ -41,7 +40,6 @@ export default function AdminLayout() {
           <Link to="/admin" className="portal-logo">
             SYNC<span>/ADMIN</span>
           </Link>
-          <SocialIcons className="portal-social" />
         </div>
         <div className="portal-topbar-right">
           <label className="chronos-mode-switch">

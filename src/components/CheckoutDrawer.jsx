@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { getAffiliate } from "../utils/affiliate.js";
 
@@ -75,7 +76,7 @@ function CheckoutDrawerInner({ onClose, tier }) {
             ${tier.price}
             <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}> one-time</span>
           </div>
-          <div className="checkout-price-period">AUD · 3 years access</div>
+          <div className="checkout-price-period">AUD · lifetime access</div>
         </div>
 
         <div>
@@ -84,7 +85,7 @@ function CheckoutDrawerInner({ onClose, tier }) {
             onClick={handleCTA}
             disabled={loading}
           >
-            {loading ? "Processing..." : "Get 3-Year Access →"}
+            {loading ? "Processing..." : "Get Lifetime Access →"}
           </button>
           {error && (
             <div className="checkout-error" style={{ marginTop: 10 }}>
@@ -92,7 +93,12 @@ function CheckoutDrawerInner({ onClose, tier }) {
             </div>
           )}
           <p className="checkout-smallprint" style={{ marginTop: 10 }}>
-            One-time payment. Access valid for 3 years from purchase date.
+            One-time payment. Lifetime access, as defined in our Terms of Service.
+          </p>
+          <p className="checkout-smallprint" style={{ marginTop: 8 }}>
+            By continuing you agree to our <Link to="/terms" onClick={onClose}>Terms of Service</Link>{" "}
+            (including the refund policy) and <Link to="/privacy" onClick={onClose}>Privacy Policy</Link>.
+            Coaching and education only; results are not guaranteed.
           </p>
         </div>
 

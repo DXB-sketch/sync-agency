@@ -28,10 +28,6 @@ html:has(.portal, .portal-loading), html:has(.portal, .portal-loading) body { ba
 .portal-logo { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em; }
 .portal-logo span { color: var(--p-muted); font-size: 11px; font-family: var(--p-font); font-weight: 400; letter-spacing: 0.14em; }
 .portal-topbar-right { display: flex; align-items: center; gap: 12px; }
-.portal .social-icon-btn { color: var(--p-muted); }
-.portal .social-icon-btn:hover { color: var(--p-gold); }
-.portal-social { gap: 12px; }
-.portal-social .social-icon-btn { width: 15px; height: 15px; }
 .portal-admin-link { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-gold); font-weight: 600; border: 1px solid var(--p-line-gold); background: var(--p-card-hi); padding: 8px 12px; border-radius: 9px; }
 .portal-signout { background: none; border: none; color: var(--p-muted); font-family: var(--p-font); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; cursor: none; }
 .portal-signout:hover { color: var(--p-text); }
@@ -48,6 +44,7 @@ html:has(.portal, .portal-loading), html:has(.portal, .portal-loading) body { ba
 .tier-badge.tier-free { color: var(--p-muted); border-color: var(--p-line); background: none; }
 .tier-badge.tier-elite { color: oklch(88% 0.008 85); border-color: oklch(88% 0.008 85 / 0.3); background: oklch(88% 0.008 85 / 0.06); }
 .tier-badge.tier-vip { color: var(--p-ink); background: var(--p-grad-gold); border-color: transparent; }
+.tier-badge.tier-executive { color: var(--p-gold-bright); background: var(--p-bg-deep); border-color: var(--p-gold-bright); box-shadow: var(--p-shadow-glow); }
 
 /* Nav (desktop tab strip) */
 .portal-nav { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: var(--p-bg); overflow-x: auto; scrollbar-width: none; }
@@ -351,6 +348,15 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .upgrade-prorate { font-size: 12px; color: var(--p-muted); }
 .upgrade-prorate strong { color: var(--p-gold); }
 .upgrade-current-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-dim); }
+/* Executive Partner: full-width flagship card beneath the course grid */
+.upgrade-flagship { margin-top: 18px; }
+.upgrade-card.flagship { border-color: var(--p-gold-deep); box-shadow: var(--p-shadow-glow); background: radial-gradient(120% 140% at 0% 0%, oklch(58% 0.10 68 / 0.18) 0%, transparent 55%), var(--p-grad-card); padding: 36px 32px; }
+.upgrade-card.flagship .upgrade-name { font-size: 30px; }
+.upgrade-tagline { font-size: 14px; color: var(--p-muted); line-height: 1.6; max-width: 560px; }
+.upgrade-features { list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 28px; width: 100%; margin: 6px 0 8px; }
+.upgrade-features li { font-size: 13px; color: var(--p-text); line-height: 1.5; display: flex; gap: 10px; }
+.upgrade-features li::before { content: "✦"; color: var(--p-gold-bright); flex-shrink: 0; }
+.upgrade-anchor-note { font-size: 12px; color: var(--p-dim); line-height: 1.6; }
 
 /* ── More ── */
 .more-page { max-width: 720px; margin: 0 auto; }
@@ -360,10 +366,6 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .more-row-main { display: flex; align-items: center; gap: 12px; }
 .more-row-main svg { color: var(--p-gold-deep); }
 .more-row > svg { color: var(--p-muted); }
-.more-social { margin-top: 14px; gap: 10px; }
-.more-social .social-icon-btn { flex: 1; width: auto; height: auto; padding: 18px 0; border: 1px solid var(--p-line); border-radius: var(--p-radius-md); background: var(--p-elev); }
-.more-social .social-icon-btn:hover { border-color: var(--p-line-gold); }
-.more-social .social-icon-btn svg { width: 26px; height: 26px; }
 
 /* ── Admin ── */
 .admin-back { display: inline-block; font-size: 12px; color: var(--p-dim); margin-bottom: 16px; }
@@ -648,7 +650,6 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 @media (max-width: 768px) {
   .portal-topbar { padding: 0 16px; gap: 10px; }
   .portal-topbar-left, .portal-topbar-right { gap: 8px; min-width: 0; }
-  .portal-social { display: none; } /* members get socials under More */
   .chronos-mode-switch > span:first-child { display: none; }
   .portal-admin-link { padding: 7px 10px; white-space: nowrap; }
   .bottom-tab { min-width: 0; }

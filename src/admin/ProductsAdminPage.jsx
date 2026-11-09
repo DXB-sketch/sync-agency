@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { useChronosMode } from "../lib/useChronosMode";
@@ -7,7 +7,7 @@ import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
 import { productLimit } from "../lib/plus";
 
-const TIER_ORDER = ["free", "pro", "elite", "vip"];
+const TIER_ORDER = ["free", "pro", "elite", "vip", "executive"];
 const EMPTY_FORM = {
   name: "",
   description: "",
@@ -221,13 +221,12 @@ export default function ProductsAdminPage() {
   const [selected, setSelected] = useState({});
   const [productSearch, setProductSearch] = useState("");
   const [folder, setFolder] = useState(null); // open category folder | null = folder view
-  const [busy, setBusy] = useState(null); // "assign" | "create" | "merge" | "delete" | "images" | "fill" | "dist-pro" | ... | null
+  const [busy, setBusy] = useState(null); // "assign" | "create" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
   const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
   const [linkerTarget, setLinkerTarget] = useState(null); // supplier-link modal target | null
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
-  const healedRef = useRef(false);
 
   // Tier filter for the bulk "fill members to capacity" action
   const [fillTier, setFillTier] = useState("all");
@@ -284,18 +283,6 @@ export default function ProductsAdminPage() {
         });
         setFill(counts);
         setMemberNames(names);
-
-        // Heal products still missing a Stripe price (e.g. auto-assigned by the
-        // slot-opened trigger, which can't call Stripe). Once per visit, non-blocking.
-        const unlinked = (prods ?? []).filter((p) => p.active && !p.stripe_price_id);
-        if (!healedRef.current && unlinked.length > 0) {
-          healedRef.current = true;
-          (async () => {
-            for (const p of unlinked) {
-              await supabase.functions.invoke("create-stripe-product", { body: { product_id: p.id } });
-            }
-          })();
-        }
       }),
     [],
   );
@@ -398,15 +385,8 @@ export default function ProductsAdminPage() {
             "Nothing to add — every selected client already has these products or lacks free slots."
           );
         }
-        const { data: inserted, error: insErr } = await supabase
-          .from("products")
-          .insert(rows)
-          .select("id");
+        const { error: insErr } = await supabase.from("products").insert(rows);
         if (insErr) throw insErr;
-        // Links to the existing Stripe product/price — no duplicates created
-        for (const row of inserted ?? []) {
-          await supabase.functions.invoke("create-stripe-product", { body: { product_id: row.id } });
-        }
         const added = chosen.length - skippedDup - skippedFull;
         let msg = `Added ${rows.length} product${rows.length === 1 ? "" : "s"} across ${added} client${
           added === 1 ? "" : "s"
@@ -499,14 +479,8 @@ export default function ProductsAdminPage() {
           "Nobody needed products — everyone targeted is already full or owns every catalogue item."
         );
       }
-      const { data: inserted, error: insErr } = await supabase
-        .from("products")
-        .insert(rows)
-        .select("id");
+      const { error: insErr } = await supabase.from("products").insert(rows);
       if (insErr) throw insErr;
-      for (const row of inserted ?? []) {
-        await supabase.functions.invoke("create-stripe-product", { body: { product_id: row.id } });
-      }
       let msg = `Filled ${filledCount} member${filledCount === 1 ? "" : "s"} with ${rows.length} product${
         rows.length === 1 ? "" : "s"
       }.`;
@@ -564,12 +538,6 @@ export default function ProductsAdminPage() {
         p_tier: tier,
       });
       if (rpcErr) throw rpcErr;
-      // Link each newly assigned product to Stripe (non-fatal, same as manual adds)
-      for (const productId of assignedIds ?? []) {
-        await supabase.functions.invoke("create-stripe-product", {
-          body: { product_id: productId },
-        });
-      }
       const n = assignedIds?.length ?? 0;
       setNotice(
         n === 0
@@ -607,20 +575,11 @@ export default function ProductsAdminPage() {
     setError(null);
     setNotice(null);
     setBusy("delete");
-    const { data: archData, error: archErr } = await supabase.functions.invoke(
-      "archive-stripe-product",
-      { body: { product_ids: entry.ids } }
-    );
-    if (archErr || archData?.error) {
-      setError(archData?.error ?? "Could not archive it in Stripe — deletion cancelled.");
-      setBusy(null);
-      return;
-    }
     const { error: delErr } = await supabase.from("products").delete().in("id", entry.ids);
     if (delErr) {
       setError(delErr.message);
     } else {
-      setNotice(`Deleted "${entry.name}" from the catalogue, all client stores, and Stripe.`);
+      setNotice(`Deleted "${entry.name}" from the catalogue and all client stores.`);
       setSelected((s) => ({ ...s, [entry.key]: false }));
     }
     await load();
@@ -722,28 +681,6 @@ export default function ProductsAdminPage() {
     }
   }
 
-  async function mergeDuplicates() {
-    setError(null);
-    setNotice(null);
-    setBusy("merge");
-    const { data, error: fnErr } = await supabase.functions.invoke("merge-stripe-duplicates", {
-      body: {},
-    });
-    if (fnErr || data?.error) {
-      setError(data?.error ?? "Merge failed — is the function deployed and Stripe configured?");
-    } else {
-      setNotice(
-        `Stripe cleanup done: ${data.products_archived} duplicate product${
-          data.products_archived === 1 ? "" : "s"
-        } archived, ${data.rows_repointed} store product${
-          data.rows_repointed === 1 ? "" : "s"
-        } relinked.`
-      );
-      await load();
-    }
-    setBusy(null);
-  }
-
   // Link badge + link/unlink buttons for one catalogue/pool row (docs/PHASE1_PLAN.md §3.3).
   // Chronos-only (CJ supplier tooling) — hidden entirely unless Chronos Mode is on.
   function supplierCell(target) {
@@ -799,14 +736,6 @@ export default function ProductsAdminPage() {
             distribution pool.
           </p>
         </div>
-        <button
-          className="btn-ghost admin-view-btn"
-          type="button"
-          disabled={busy === "merge"}
-          onClick={mergeDuplicates}
-        >
-          {busy === "merge" ? "Merging…" : "Merge Stripe duplicates"}
-        </button>
       </div>
 
       {error && <p className="auth-error">{error}</p>}
@@ -1015,12 +944,6 @@ export default function ProductsAdminPage() {
                         <span>
                           {c.storeCount} store{c.storeCount === 1 ? "" : "s"}
                         </span>
-                        {c.storeCount > 0 &&
-                          (c.stripe_price_id ? (
-                            <span>Stripe linked</span>
-                          ) : (
-                            <span className="admin-warn">Stripe pending</span>
-                          ))}
                       </div>
                       <select
                         className="auth-input admin-category-filter"
