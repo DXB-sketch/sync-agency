@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { meetsTier, tierRank, TIERS } from "../lib/tiers";
+import { courseTier } from "../lib/rewards";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import NodeBody from "../components/portal/NodeBody";
 
@@ -42,6 +43,7 @@ export default function PathwayPage() {
   const [openId, setOpenIdState] = useState(null);
   const [saving, setSaving] = useState(false);
   const [groupsOpen, setGroupsOpen] = useState(false);
+  const [rewardsRank, setRewardsRank] = useState(null); // Sync Rewards rank, which can unlock a course
   const [searchParams, setSearchParams] = useSearchParams();
   const scrollRef = useRef(null);
   const drag = useRef(null); // mouse drag-to-pan state
@@ -57,11 +59,14 @@ export default function PathwayPage() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
+  // Course access: the paid plan, or a higher course unlocked by Sync Rewards rank
+  const memberTier = courseTier(profile?.tier, rewardsRank);
+
   useEffect(() => {
     if (!profile) return;
     (async () => {
       const isAdmin = profile.role === "admin";
-      const [{ data: n }, { data: p }, { data: mp }] = await Promise.all([
+      const [{ data: n }, { data: p }, { data: mp }, { data: mr }] = await Promise.all([
         supabase.from("pathway_nodes").select("*").order("phase").order("order_in_phase"),
         supabase.from("member_pathway_progress").select("*"),
         isAdmin
@@ -70,7 +75,9 @@ export default function PathwayPage() {
               .from("member_pathways")
               .select("pathway_id, granted_at, pathways(id, slug, name)")
               .order("granted_at"),
+        supabase.from("member_rewards").select("rank").eq("member_id", profile.id).maybeSingle(),
       ]);
+      setRewardsRank(mr?.rank ?? null);
       setNodes(n ?? []);
       setProgress(Object.fromEntries((p ?? []).map((r) => [r.node_id, r])));
       const owned = isAdmin ? (mp ?? []) : (mp ?? []).map((row) => row.pathways).filter(Boolean);
@@ -173,14 +180,14 @@ export default function PathwayPage() {
   }
 
   function nodeState(node) {
-    if (!meetsTier(profile?.tier, node.min_tier)) return "locked";
+    if (!meetsTier(memberTier, node.min_tier)) return "locked";
     const status = progress[node.id]?.status;
     if (status === "complete") return "complete";
     if (status === "in_progress") return "in_progress";
     // available once all dependencies are complete (first node is always available)
     const depsDone = (node.depends_on ?? []).every((d) => {
       const dep = byId[d];
-      if (dep && !meetsTier(profile?.tier, dep.min_tier)) return true; // skip deps above the member's tier
+      if (dep && !meetsTier(memberTier, dep.min_tier)) return true; // skip deps above the member's tier
       return progress[d]?.status === "complete";
     });
     return depsDone ? "available" : "locked";
@@ -188,7 +195,7 @@ export default function PathwayPage() {
 
   // A group's state summarises its tier-eligible children.
   function groupState(hub) {
-    const eligible = hub.children.filter((c) => meetsTier(profile?.tier, c.min_tier));
+    const eligible = hub.children.filter((c) => meetsTier(memberTier, c.min_tier));
     if (eligible.length === 0) {
       const minTier = hub.children.reduce(
         (best, c) => (tierRank(c.min_tier) < tierRank(best) ? c.min_tier : best),
@@ -363,7 +370,7 @@ export default function PathwayPage() {
                   const node = byId[child.id];
                   if (!node) return null;
                   const done = progress[child.id]?.status === "complete";
-                  const eligible = meetsTier(profile?.tier, child.min_tier);
+                  const eligible = meetsTier(memberTier, child.min_tier);
                   const stroke = done
                     ? "oklch(78% 0.13 86)"
                     : eligible
@@ -474,7 +481,7 @@ export default function PathwayPage() {
 
               {openState === "locked" ? (
                 <p className="node-locked-msg">
-                  {!meetsTier(profile?.tier, open.min_tier)
+                  {!meetsTier(memberTier, open.min_tier)
                     ? `This step unlocks with ${TIERS[open.min_tier]?.name}. Upgrade to access it.`
                     : "Complete the previous steps to unlock this one."}
                 </p>

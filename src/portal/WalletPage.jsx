@@ -5,7 +5,7 @@ import { walletEnabled } from "../lib/walletFlag";
 import { useAuth } from "../lib/useAuth";
 import { fetchLivePromo, rewardText, requirementText } from "../lib/walletPromo";
 
-const PRESETS = [5000, 10000, 25000, 50000];
+const PRESETS = [5000, 10000, 25000, 50000, 100000];
 // Bonus credit per top-up amount (cents). Credited by stripe-webhook, which holds the same table.
 const TOPUP_BONUSES = { 50000: 8000 };
 

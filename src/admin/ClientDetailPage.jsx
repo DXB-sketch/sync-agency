@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS } from "../lib/tiers";
 import { productLimit } from "../lib/plus";
+import { activeSlots } from "../lib/rewards";
 import { uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
 
@@ -80,6 +81,7 @@ export default function ClientDetailPage() {
           .order("created_at", { ascending: false })
           .limit(10),
         supabase.from("wallet_order_holds").select("*").eq("member_id", id),
+        supabase.from("reward_grants").select("kind, expires_at, clawed_back_at").eq("member_id", id).eq("kind", "slot"),
       ]).then(
         ([
           { data: c },
@@ -92,8 +94,9 @@ export default function ClientDetailPage() {
           { data: w },
           { data: wt },
           { data: wh },
+          { data: rs },
         ]) => {
-          setClient(c);
+          setClient(c && { ...c, reward_slots: activeSlots(rs) });
           if (c) {
             setAccount({
               tier: c.tier ?? "free",

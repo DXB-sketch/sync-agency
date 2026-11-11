@@ -6,6 +6,7 @@ import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
 import { productLimit } from "../lib/plus";
+import { activeSlots } from "../lib/rewards";
 
 const TIER_ORDER = ["free", "pro", "elite", "vip", "executive"];
 const EMPTY_FORM = {
@@ -266,8 +267,14 @@ export default function ProductsAdminPage() {
           )
           .eq("active", true)
           .gt("price", 0),
-      ]).then(async ([{ data: prods }, { data: mem }, { data: pp }, { data: cat }]) => {
-        const membersById = Object.fromEntries((mem ?? []).map((m) => [m.id, m]));
+        supabase.from("reward_grants").select("member_id, kind, expires_at, clawed_back_at").eq("kind", "slot"),
+      ]).then(async ([{ data: prods }, { data: memRows }, { data: pp }, { data: cat }, { data: slotRows }]) => {
+        // Live Sync Rewards product slots count towards each member's limit
+        const mem = (memRows ?? []).map((m) => ({
+          ...m,
+          reward_slots: activeSlots((slotRows ?? []).filter((g) => g.member_id === m.id)),
+        }));
+        const membersById = Object.fromEntries(mem.map((m) => [m.id, m]));
         // Internal rows (e.g. the wallet top-up product) aren't sellable stock
         const catalogRows = (cat ?? []).filter((r) => r.name && !r.key.startsWith("sync_"));
         setCatalogue(buildCatalogue(prods ?? [], membersById, catalogRows));

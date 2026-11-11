@@ -27,7 +27,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") ?? "sk_test_PLACEHOLDER");
 const SITE_URL = Deno.env.get("SITE_URL") ?? "https://syncagency.org";
 
-const PRESET_AMOUNTS = [5000, 10000, 25000, 50000];
+const PRESET_AMOUNTS = [5000, 10000, 25000, 50000, 100000];
 
 const TOPUP_CATALOG_KEY = "sync_wallet_topup_product";
 const TOPUP_CATALOG_PRICE = 0;
@@ -166,8 +166,11 @@ Deno.serve(async (req) => {
     const isPreset = PRESET_AMOUNTS.includes(amount);
     const isValidCustom = Number.isInteger(amount) && amount >= 1000 && amount <= 100000;
     if (!isPreset && !isValidCustom) {
-      return json({ error: "amount_cents must be a preset ($50/$100/$250/$500) or between $10 and $1,000" }, 400);
+      return json({ error: "amount_cents must be a preset ($50/$100/$250/$500/$1,000) or between $10 and $1,000" }, 400);
     }
+
+    // Top-ups started from Sync Rewards return there so the rank-up moment can show
+    const returnPath = body.return_to === "rewards" ? "/portal/rewards" : "/portal/wallet";
 
     try {
       const productId = await getOrCreateTopupProduct(admin);
@@ -192,8 +195,8 @@ Deno.serve(async (req) => {
           },
         ],
         customer_email: profile.email ?? undefined,
-        success_url: `${SITE_URL}/portal/wallet?topup=1`,
-        cancel_url: `${SITE_URL}/portal/wallet`,
+        success_url: `${SITE_URL}${returnPath}?topup=1`,
+        cancel_url: `${SITE_URL}${returnPath}`,
         metadata,
       });
       return json({ url: session.url });

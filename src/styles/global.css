@@ -46,6 +46,15 @@
   --p-radius-md: 14px;
   --p-radius-sm: 10px;
   --p-radius-pill: 100px;
+  --p-radius-btn: 12px;
+  /* Sync Rewards: rank and crate rarity colours */
+  --silver: oklch(86% 0.012 85);
+  --bronze: oklch(66% 0.10 55);
+  --plat: oklch(84% 0.035 220);
+  --r-legendary: oklch(80% 0.14 86);
+  --r-epic: oklch(74% 0.15 52);
+  --r-rare: oklch(80% 0.08 225);
+  --r-common: oklch(86% 0.012 85);
 }
 html { scroll-behavior: smooth; }
 body { background: var(--black); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.65; overflow-x: hidden; cursor: none; }

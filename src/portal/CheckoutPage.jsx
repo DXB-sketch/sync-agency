@@ -62,11 +62,12 @@ export default function CheckoutPage() {
       .select("balance_cents")
       .maybeSingle()
       .then(({ data }) => setWalletBalanceCents(data?.balance_cents ?? 0));
-    // Oldest unused promo discount — the one wallet-pay-order will apply next
+    // Largest unused discount (promo or Sync Rewards crate) — the one wallet-pay-order will apply next
     supabase
       .from("member_order_discounts")
       .select("percent")
       .is("order_id", null)
+      .order("percent", { ascending: false })
       .order("created_at")
       .limit(1)
       .maybeSingle()

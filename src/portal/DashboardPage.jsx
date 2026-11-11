@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS, meetsTier } from "../lib/tiers";
+import { courseTier } from "../lib/rewards";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import { useTutorial, STEPS, TAB_STEPS } from "./tutorialSteps";
 
@@ -36,7 +37,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!profile) return;
     (async () => {
-      const [{ data: n }, { data: p }, { data: o }, { count: ac }, { data: mp }] = await Promise.all([
+      const [{ data: n }, { data: p }, { data: o }, { count: ac }, { data: mp }, { data: mr }] = await Promise.all([
         supabase.from("pathway_nodes").select("*").order("phase").order("order_in_phase"),
         supabase.from("member_pathway_progress").select("*"),
         supabase.from("orders").select("status, total_amount"),
@@ -45,12 +46,15 @@ export default function DashboardPage() {
           .select("id", { count: "exact", head: true })
           .eq("status", "verified"),
         supabase.from("member_pathways").select("pathway_id, granted_at").order("granted_at"),
+        supabase.from("member_rewards").select("rank").eq("member_id", profile.id).maybeSingle(),
       ]);
+      // Course access: the paid plan, or a higher course unlocked by Sync Rewards rank
+      const memberTier = courseTier(profile.tier, mr?.rank);
       // Two owned pathways both have a phase 1, 2, ... — sort by grant order first
       // so branches don't interleave, then the existing phase/order_in_phase.
       const grantOrder = Object.fromEntries((mp ?? []).map((row, i) => [row.pathway_id, i]));
       const sorted = (n ?? [])
-        .filter((node) => meetsTier(profile.tier, node.min_tier))
+        .filter((node) => meetsTier(memberTier, node.min_tier))
         .sort((a, b) => {
           const oa = grantOrder[a.pathway_id] ?? 0;
           const ob = grantOrder[b.pathway_id] ?? 0;

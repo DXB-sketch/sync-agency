@@ -151,6 +151,15 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       });
       if (promoErr) throw promoErr;
     }
+
+    // Sync Rewards: XP, levels and crates for the credit bought (pack bonus credit
+    // earns no XP). Idempotent per payment, so a retried webhook awards nothing twice.
+    const { error: xpErr } = await supabase.rpc("award_topup_xp", {
+      p_member: session.metadata.member_id,
+      p_amount_cents: amountCents,
+      p_stripe_ref: stripeRef,
+    });
+    if (xpErr) throw xpErr;
     return;
   }
 
@@ -246,6 +255,19 @@ Deno.serve(async (req) => {
       case "customer.subscription.deleted":
         await syncPlus((event.data.object as Stripe.Subscription).id);
         break;
+      case "charge.refunded": {
+        // Sync Rewards: reverse the XP and lifetime credit of a refunded wallet top-up
+        // and claw back what it unlocked. Other payments aren't rewards events (not_found).
+        const charge = event.data.object as Stripe.Charge;
+        if (typeof charge.payment_intent === "string") {
+          const { error } = await supabase.rpc("reverse_topup_rewards", {
+            p_stripe_ref: charge.payment_intent,
+            p_refunded_total_cents: charge.amount_refunded,
+          });
+          if (error) throw error;
+        }
+        break;
+      }
     }
   } catch (err) {
     console.error(`Error handling ${event.type}:`, err);

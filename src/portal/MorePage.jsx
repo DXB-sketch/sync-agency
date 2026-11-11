@@ -48,6 +48,24 @@ export default function MorePage() {
       {error && <p className="auth-error">{error}</p>}
 
       <div className="more-list">
+        {walletEnabled(profile) && (
+          <>
+            <Link to="/portal/pathway" className="more-row" data-nav="pathway">
+              <span className="more-row-main">
+                <TabIcon name="pathway" size={17} />
+                Pathway
+              </span>
+              <Chevron />
+            </Link>
+            <Link to="/portal/achievements" className="more-row" data-nav="achievements">
+              <span className="more-row-main">
+                <TabIcon name="achievements" size={17} />
+                Achievements
+              </span>
+              <Chevron />
+            </Link>
+          </>
+        )}
         {!isNativeApp() && (
           <Link to="/portal/upgrade" className="more-row" data-nav="upgrade">
             <span className="more-row-main">

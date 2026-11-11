@@ -7,6 +7,14 @@ import { PLUS, isPlus, canGetPlus } from "../lib/plus";
 import { addToCart, loadCart } from "../lib/cart";
 import { productImages } from "../lib/productImages";
 import { isNativeApp } from "../lib/nativeApp";
+import { CATEGORIES } from "../lib/categories";
+import { activeSlots } from "../lib/rewards";
+
+const UNCATEGORISED = "Other";
+
+function folderOf(p) {
+  return CATEGORIES.includes(p.category) ? p.category : UNCATEGORISED;
+}
 
 export default function ProductsPage() {
   const { profile } = useAuth();
@@ -19,6 +27,9 @@ export default function ProductsPage() {
   const touchX = useRef(null);
   const [toast, setToast] = useState(null); // "added to order" confirmation
   const toastTimer = useRef(null);
+  const [search, setSearch] = useState("");
+  const [folder, setFolder] = useState(null); // open category folder | null = folder view
+  const [rewardSlots, setRewardSlots] = useState(0); // live Sync Rewards product slots
 
   function addAndConfirm(p) {
     setCartCount(addToCart(p).length);
@@ -30,19 +41,30 @@ export default function ProductsPage() {
   useEffect(() => () => clearTimeout(toastTimer.current), []);
 
   useEffect(() => {
+    if (!profile?.id) return;
+    // RLS already limits members to their own rows; the explicit filter keeps
+    // admins (who can read every row) from seeing other members' stock here.
     supabase
       .from("products")
       .select("*")
       .eq("active", true)
+      .eq("member_id", profile.id)
       .order("created_at")
       .then(({ data }) => {
         setProducts(data ?? []);
         setLoading(false);
       });
-  }, []);
+    supabase
+      .from("reward_grants")
+      .select("kind, expires_at, clawed_back_at")
+      .eq("member_id", profile.id)
+      .eq("kind", "slot")
+      .then(({ data }) => setRewardSlots(activeSlots(data)));
+  }, [profile?.id]);
 
   const myRank = tierRank(profile?.tier);
-  const limit = TIERS[profile?.tier]?.productLimit ?? 0;
+  const tierLimit = TIERS[profile?.tier]?.productLimit ?? 0;
+  const limit = tierLimit > 0 ? tierLimit + rewardSlots : 0;
   const normal = products.filter((p) => !p.is_bonus);
   const bonus = products.filter((p) => p.is_bonus);
   const plus = isPlus(profile);
@@ -53,9 +75,32 @@ export default function ProductsPage() {
   const emptySlots = unlimited ? 0 : Math.max(limit - tierProducts.length, 0);
   const emptyPlusSlots = plus ? Math.max(PLUS.bonusSlots - plusProducts.length, 0) : 0;
 
+  // Folders only appear once a member's products span more than one category.
+  // Search only ever filters the products already loaded for this member.
+  const mine = [...tierProducts, ...bonus, ...plusProducts];
+  const folders = [...CATEGORIES, UNCATEGORISED]
+    .map((name) => ({ name, items: mine.filter((p) => folderOf(p) === name) }))
+    .filter((f) => f.items.length > 0);
+  const useFolders = folders.length > 1;
+  const q = search.trim().toLowerCase();
+  const filtering = folder !== null || !!q;
+  const showFolders = useFolders && !filtering;
+  const matches = (p) =>
+    (folder === null || folderOf(p) === folder) &&
+    (!q || p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q));
+  const shownTier = tierProducts.filter(matches);
+  const shownBonus = bonus.filter(matches);
+  const shownPlus = plusProducts.filter(matches);
+  const noMatches = filtering && shownTier.length + shownBonus.length + shownPlus.length === 0;
+
+  function openFolder(name) {
+    setFolder(name);
+    setSearch("");
+  }
+
   // Higher tiers appear as locked sections showing the extra slots an upgrade unlocks
   const lockedTiers = PAID_TIERS.filter((t) => TIERS[t].rank > myRank).map((t, i, arr) => {
-    const prevLimit = i === 0 ? limit : TIERS[arr[i - 1]].productLimit;
+    const prevLimit = i === 0 ? tierLimit : TIERS[arr[i - 1]].productLimit;
     return { tier: t, extra: TIERS[t].productLimit - prevLimit };
   });
 
@@ -198,7 +243,87 @@ export default function ProductsPage() {
         <p className="portal-sub">Loading catalogue…</p>
       ) : (
         <>
-          {limit > 0 && (
+          {limit > 0 && mine.length > 0 && (
+            <>
+              {folder !== null && (
+                <nav className="catalogue-crumbs" aria-label="Product location">
+                  <button type="button" className="catalogue-crumb-back" onClick={() => openFolder(null)}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M15 18l-6-6 6-6" />
+                    </svg>
+                    All categories
+                  </button>
+                  <span aria-hidden="true">/</span>
+                  <span className="catalogue-crumb-current" aria-current="page">
+                    {folder}
+                  </span>
+                </nav>
+              )}
+              <input
+                type="search"
+                className="auth-input admin-search"
+                aria-label="Search your products"
+                placeholder={folder === null ? `Search your ${mine.length} products…` : `Search ${folder}…`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </>
+          )}
+
+          {limit > 0 && showFolders && (
+            <div className="slot-section">
+              <div className="slot-section-head">
+                <span className="slot-section-title">{TIERS[profile.tier].name}</span>
+                <span className="slot-count">
+                  {unlimited
+                    ? `${tierProducts.length} products · full catalogue access`
+                    : `${Math.min(tierProducts.length, limit)}/${limit} product slots filled`}
+                </span>
+              </div>
+              <div className="catalogue-folders">
+                {folders.map((f) => (
+                  <button
+                    key={f.name}
+                    type="button"
+                    className="catalogue-folder"
+                    onClick={() => openFolder(f.name)}
+                  >
+                    <span className="catalogue-folder-thumbs" aria-hidden="true">
+                      {f.items
+                        .map((p) => productImages(p)[0])
+                        .filter(Boolean)
+                        .slice(0, 3)
+                        .map((src, i) => (
+                          <img key={i} src={src} alt="" loading="lazy" />
+                        ))}
+                    </span>
+                    <span className="catalogue-folder-row">
+                      <svg className="catalogue-folder-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                      </svg>
+                      <span className="catalogue-folder-text">
+                        <span className="catalogue-folder-name">{f.name}</span>
+                        <span className="catalogue-folder-count">
+                          {f.items.length} item{f.items.length === 1 ? "" : "s"}
+                        </span>
+                      </span>
+                      <svg className="catalogue-folder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M9 6l6 6-6 6" />
+                      </svg>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {noMatches && (
+            <div className="portal-empty">
+              <p>{q ? "No products match your search." : "No products in this category yet."}</p>
+            </div>
+          )}
+
+          {limit > 0 && !showFolders && (!filtering || shownTier.length + shownBonus.length > 0) && (
             <div className="slot-section">
               <div className="slot-section-head">
                 <span className="slot-section-title">{TIERS[profile.tier].name}</span>
@@ -209,9 +334,9 @@ export default function ProductsPage() {
                 </span>
               </div>
               <div className="product-grid">
-                {tierProducts.map(productCard)}
-                {bonus.map(productCard)}
-                {Array.from({ length: emptySlots }, (_, i) => (
+                {shownTier.map(productCard)}
+                {shownBonus.map(productCard)}
+                {Array.from({ length: filtering ? 0 : emptySlots }, (_, i) => (
                   <div key={`empty-${i}`} className="product-slot-empty">
                     <span className="slot-plus">+</span>
                     <span className="slot-empty-label">
@@ -223,7 +348,7 @@ export default function ProductsPage() {
             </div>
           )}
 
-          {limit > 0 && plus && (
+          {limit > 0 && plus && (showFolders ? emptyPlusSlots > 0 : !filtering || shownPlus.length > 0) && (
             <div className="slot-section">
               <div className="slot-section-head">
                 <span className="slot-section-title">{PLUS.name}</span>
@@ -232,8 +357,8 @@ export default function ProductsPage() {
                 </span>
               </div>
               <div className="product-grid">
-                {plusProducts.map(productCard)}
-                {Array.from({ length: emptyPlusSlots }, (_, i) => (
+                {!showFolders && shownPlus.map(productCard)}
+                {Array.from({ length: filtering ? 0 : emptyPlusSlots }, (_, i) => (
                   <div key={`plus-empty-${i}`} className="product-slot-empty">
                     <span className="slot-plus">+</span>
                     <span className="slot-empty-label">

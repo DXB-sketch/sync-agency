@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import "./styles/global.css";
 import "./styles/portal.css";
+import "./styles/rewards.css";
 import { captureAffiliate } from "./utils/affiliate.js";
 import { AuthProvider } from "./lib/AuthContext";
 import { ChronosModeProvider } from "./lib/ChronosModeContext";
@@ -29,6 +30,10 @@ import ReactivatePage from "./portal/ReactivatePage";
 import ConnectStorePage from "./portal/ConnectStorePage";
 import ProductLinkingPage from "./portal/ProductLinkingPage";
 import WalletPage from "./portal/WalletPage";
+import RewardsPage from "./portal/RewardsPage";
+import RewardsTopUpPage from "./portal/RewardsTopUpPage";
+import CratesPage from "./portal/CratesPage";
+import CrateOddsPage from "./portal/CrateOddsPage";
 import PlusPage from "./portal/PlusPage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
@@ -115,6 +120,10 @@ function Shell() {
               member auth only (RequireMember on the parent /portal route), never by
               Chronos Mode or admin role. */}
           <Route path="wallet" element={<WalletPage />} />
+          <Route path="rewards" element={<RewardsPage />} />
+          <Route path="rewards/top-up" element={<RewardsTopUpPage />} />
+          <Route path="rewards/crates" element={<CratesPage />} />
+          <Route path="rewards/odds" element={<CrateOddsPage />} />
           <Route path="plus" element={<PlusPage />} />
           <Route path="more" element={<MorePage />} />
         </Route>

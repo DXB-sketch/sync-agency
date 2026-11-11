@@ -30,12 +30,25 @@ const TAB_LINKS = [
   { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout", "/portal/wallet", "/portal/plus"] },
 ];
 
+// With the wallet live, Rewards and Wallet take the tab bar; Pathway and Achievements move to More.
+const REWARDS_TAB_LINKS = [
+  { to: "/portal", label: "Dashboard", end: true, icon: "dashboard" },
+  { to: "/portal/rewards", label: "Rewards", icon: "rewards" },
+  { to: "/portal/wallet", label: "Wallet", icon: "wallet" },
+  { to: "/portal/products", label: "Products", icon: "products" },
+  { to: "/portal/more", label: "More", icon: "more", also: ["/portal/support", "/portal/upgrade", "/portal/checkout", "/portal/plus", "/portal/pathway", "/portal/achievements"] },
+];
+
 export default function PortalLayout() {
   const { profile } = useAuth();
   const tier = profile?.tier ? TIERS[profile.tier] : null;
   const native = isNativeApp();
   const navLinks = walletEnabled(profile)
-    ? [...NAV_LINKS, { to: "/portal/wallet", label: "Wallet", icon: "wallet" }]
+    ? [
+        ...NAV_LINKS,
+        { to: "/portal/rewards", label: "Rewards", icon: "rewards" },
+        { to: "/portal/wallet", label: "Wallet", icon: "wallet" },
+      ]
     : NAV_LINKS;
 
   return (
@@ -78,7 +91,7 @@ export default function PortalLayout() {
         <SaleNudges />
         <WalletPromoPopup />
         <PlusPopup />
-        <BottomTabBar links={TAB_LINKS} />
+        <BottomTabBar links={walletEnabled(profile) ? REWARDS_TAB_LINKS : TAB_LINKS} />
       </div>
     </TutorialProvider>
   );

@@ -27,7 +27,8 @@ export function plusPrice(cents, profile) {
 
 // Course-tier slots plus the Sync Plus bonus slot
 export function productLimit(member) {
-  return (TIERS[member?.tier]?.productLimit ?? 0) + (isPlus(member) ? PLUS.bonusSlots : 0);
+  // reward_slots: live Sync Rewards product slots, when the caller has loaded them
+  return (TIERS[member?.tier]?.productLimit ?? 0) + (isPlus(member) ? PLUS.bonusSlots : 0) + (member?.reward_slots ?? 0);
 }
 
 // Monthly price in dollars as a display string (e.g. "34" or "43.99"); null while loading.
