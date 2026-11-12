@@ -9,6 +9,8 @@ import { productImages } from "../lib/productImages";
 import { isNativeApp } from "../lib/nativeApp";
 import { CATEGORIES } from "../lib/categories";
 import { activeSlots } from "../lib/rewards";
+import Icon from "../components/portal/Icon";
+import { useTutorial } from "./tutorialSteps";
 
 const UNCATEGORISED = "Other";
 
@@ -16,11 +18,16 @@ function folderOf(p) {
   return CATEGORIES.includes(p.category) ? p.category : UNCATEGORISED;
 }
 
+const money = (n) => `$${n.toFixed(2)}`;
+// List and discount prices drop ".00" so the pair fits on one line
+const price = (n) => (Number.isInteger(n) ? `$${n}` : money(n));
+
 export default function ProductsPage() {
   const { profile } = useAuth();
+  const { active: touring, sim } = useTutorial();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [cartCount, setCartCount] = useState(loadCart().length);
+  const [cart, setCart] = useState(loadCart);
   const [imgIdx, setImgIdx] = useState({}); // product id -> image shown on the card
   const [viewer, setViewer] = useState(null); // product open in the mobile viewer
   const [viewerIdx, setViewerIdx] = useState(0);
@@ -29,10 +36,11 @@ export default function ProductsPage() {
   const toastTimer = useRef(null);
   const [search, setSearch] = useState("");
   const [folder, setFolder] = useState(null); // open category folder | null = folder view
+  const [filter, setFilter] = useState("all"); // all | tier | bonus | plus
   const [rewardSlots, setRewardSlots] = useState(0); // live Sync Rewards product slots
 
   function addAndConfirm(p) {
-    setCartCount(addToCart(p).length);
+    setCart(addToCart(p));
     clearTimeout(toastTimer.current);
     setToast({ name: p.name, key: (toast?.key ?? 0) + 1 });
     toastTimer.current = setTimeout(() => setToast(null), 2400);
@@ -68,86 +76,42 @@ export default function ProductsPage() {
   const normal = products.filter((p) => !p.is_bonus);
   const bonus = products.filter((p) => p.is_bonus);
   const plus = isPlus(profile);
-  // The Sync Plus slot is shown on its own, separate from course-tier slots
+  // The Sync Plus slot is counted on its own, separate from course-tier slots
   const tierProducts = plus ? normal.slice(0, limit) : normal;
   const plusProducts = plus ? normal.slice(limit) : [];
   const unlimited = !!TIERS[profile?.tier]?.unlimited;
   const emptySlots = unlimited ? 0 : Math.max(limit - tierProducts.length, 0);
   const emptyPlusSlots = plus ? Math.max(PLUS.bonusSlots - plusProducts.length, 0) : 0;
+  const slotTotal = limit + (plus ? PLUS.bonusSlots : 0);
+  const slotUsed = Math.min(tierProducts.length, limit) + (plus ? plusProducts.length : 0);
+  const inCart = new Set(cart.map((i) => i.product_id));
 
-  // Folders only appear once a member's products span more than one category.
-  // Search only ever filters the products already loaded for this member.
   const mine = [...tierProducts, ...bonus, ...plusProducts];
+  const groupOf = (p) => (p.is_bonus ? "bonus" : plusProducts.includes(p) ? "plus" : "tier");
+  const counts = { all: mine.length, tier: tierProducts.length, bonus: bonus.length, plus: plusProducts.length };
+
+  // Folders only appear once a member's products span more than one category,
+  // and never during the tutorial (it needs a product card on screen).
   const folders = [...CATEGORIES, UNCATEGORISED]
     .map((name) => ({ name, items: mine.filter((p) => folderOf(p) === name) }))
     .filter((f) => f.items.length > 0);
-  const useFolders = folders.length > 1;
   const q = search.trim().toLowerCase();
-  const filtering = folder !== null || !!q;
-  const showFolders = useFolders && !filtering;
-  const matches = (p) =>
-    (folder === null || folderOf(p) === folder) &&
-    (!q || p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q));
-  const shownTier = tierProducts.filter(matches);
-  const shownBonus = bonus.filter(matches);
-  const shownPlus = plusProducts.filter(matches);
-  const noMatches = filtering && shownTier.length + shownBonus.length + shownPlus.length === 0;
+  const filtering = folder !== null || !!q || filter !== "all";
+  const showFolders = folders.length > 1 && !filtering && !touring;
+  const shown = mine.filter(
+    (p) =>
+      (filter === "all" || groupOf(p) === filter) &&
+      (folder === null || folderOf(p) === folder) &&
+      (!q || p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q))
+  );
 
   function openFolder(name) {
     setFolder(name);
     setSearch("");
   }
 
-  // Higher tiers appear as locked sections showing the extra slots an upgrade unlocks
-  const lockedTiers = PAID_TIERS.filter((t) => TIERS[t].rank > myRank).map((t, i, arr) => {
-    const prevLimit = i === 0 ? tierLimit : TIERS[arr[i - 1]].productLimit;
-    return { tier: t, extra: TIERS[t].productLimit - prevLimit };
-  });
-
-  // Pricing block per the revamp: the price to list at, the price to discount
-  // to on Depop, the profit that leaves, and (smaller) what the member pays.
-  function priceBlock(p) {
-    const cost = Number(p.price);
-    const listing = p.listing_price != null ? Number(p.listing_price) : null;
-    const discount = p.discount_price != null ? Number(p.discount_price) : null;
-    const profit = discount != null ? discount - cost : null;
-    return (
-      <div className="product-pricing">
-        {listing != null && discount != null ? (
-          <>
-            <div className="product-price-flow">
-              <div className="product-price-step">
-                <span className="product-price-step-label">1. List item for</span>
-                <span className="product-price-list">${listing.toFixed(2)}</span>
-              </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="product-price-arrow" aria-hidden="true">
-                <path d="M5 12h14M13 6l6 6-6 6" />
-              </svg>
-              <div className="product-price-step">
-                <span className="product-price-step-label gold">2. Then discount to</span>
-                <span className="product-price-discount">${discount.toFixed(2)}</span>
-              </div>
-            </div>
-            {profit > 0 && (
-              <span className="product-profit">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M3 17l6-6 4 4 8-8M15 7h6v6" />
-                </svg>
-                Profit: ${profit.toFixed(2)} per sale
-              </span>
-            )}
-            <span className="product-cost">
-              You pay <strong>${cost.toFixed(2)}</strong> <span className="price-currency">AUD</span>
-            </span>
-          </>
-        ) : (
-          <span className="product-price">
-            ${cost.toFixed(2)} <span className="price-currency">AUD</span>
-          </span>
-        )}
-      </div>
-    );
-  }
+  // The next course up: the upsell to more slots
+  const nextTier = PAID_TIERS.find((t) => TIERS[t].rank > myRank);
 
   function stepImage(p, dir) {
     const count = productImages(p).length;
@@ -155,26 +119,91 @@ export default function ProductsPage() {
   }
 
   function openViewer(p) {
-    // Fullscreen product view is a mobile behaviour; desktop browses via arrows
+    // Fullscreen product view is a phone behaviour; desktop browses via arrows
     if (!window.matchMedia("(max-width: 768px)").matches) return;
     setViewer(p);
     setViewerIdx(imgIdx[p.id] ?? 0);
   }
 
-  function productCard(p) {
+  // Profit leads; "List at → discount to" reads as one line; "You pay" underneath
+  function priceBlock(p) {
+    const cost = Number(p.price);
+    const listing = p.listing_price != null ? Number(p.listing_price) : null;
+    const discount = p.discount_price != null ? Number(p.discount_price) : null;
+    const profit = discount != null ? discount - cost : null;
+    return (
+      <div className="pc-pricing">
+        {profit != null && profit > 0 && (
+          <div className="pc-profit">
+            <span className="t-num">{money(profit)}</span>
+            <span className="t-small">profit per sale</span>
+          </div>
+        )}
+        <div className="pc-flow">
+          {listing != null && discount != null && (
+            <span className="pc-flow-line">
+              <Icon name="tag" size={16} className="pc-flow-icon" />
+              <span>
+                List at <strong>{price(listing)}</strong>
+              </span>
+              <Icon name="arrow" size={14} className="pc-flow-arrow" />
+              <span>
+                discount to <strong>{price(discount)}</strong>
+              </span>
+            </span>
+          )}
+          <span className="t-small pc-pay">You pay {money(cost)} AUD when it sells</span>
+        </div>
+      </div>
+    );
+  }
+
+  function addButton(p, first) {
+    const simAdded = first && sim?.added;
+    if (inCart.has(p.id) || simAdded) {
+      return (
+        <Link to="/portal/checkout" className="btn-ghost btn-sm pc-add is-added" onClick={(e) => e.stopPropagation()}>
+          <Icon name="check" size={18} />
+          In your order
+        </Link>
+      );
+    }
+    return (
+      <button
+        type="button"
+        className="btn-ghost btn-sm pc-add"
+        data-tut={first ? "add-first" : undefined}
+        data-name={first ? p.name : undefined}
+        data-price={first ? Number(p.price) : undefined}
+        onClick={(e) => {
+          e.stopPropagation();
+          addAndConfirm(p);
+        }}
+      >
+        <Icon name="plus" size={18} />
+        Add to order
+      </button>
+    );
+  }
+
+  function productCard(p, i) {
     const imgs = productImages(p);
     const idx = Math.min(imgIdx[p.id] ?? 0, Math.max(imgs.length - 1, 0));
     return (
-      <div key={p.id} className="product-card" onClick={() => openViewer(p)}>
-        <div className="product-media">
+      <article key={p.id} className="pc" onClick={() => openViewer(p)}>
+        <div className="pc-media">
           {imgs.length > 0 ? (
-            <img src={imgs[idx]} alt={p.name} className="product-img" />
+            <img src={imgs[idx]} alt={p.name} className="pc-img" loading="lazy" />
           ) : (
-            <div className="product-img product-img-empty" />
+            <div className="pc-img pc-img-empty">
+              <Icon name="products" size={36} strokeWidth={1.25} />
+            </div>
           )}
+          {p.is_bonus && <span className="chip chip-gold pc-badge">Bonus</span>}
           {imgs.length > 1 && (
             <>
               <button
+                type="button"
                 className="product-img-nav product-img-prev"
                 aria-label="Previous image"
                 onClick={(e) => {
@@ -182,9 +211,10 @@ export default function ProductsPage() {
                   stepImage(p, -1);
                 }}
               >
-                ‹
+                <Icon name="back" size={18} />
               </button>
               <button
+                type="button"
                 className="product-img-nav product-img-next"
                 aria-label="Next image"
                 onClick={(e) => {
@@ -192,247 +222,204 @@ export default function ProductsPage() {
                   stepImage(p, 1);
                 }}
               >
-                ›
+                <Icon name="chevron" size={18} />
               </button>
-              <div className="product-dots">
-                {imgs.map((_, i) => (
-                  <span key={i} className={`product-dot${i === idx ? " active" : ""}`} />
+              <div className="product-dots" aria-hidden="true">
+                {imgs.map((_, k) => (
+                  <span key={k} className={`product-dot${k === idx ? " active" : ""}`} />
                 ))}
               </div>
             </>
           )}
         </div>
-        <div className="product-body">
-          <h2 className="product-name">
-            {p.name}
-            {p.is_bonus && <span className="bonus-badge">Bonus</span>}
-          </h2>
-          {p.description && <p className="product-desc">{p.description}</p>}
-          <div className="product-foot">
-            {priceBlock(p)}
-            <button
-              className="btn-ghost product-add"
-              onClick={(e) => {
-                e.stopPropagation();
-                addAndConfirm(p);
-              }}
-            >
-              Add to order
-            </button>
-          </div>
+        <div className="pc-body">
+          <h2 className="pc-name">{p.name}</h2>
+          {priceBlock(p)}
+          {addButton(p, i === 0)}
         </div>
-      </div>
+      </article>
     );
   }
 
+  const chips = [
+    ["all", "All"],
+    ["tier", TIERS[profile?.tier]?.name ?? "Your plan"],
+    ["bonus", "Bonus"],
+    ["plus", PLUS.name],
+  ].filter(([k]) => k === "all" || counts[k] > 0);
+
   return (
     <div className="portal-page">
-      <div className="portal-page-head portal-page-head-row">
+      <div className="pc-head">
         <div>
-          <h1 className="portal-h1">Your Products</h1>
-          <p className="portal-sub">
-            Made a sale on Depop? Order that stock here — we ship it straight to your buyer.
-          </p>
+          <h1 className="portal-h1">Products</h1>
+          <p className="portal-sub">Made a sale on Depop? Find the item and add it to your order. We ship it straight to your buyer.</p>
         </div>
-        <Link to="/portal/checkout" className="btn-gold" data-nav="checkout">
-          Checkout{cartCount > 0 ? ` (${cartCount})` : ""}
-        </Link>
+        <div className="pc-head-side">
+          {limit > 0 && (
+            <div className="pc-slots">
+              <div className="pc-slots-row">
+                <span className="t-label">{unlimited ? "Full catalogue" : "Product slots"}</span>
+                <span className="t-label" style={{ color: "var(--text)" }}>
+                  {unlimited ? `${mine.length} products` : `${slotUsed} of ${slotTotal}`}
+                </span>
+              </div>
+              {!unlimited && (
+                <div className="bar">
+                  <span style={{ width: `${slotTotal ? (slotUsed / slotTotal) * 100 : 0}%` }} />
+                </div>
+              )}
+            </div>
+          )}
+          <Link to="/portal/checkout" className="btn-gold pc-checkout">
+            <Icon name="checkout" size={18} />
+            Checkout
+            {cart.length > 0 && <span className="pc-count">{cart.length}</span>}
+          </Link>
+        </div>
       </div>
 
       {loading ? (
-        <p className="portal-sub">Loading catalogue…</p>
+        <p className="portal-sub">Loading your products…</p>
+      ) : limit === 0 ? (
+        <div className="portal-empty">
+          <p>Your products appear here once your plan is active.</p>
+        </div>
       ) : (
         <>
-          {limit > 0 && mine.length > 0 && (
-            <>
-              {folder !== null && (
-                <nav className="catalogue-crumbs" aria-label="Product location">
-                  <button type="button" className="catalogue-crumb-back" onClick={() => openFolder(null)}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M15 18l-6-6 6-6" />
-                    </svg>
-                    All categories
-                  </button>
-                  <span aria-hidden="true">/</span>
-                  <span className="catalogue-crumb-current" aria-current="page">
-                    {folder}
-                  </span>
-                </nav>
-              )}
-              <input
-                type="search"
-                className="auth-input admin-search"
-                aria-label="Search your products"
-                placeholder={folder === null ? `Search your ${mine.length} products…` : `Search ${folder}…`}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </>
-          )}
-
-          {limit > 0 && showFolders && (
-            <div className="slot-section">
-              <div className="slot-section-head">
-                <span className="slot-section-title">{TIERS[profile.tier].name}</span>
-                <span className="slot-count">
-                  {unlimited
-                    ? `${tierProducts.length} products · full catalogue access`
-                    : `${Math.min(tierProducts.length, limit)}/${limit} product slots filled`}
-                </span>
-              </div>
-              <div className="catalogue-folders">
-                {folders.map((f) => (
-                  <button
-                    key={f.name}
-                    type="button"
-                    className="catalogue-folder"
-                    onClick={() => openFolder(f.name)}
-                  >
-                    <span className="catalogue-folder-thumbs" aria-hidden="true">
-                      {f.items
-                        .map((p) => productImages(p)[0])
-                        .filter(Boolean)
-                        .slice(0, 3)
-                        .map((src, i) => (
-                          <img key={i} src={src} alt="" loading="lazy" />
-                        ))}
-                    </span>
-                    <span className="catalogue-folder-row">
-                      <svg className="catalogue-folder-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      </svg>
-                      <span className="catalogue-folder-text">
-                        <span className="catalogue-folder-name">{f.name}</span>
-                        <span className="catalogue-folder-count">
-                          {f.items.length} item{f.items.length === 1 ? "" : "s"}
-                        </span>
-                      </span>
-                      <svg className="catalogue-folder-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M9 6l6 6-6 6" />
-                      </svg>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {noMatches && (
-            <div className="portal-empty">
-              <p>{q ? "No products match your search." : "No products in this category yet."}</p>
-            </div>
-          )}
-
-          {limit > 0 && !showFolders && (!filtering || shownTier.length + shownBonus.length > 0) && (
-            <div className="slot-section">
-              <div className="slot-section-head">
-                <span className="slot-section-title">{TIERS[profile.tier].name}</span>
-                <span className="slot-count">
-                  {unlimited
-                    ? `${tierProducts.length} products · full catalogue access`
-                    : `${Math.min(tierProducts.length, limit)}/${limit} product slots filled`}
-                </span>
-              </div>
-              <div className="product-grid">
-                {shownTier.map(productCard)}
-                {shownBonus.map(productCard)}
-                {Array.from({ length: filtering ? 0 : emptySlots }, (_, i) => (
-                  <div key={`empty-${i}`} className="product-slot-empty">
-                    <span className="slot-plus">+</span>
-                    <span className="slot-empty-label">
-                      Open slot — the Sync team stocks this for you
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {limit > 0 && plus && (showFolders ? emptyPlusSlots > 0 : !filtering || shownPlus.length > 0) && (
-            <div className="slot-section">
-              <div className="slot-section-head">
-                <span className="slot-section-title">{PLUS.name}</span>
-                <span className="slot-count">
-                  {plusProducts.length}/{PLUS.bonusSlots} bonus slot filled
-                </span>
-              </div>
-              <div className="product-grid">
-                {!showFolders && shownPlus.map(productCard)}
-                {Array.from({ length: filtering ? 0 : emptyPlusSlots }, (_, i) => (
-                  <div key={`plus-empty-${i}`} className="product-slot-empty">
-                    <span className="slot-plus">+</span>
-                    <span className="slot-empty-label">
-                      Sync Plus slot — the Sync team stocks this for you
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {limit > 0 && !plus && canGetPlus(profile) && (
-            <div className="slot-section slot-section-locked">
-              <div className="slot-section-head">
-                <span className="slot-section-title">
-                  {PLUS.name} <span className="slot-lock">🔒</span>
-                </span>
-                <span className="slot-count">+{PLUS.bonusSlots} product slot</span>
-              </div>
-              <div className="product-grid">
-                <div className="product-slot-locked">
-                  <span className="slot-lock-icon">🔒</span>
+          {mine.length > 0 && (
+            <div className="pc-tools">
+              {chips.length > 1 && (
+                <div className="pc-chips" role="group" aria-label="Filter products">
+                  {chips.map(([k, label]) => (
+                    <button
+                      key={k}
+                      type="button"
+                      className={`chip ${filter === k ? "chip-gold" : "chip-plain"}`}
+                      aria-pressed={filter === k}
+                      onClick={() => setFilter(k)}
+                    >
+                      {label} {counts[k]}
+                    </button>
+                  ))}
                 </div>
-              </div>
-              <div className="slot-unlock-row">
-                <span>
-                  Join {PLUS.name} to unlock {PLUS.bonusSlots} extra product slot, plus 10% off every purchase.
-                </span>
-                {!isNativeApp() && (
-                  <Link to="/portal/plus" className="btn-gold slot-unlock-btn">
-                    See Sync Plus
-                  </Link>
-                )}
-              </div>
+              )}
+              <label className="pc-search">
+                <Icon name="search" size={18} />
+                <input
+                  type="search"
+                  aria-label="Search your products"
+                  placeholder={folder === null ? `Search your ${mine.length} products` : `Search ${folder}`}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </label>
             </div>
           )}
 
-          {lockedTiers.map(({ tier, extra }) => (
-            <div key={tier} className="slot-section slot-section-locked">
-              <div className="slot-section-head">
-                <span className="slot-section-title">
-                  {TIERS[tier].name} <span className="slot-lock">🔒</span>
+          {folder !== null && (
+            <nav className="catalogue-crumbs" aria-label="Product location">
+              <button type="button" className="catalogue-crumb-back" onClick={() => openFolder(null)}>
+                <Icon name="back" size={16} />
+                All categories
+              </button>
+              <span aria-hidden="true">/</span>
+              <span className="catalogue-crumb-current" aria-current="page">
+                {folder}
+              </span>
+            </nav>
+          )}
+
+          {showFolders ? (
+            <div className="catalogue-folders">
+              {folders.map((f) => (
+                <button key={f.name} type="button" className="catalogue-folder" onClick={() => openFolder(f.name)}>
+                  <span className="catalogue-folder-thumbs" aria-hidden="true">
+                    {f.items
+                      .map((p) => productImages(p)[0])
+                      .filter(Boolean)
+                      .slice(0, 3)
+                      .map((src, i) => (
+                        <img key={i} src={src} alt="" loading="lazy" />
+                      ))}
+                  </span>
+                  <span className="catalogue-folder-row">
+                    <Icon name="folder" size={18} className="catalogue-folder-icon" />
+                    <span className="catalogue-folder-text">
+                      <span className="catalogue-folder-name">{f.name}</span>
+                      <span className="catalogue-folder-count">
+                        {f.items.length} item{f.items.length === 1 ? "" : "s"}
+                      </span>
+                    </span>
+                    <Icon name="chevron" size={16} className="catalogue-folder-chevron" />
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : filtering && shown.length === 0 ? (
+            <div className="portal-empty">
+              <p>{q ? "No products match your search." : "No products here yet."}</p>
+            </div>
+          ) : null}
+
+          <div className="pc-grid">
+            {!showFolders && shown.map(productCard)}
+
+            {!filtering && emptySlots + emptyPlusSlots > 0 && (
+              <article className="pc-slot">
+                <span className="icon-well">
+                  <Icon name="box" />
                 </span>
-                <span className="slot-count">
-                  {TIERS[tier].unlimited ? "Full catalogue" : `+${extra} product slots`}
+                <span className="t-h3">
+                  {emptySlots + emptyPlusSlots} open slot{emptySlots + emptyPlusSlots === 1 ? "" : "s"}
                 </span>
-              </div>
-              <div className="product-grid">
-                {Array.from({ length: TIERS[tier].unlimited ? 1 : extra }, (_, i) => (
-                  <div key={`locked-${tier}-${i}`} className="product-slot-locked">
-                    <span className="slot-lock-icon">🔒</span>
-                  </div>
-                ))}
-              </div>
-              <div className="slot-unlock-row">
-                <span>
-                  {TIERS[tier].unlimited
-                    ? `Upgrade to ${TIERS[tier].name} to unlock the entire product catalogue — no slot limits.`
-                    : `Upgrade to ${TIERS[tier].name} to unlock ${extra} more products in your store.`}
+                <span className="t-small">New products drop every week. The Sync team stocks these for you.</span>
+              </article>
+            )}
+
+            {!filtering && nextTier && (
+              <article className="pc-slot pc-upsell">
+                <span className="icon-well">
+                  <Icon name="upgrade" />
+                </span>
+                <span className="t-h3">Want more products?</span>
+                <span className="t-small">
+                  {TIERS[nextTier].unlimited
+                    ? `${TIERS[nextTier].name} unlocks the entire product catalogue.`
+                    : `${TIERS[nextTier].name} gives you ${TIERS[nextTier].productLimit} slots.`}
                 </span>
                 {!isNativeApp() && (
-                  <Link to="/portal/upgrade" className="btn-gold slot-unlock-btn">
-                    Upgrade to unlock
+                  <Link to="/portal/upgrade" className="btn-quiet">
+                    Compare plans
                   </Link>
                 )}
-              </div>
-            </div>
-          ))}
+              </article>
+            )}
+
+            {!filtering && !plus && canGetPlus(profile) && (
+              <article className="pc-slot pc-upsell">
+                <span className="icon-well">
+                  <Icon name="star" />
+                </span>
+                <span className="t-h3">{PLUS.name}</span>
+                <span className="t-small">
+                  {PLUS.bonusSlots} extra product slot, plus 10% off every purchase.
+                </span>
+                {!isNativeApp() && (
+                  <Link to="/portal/plus" className="btn-quiet">
+                    See {PLUS.name}
+                  </Link>
+                )}
+              </article>
+            )}
+          </div>
         </>
       )}
 
       {toast && (
-        <div className="cart-toast" key={toast.key}>
-          ✓ {toast.name} added to your order
+        <div className="cart-toast" key={toast.key} role="status">
+          <Icon name="check" size={18} />
+          {toast.name} added to your order
           <Link to="/portal/checkout" className="cart-toast-link">
             Go to checkout
           </Link>
@@ -445,13 +432,9 @@ export default function ProductsPage() {
           const idx = Math.min(viewerIdx, Math.max(imgs.length - 1, 0));
           const step = (dir) => setViewerIdx((idx + dir + imgs.length) % imgs.length);
           return (
-            <div className="product-viewer">
-              <button
-                className="product-viewer-close"
-                aria-label="Close"
-                onClick={() => setViewer(null)}
-              >
-                ✕
+            <div className="product-viewer" role="dialog" aria-modal="true" aria-label={viewer.name}>
+              <button className="pt-icon-btn product-viewer-close" aria-label="Close" onClick={() => setViewer(null)}>
+                <Icon name="x" />
               </button>
               <div
                 className="product-viewer-media"
@@ -468,25 +451,17 @@ export default function ProductsPage() {
                 {imgs.length > 0 ? (
                   <img src={imgs[idx]} alt={viewer.name} className="product-viewer-img" />
                 ) : (
-                  <div className="product-viewer-img product-img-empty" />
+                  <div className="product-viewer-img pc-img-empty" />
                 )}
                 {imgs.length > 1 && (
                   <>
-                    <button
-                      className="product-img-nav product-img-prev"
-                      aria-label="Previous image"
-                      onClick={() => step(-1)}
-                    >
-                      ‹
+                    <button className="product-img-nav product-img-prev" aria-label="Previous image" onClick={() => step(-1)}>
+                      <Icon name="back" size={18} />
                     </button>
-                    <button
-                      className="product-img-nav product-img-next"
-                      aria-label="Next image"
-                      onClick={() => step(1)}
-                    >
-                      ›
+                    <button className="product-img-nav product-img-next" aria-label="Next image" onClick={() => step(1)}>
+                      <Icon name="chevron" size={18} />
                     </button>
-                    <div className="product-dots">
+                    <div className="product-dots" aria-hidden="true">
                       {imgs.map((_, i) => (
                         <span key={i} className={`product-dot${i === idx ? " active" : ""}`} />
                       ))}
@@ -495,23 +470,20 @@ export default function ProductsPage() {
                 )}
               </div>
               <div className="product-viewer-body">
-                <h2 className="product-name">
+                <h2 className="pc-name" style={{ fontSize: 24 }}>
                   {viewer.name}
-                  {viewer.is_bonus && <span className="bonus-badge">Bonus</span>}
                 </h2>
-                {viewer.description && <p className="product-desc">{viewer.description}</p>}
-                <div className="product-foot">
-                  {priceBlock(viewer)}
-                  <button
-                    className="btn-gold product-viewer-add"
-                    onClick={() => {
-                      addAndConfirm(viewer);
-                      setViewer(null);
-                    }}
-                  >
-                    Add to order
-                  </button>
-                </div>
+                {viewer.description && <p className="t-small">{viewer.description}</p>}
+                {priceBlock(viewer)}
+                <button
+                  className="btn-gold"
+                  onClick={() => {
+                    addAndConfirm(viewer);
+                    setViewer(null);
+                  }}
+                >
+                  Add to order
+                </button>
               </div>
             </div>
           );

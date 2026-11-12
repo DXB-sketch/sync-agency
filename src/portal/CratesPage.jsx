@@ -53,7 +53,7 @@ const CONFETTI = Array.from({ length: 42 }, (_, j) => {
 });
 const STARS = [["12%", 90, 22], ["84%", 70, 26], ["8%", 380, 16], ["90%", 360, 20], ["20%", 560, 14], ["78%", 580, 22], ["30%", 40, 12], ["68%", 130, 14]];
 
-function CrateArt({ type, phase }) {
+export function CrateArt({ type, phase }) {
   const c = FACES[type];
   const lid = phase === "burst" ? "lid-fly" : "";
   return (
@@ -515,7 +515,7 @@ export default function CratesPage() {
             <section className="dash-card rw-aside-card">
               <div className="rw-section-head">
                 <h2>{info.name} crate odds</h2>
-                <Link to="/portal/rewards/odds" className="rw-note" style={{ textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 600, fontSize: 11 }}>
+                <Link to="/portal/rewards/odds" className="rw-note" style={{ fontWeight: 600, fontSize: 13, color: "var(--gold)" }}>
                   All
                 </Link>
               </div>

@@ -10,16 +10,13 @@ export default function LegalLayout({ title, updated, intro, sections }) {
   return (
     <main className="legal-page">
       <div className="legal-inner">
-        <div className="eyebrow">
-          <span className="eyebrow-line" />
-          <span className="eyebrow-text">Legal</span>
-        </div>
+        <div className="t-eyebrow">Legal</div>
         <h1 className="legal-title">{title}</h1>
         <p className="legal-updated">Last updated: {updated}</p>
         <div className="legal-intro">{intro}</div>
 
         <nav className="legal-toc" aria-label="Contents">
-          <div className="legal-toc-label">Contents</div>
+          <h2 className="legal-toc-label">Contents</h2>
           <ol>
             {sections.map((s) => (
               <li key={s.id}>

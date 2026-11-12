@@ -3,10 +3,10 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import "./styles/global.css";
 import "./styles/portal.css";
 import "./styles/rewards.css";
+import "./styles/tour.css";
 import { captureAffiliate } from "./utils/affiliate.js";
 import { AuthProvider } from "./lib/AuthContext";
 import { ChronosModeProvider } from "./lib/ChronosModeContext";
-import Cursor from "./components/Cursor";
 import Nav from "./components/Nav";
 import Footer from "./sections/Footer";
 import UTMIndicator from "./components/UTMIndicator";
@@ -62,7 +62,6 @@ function Shell() {
   return (
     <>
       <div className="noise" aria-hidden="true" />
-      <Cursor />
       {!isAppRoute && <Nav />}
       <Routes>
         <Route

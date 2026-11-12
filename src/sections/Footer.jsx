@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 
 export default function Footer() {
+  const year = new Date().getFullYear();
   return (
-    <footer>
-      <div className="footer-inner">
-        <div className="footer-logo">Sync Agency</div>
-        <div className="footer-links">
+    <footer className="s-footer">
+      <div className="wrap s-footer-inner">
+        <a href="/" className="logo s-footer-logo">Sync Agency</a>
+        <nav className="s-footer-links" aria-label="Footer">
           <a href="/#how-it-works">How it works</a>
           <a href="/#pricing">Pricing</a>
           <a href="/#expectations">Expectations</a>
@@ -14,11 +15,11 @@ export default function Footer() {
           <Link to="/terms">Terms of Service</Link>
           <Link to="/privacy">Privacy Policy</Link>
           <a href="mailto:founder@syncagency.org">Contact</a>
-        </div>
-        <div className="footer-copy">
-          © {new Date().getFullYear()} Sync Agency · All prices AUD · Education and coaching only.
+        </nav>
+        <p className="t-small t-muted s-footer-copy">
+          © {year} Sync Agency · All prices AUD · Education and coaching only.
           Results are not guaranteed and vary between individuals.
-        </div>
+        </p>
       </div>
     </footer>
   );

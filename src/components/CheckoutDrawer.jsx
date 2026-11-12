@@ -57,16 +57,8 @@ function CheckoutDrawerInner({ onClose, tier }) {
         <button className="exit-close" onClick={onClose} aria-label="Close">✕</button>
 
         <div>
-          <div className="exit-eyebrow">Choose Your Plan</div>
-          <div style={{
-            fontFamily: "var(--font-display)",
-            fontSize: 28,
-            fontWeight: 700,
-            color: "var(--gold)",
-            fontStyle: "italic",
-            lineHeight: 1.1,
-            marginTop: 4,
-          }}>
+          <div className="exit-eyebrow">Choose your plan</div>
+          <div className="checkout-tier-name">
             {tier.name}
           </div>
         </div>
@@ -74,21 +66,21 @@ function CheckoutDrawerInner({ onClose, tier }) {
         <div>
           <div className="checkout-price-display">
             ${tier.price}
-            <span style={{ fontSize: 22, fontFamily: "var(--font-body)", fontWeight: 400 }}> one-time</span>
+            <span className="checkout-price-unit"> one-time</span>
           </div>
           <div className="checkout-price-period">AUD · lifetime access</div>
         </div>
 
         <div>
           <button
-            className="checkout-cta-btn"
+            className="btn btn-primary btn-lg checkout-cta-btn"
             onClick={handleCTA}
             disabled={loading}
           >
-            {loading ? "Processing..." : "Get Lifetime Access →"}
+            {loading ? "Processing..." : "Get lifetime access"}
           </button>
           {error && (
-            <div className="checkout-error" style={{ marginTop: 10 }}>
+            <div className="checkout-error" role="alert" style={{ marginTop: 10 }}>
               {error}
             </div>
           )}

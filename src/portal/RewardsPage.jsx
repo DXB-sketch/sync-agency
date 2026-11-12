@@ -163,7 +163,7 @@ export default function RewardsPage() {
           </div>
           <div className="rw-head-actions">
             <Link to="/portal/rewards/top-up" className="rw-wallet-chip" aria-label={`Wallet ${dollars(balance, { decimals: true })} AUD, top up`}>
-              <span className="rw-wallet-chip-label">WALLET</span>
+              <span className="rw-wallet-chip-label">Wallet</span>
               {dollars(balance, { decimals: true })} AUD
               <span className="rw-wallet-chip-plus">
                 <PlusIcon />
@@ -172,7 +172,7 @@ export default function RewardsPage() {
             <a href="#ranks" className="btn-ghost">
               How ranks work
             </a>
-            <Link to="/portal/rewards/top-up" className="btn-gold rw-shine">
+            <Link to="/portal/rewards/top-up" className="btn-gold rw-shine" data-tut="topup">
               Top up &amp; earn XP
             </Link>
           </div>
@@ -186,7 +186,7 @@ export default function RewardsPage() {
               </span>
               {crates} mystery crate{crates === 1 ? "" : "s"} to open
             </span>
-            <Link to="/portal/rewards/crates" className="btn-gold rw-shine">
+            <Link to="/portal/rewards/crates" className="btn-ghost">
               Open crates
             </Link>
           </section>
@@ -239,19 +239,19 @@ export default function RewardsPage() {
                 </span>
               </div>
             </div>
-            <div className="rw-level-bar">
+            <div className="rw-level-bar" data-tut="xp-bar">
               <div className="rw-bar">
                 <div className="rw-bar-fill rw-shine" style={{ width: `${pct * 100}%` }} />
               </div>
               <div className="rw-bar-labels">
                 <span>
-                  LVL {level} · {num((level - 1) * LEVEL_XP)}
+                  Level {level} · {num((level - 1) * LEVEL_XP)}
                 </span>
                 <span className="rw-gold-text">
                   {num(into)} / {num(LEVEL_XP)} XP
                 </span>
                 <span>
-                  LVL {level + 1} · {num(level * LEVEL_XP)}
+                  Level {level + 1} · {num(level * LEVEL_XP)}
                 </span>
               </div>
             </div>
@@ -292,7 +292,7 @@ export default function RewardsPage() {
               </div>
             </div>
             {next && (
-              <Link to="/portal/rewards/top-up" className="btn-gold rw-shine rw-next-cta">
+              <Link to="/portal/rewards/top-up" className="btn-ghost rw-next-cta">
                 Reach {next.name} now
               </Link>
             )}
@@ -367,7 +367,7 @@ export default function RewardsPage() {
                     {t.state === "here"
                       ? "You are here"
                       : t.state === "rank"
-                        ? `Lvl ${t.level} · ${rankByKey(rewardsAtLevel(t.level).find((i) => i.kind === "rank").rank).name}`
+                        ? `Level ${t.level} · ${rankByKey(rewardsAtLevel(t.level).find((i) => i.kind === "rank").rank).name}`
                         : `Lvl ${t.level}`}
                   </span>
                   <span className="rw-node-name">{t.name}</span>
@@ -393,7 +393,7 @@ export default function RewardsPage() {
                       <ShieldIcon size={20} />
                     </span>
                     {state === "next" ? (
-                      <span className="rw-rank-next-tag">NEXT · {dollars(rk.minCents - lifetime)}</span>
+                      <span className="rw-rank-next-tag">Next · {dollars(rk.minCents - lifetime)}</span>
                     ) : (
                       <span className="rw-rank-state">
                         {state === "done" ? "Complete" : state === "current" ? "You're here" : `${dollars(rk.minCents - lifetime)} to go`}

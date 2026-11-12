@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from "react-router-dom";
+import { ICONS } from "../lib/icons";
 
-// Minimal line icons in the brand stroke style, matching PathwayIcon's approach.
+// Admin-only glyphs; anything in the v2 icon set (lib/icons.js) is drawn from there.
 const GLYPHS = {
   dashboard: <path d="M4 13 L12 5 L20 13 M6 11 V20 H18 V11" />,
   pathway: <path d="M6 19 Q6 13 10 13 Q14 13 14 8 Q14 5 18 5 M6 19 A2 2 0 1 1 6 18.99 M18 5 A2 2 0 1 1 18 5.01" />,
@@ -22,10 +23,11 @@ const GLYPHS = {
   signout: <path d="M9 21 H5 A2 2 0 0 1 3 19 V5 A2 2 0 0 1 5 3 H9 M16 17 L21 12 L16 7 M21 12 H9" />,
 };
 
-export function TabIcon({ name, size = 21 }) {
+export function TabIcon({ name, size = 22 }) {
+  const d = ICONS[name];
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {GLYPHS[name] ?? GLYPHS.dashboard}
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={name === "more" ? 2.6 : 1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {d ? <path d={d} /> : GLYPHS[name] ?? GLYPHS.dashboard}
     </svg>
   );
 }
@@ -33,7 +35,7 @@ export function TabIcon({ name, size = 21 }) {
 export default function BottomTabBar({ links }) {
   const location = useLocation();
   return (
-    <nav className="bottom-tab-bar">
+    <nav className="bottom-tab-bar" aria-label="Portal">
       {links.map((l) => {
         // A tab can also own extra routes (e.g. More owns Support/Upgrade/Checkout)
         const alsoActive = (l.also ?? []).some((p) => location.pathname.startsWith(p));
@@ -42,11 +44,13 @@ export default function BottomTabBar({ links }) {
             key={l.to}
             to={l.to}
             end={l.end}
-            data-nav={l.icon}
+            data-nav={l.tut ?? l.icon}
+            data-tut={`nav-${l.tut ?? l.icon}`}
             className={({ isActive }) => `bottom-tab${isActive || alsoActive ? " active" : ""}`}
           >
             <TabIcon name={l.icon} />
             <span className="bottom-tab-label">{l.label}</span>
+            <span className="bottom-tab-dot" aria-hidden="true" />
           </NavLink>
         );
       })}

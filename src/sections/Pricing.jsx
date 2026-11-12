@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useInView } from "../components/useInView";
 import FadeUp from "../components/FadeUp";
 import Eyebrow from "../components/Eyebrow";
+import Icon from "../components/SiteIcon";
 import CheckoutDrawer from "../components/CheckoutDrawer";
 import CheckoutSuccessNotification from "../components/CheckoutSuccessNotification";
 import { TIERS } from "../data/pricing.js";
@@ -24,98 +24,156 @@ const COMPARE_ROWS = [
   { feature: "Staff-level sales resources", pro: "-", elite: "-", vip: "-", executive: "✓" },
 ];
 
+// The five things that matter per plan (design refresh v2 pricing board).
+// Every line is taken verbatim from TIERS[].features; the rest are listed in
+// the comparison panel.
+const HIGHLIGHTS = {
+  pro: ["1-on-1 execution calls (unlimited)", "Live store build from scratch", "Custom niche & positioning analysis", "Private supplier access", "Daily product drops"],
+  elite: ["Scaling & optimisation strategy", "Advanced product testing", "Supplier margin optimisation", "Listings created & optimised", "Priority message access"],
+  vip: ["Unlimited 1-on-1 calls", "Fully custom strategy", "Private VIP product list", "Store fully run for you", "Top-priority responses"],
+};
+
+const isBaseLine = (f) => f.startsWith("Everything in");
+
 function CompareCell({ value }) {
-  return (
-    <td>
-      {value === "✓" ? <span className="check">✦</span> : value === "-" ? <span className="dash">-</span> : value}
-    </td>
-  );
+  if (value === "-") {
+    return <td><span className="cmp-no" aria-hidden="true">—</span><span className="sr-only">Not included</span></td>;
+  }
+  if (value.startsWith("✓")) {
+    const rest = value.slice(1).trim();
+    return (
+      <td>
+        <span className="cmp-yes"><Icon name="check" /><span className={rest ? "" : "sr-only"}>{rest || "Included"}</span></span>
+      </td>
+    );
+  }
+  return <td>{value}</td>;
 }
 
 export default function Pricing() {
   const [showCompare, setShowCompare] = useState(false);
-  const [ref, visible] = useInView(0.05);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTier, setDrawerTier] = useState(null);
 
-  function card(tier) {
+  function choose(tier) {
+    setDrawerTier(tier);
+    setDrawerOpen(true);
+    trackEvent("pricing_cta_click", { tier: tier.name });
+  }
+
+  const plans = TIERS.filter((t) => !t.flagship);
+  const flagship = TIERS.find((t) => t.flagship);
+
+  function card(tier, i) {
+    const base = tier.features.find(isBaseLine);
+    const picks = HIGHLIGHTS[tier.id];
+    const more = tier.features.filter((f) => !isBaseLine(f)).length - picks.length;
+    const lower = i > 0 ? plans[i - 1].name : null;
     return (
-      <div key={tier.id} className={`price-card${tier.featured ? " featured" : ""}${tier.flagship ? " flagship" : ""}`}>
-        {tier.featured && <div className="price-badge">Most Popular</div>}
-        {tier.flagship && <div className="price-badge">The Ultimate Tier</div>}
-        <div className="price-tier-label">{tier.tier}</div>
-        <div className="price-name">{tier.name}</div>
-        <div className="price-tagline">{tier.tagline}</div>
+      <article key={tier.id} className={`price-card${tier.featured ? " featured" : ""}`}>
+        {tier.featured && <span className="chip price-badge">Most popular</span>}
+        <div>
+          <div className="t-eyebrow price-tier">{tier.tier}</div>
+          <h3 className="t-h2 price-name">{tier.name}</h3>
+          <p className="t-small price-tagline">{tier.tagline}</p>
+        </div>
         <div className="price-amount-row">
-          <span className="price-currency">$</span>
-          <span className="price-amount">{tier.price}</span>
+          <span className="t-num t-gold price-amount">${tier.price}</span>
+          <span className="t-small">AUD, one-time payment</span>
         </div>
-        <div className="price-period">AUD, one-time payment</div>
-        <div className="price-outcome">
-          <strong style={{ color: "var(--gold)", fontWeight: 600, fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase" }}>What you get: </strong>
-          {tier.outcome}
-        </div>
-        <ul className="price-features">
-          {tier.features.map((f) => <li key={f}>{f}</li>)}
+        <div className="price-outcome"><strong>What you get:</strong> <span>{tier.outcome}</span></div>
+        <ul className="price-feats">
+          {base && lower && <li className="feat feat-base">Everything in {lower}, plus:</li>}
+          {picks.map((f) => <li key={f} className="feat"><Icon name="check" />{f}</li>)}
+          {more > 0 && <li className="t-small t-muted feat-more">+ {more} more in the comparison</li>}
         </ul>
         {!isNativeApp() && (
           <button
-            className="btn-gold price-cta-btn"
-            onClick={() => { setDrawerTier(tier); setDrawerOpen(true); trackEvent("pricing_cta_click", { tier: tier.name }); }}
+            type="button"
+            className={`btn ${tier.featured ? "btn-primary" : "btn-secondary"} price-cta`}
+            onClick={() => choose(tier)}
           >
-            {tier.flagship ? "Become an Executive Partner →" : "Choose Plan →"}
+            Choose {tier.name}
           </button>
         )}
-        {tier.flagship && (
-          <p className="price-anchor-note">
-            Not ready for the full partnership? VIP Inner Circle gets you a fully run store for under a fifth of the price.
-          </p>
-        )}
-      </div>
+      </article>
     );
   }
 
   return (
-    <section className="section pricing-section" id="pricing">
-      <div className="section-inner">
+    <section className="s-section" id="pricing">
+      <div className="wrap s-stack">
         <FadeUp>
-          <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto 0" }}>
+          <div className="s-head">
             <Eyebrow text="Pricing" />
-            <h2 className="section-title">Choose your level.<br />Start <em>today.</em></h2>
-            <p className="section-sub" style={{ margin: "16px auto 0" }}>
+            <h2 className="t-h1 s-title">Choose your level. Start <em className="em">today.</em></h2>
+            <p className="t-body s-lede">
               The Depop Coaching System — three levels of hands-on coaching, plus the
               Executive Partner flagship, each with the full Sync dashboard included. All prices in AUD, paid securely via Stripe.
-              Questions first? Email <a href="mailto:founder@syncagency.org">founder@syncagency.org</a>.
+              Questions first? Email <a className="s-link" href="mailto:founder@syncagency.org">founder@syncagency.org</a>.
             </p>
           </div>
         </FadeUp>
 
-        <div ref={ref} className={`pricing-grid stagger${visible ? " visible" : ""}`}>
-          {TIERS.filter((t) => !t.flagship).map(card)}
-        </div>
+        <div className="pricing-grid">{plans.map(card)}</div>
 
-        <FadeUp>
-          <div className="pricing-flagship">{TIERS.filter((t) => t.flagship).map(card)}</div>
-        </FadeUp>
+        {flagship && (
+          <FadeUp>
+            <article className="price-flagship">
+              <span className="chip price-badge">The ultimate tier</span>
+              <div className="flagship-top">
+                <div className="flagship-intro">
+                  <div className="t-eyebrow">{flagship.tier}</div>
+                  <h3 className="t-h1 flagship-name">{flagship.name}</h3>
+                  <p className="t-body">{flagship.tagline}</p>
+                </div>
+                <div className="price-amount-row">
+                  <span className="t-num t-gold flagship-amount">${flagship.price}</span>
+                  <span className="t-small">AUD, one-time payment</span>
+                </div>
+              </div>
+              <div className="price-outcome flagship-outcome"><strong>What you get:</strong> <span>{flagship.outcome}</span></div>
+              <ul className="flagship-feats">
+                {flagship.features.map((f) => <li key={f} className="feat"><Icon name="check" />{f}</li>)}
+              </ul>
+              <div className="flagship-foot">
+                {!isNativeApp() && (
+                  <button type="button" className="btn btn-primary btn-lg" onClick={() => choose(flagship)}>
+                    Become an Executive Partner <Icon name="arrow" />
+                  </button>
+                )}
+                <p className="t-small">
+                  Not ready for the full partnership? VIP Inner Circle gets you a fully run store for under a fifth of the price.
+                </p>
+              </div>
+            </article>
+          </FadeUp>
+        )}
 
-        <FadeUp>
-          <div className="compare-wrap" style={{ marginTop: 40, maxWidth: "100%", overflowX: "auto" }}>
-            <div className="compare-toggle" onClick={() => setShowCompare(v => !v)} style={{ cursor: "pointer" }}>
-              <div className="compare-toggle-icon" style={{ transform: showCompare ? "rotate(45deg)" : "none", transition: "transform .3s" }}>+</div>
-              <span className="compare-toggle-text">Compare all tiers side-by-side</span>
-            </div>
-            {showCompare && (
+        <div className="compare">
+          <button
+            type="button"
+            className="btn btn-secondary compare-toggle"
+            aria-expanded={showCompare}
+            aria-controls="compare-panel"
+            onClick={() => setShowCompare((v) => !v)}
+          >
+            Compare all tiers side by side
+            <Icon name="chevron" className={`icon s-chevron${showCompare ? " open" : ""}`} />
+          </button>
+          <div id="compare-panel" hidden={!showCompare}>
+            <div className="compare-scroll" role="region" aria-label="Tier comparison" tabIndex={0}>
               <table className="compare-table">
                 <thead>
                   <tr>
-                    <th>Feature</th>
-                    {TIERS.map((t) => <th key={t.id}>{t.name} - ${t.price} once</th>)}
+                    <th scope="col">Feature</th>
+                    {TIERS.map((t) => <th scope="col" key={t.id}>{t.name}<span className="compare-price">${t.price} once</span></th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {COMPARE_ROWS.map((row) => (
                     <tr key={row.feature}>
-                      <td>{row.feature}</td>
+                      <th scope="row">{row.feature}</th>
                       <CompareCell value={row.pro} />
                       <CompareCell value={row.elite} />
                       <CompareCell value={row.vip} />
@@ -124,9 +182,19 @@ export default function Pricing() {
                   ))}
                 </tbody>
               </table>
-            )}
+            </div>
+            <div className="compare-lists">
+              {TIERS.map((t) => (
+                <div key={t.id} className="card compare-list">
+                  <h3 className="t-h3">{t.name}</h3>
+                  <ul>
+                    {t.features.map((f) => <li key={f} className="feat"><Icon name="check" />{f}</li>)}
+                  </ul>
+                </div>
+              ))}
+            </div>
           </div>
-        </FadeUp>
+        </div>
       </div>
       <CheckoutDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} tier={drawerTier} />
       <CheckoutSuccessNotification />

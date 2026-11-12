@@ -3,15 +3,21 @@ import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
-import { TabIcon } from "../components/BottomTabBar";
+import Icon from "../components/portal/Icon";
 import { walletEnabled } from "../lib/walletFlag";
 import { useChronosMode } from "../lib/useChronosMode";
 
-const Chevron = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M9 6l6 6-6 6" />
-  </svg>
-);
+function Row({ to, icon, label }) {
+  return (
+    <Link to={to} className="more-row">
+      <span className="more-row-main">
+        <Icon name={icon} size={20} />
+        {label}
+      </span>
+      <Icon name="chevron" size={18} />
+    </Link>
+  );
+}
 
 export default function MorePage() {
   const { profile } = useAuth();
@@ -48,86 +54,22 @@ export default function MorePage() {
       {error && <p className="auth-error">{error}</p>}
 
       <div className="more-list">
-        {walletEnabled(profile) && (
-          <>
-            <Link to="/portal/pathway" className="more-row" data-nav="pathway">
-              <span className="more-row-main">
-                <TabIcon name="pathway" size={17} />
-                Pathway
-              </span>
-              <Chevron />
-            </Link>
-            <Link to="/portal/achievements" className="more-row" data-nav="achievements">
-              <span className="more-row-main">
-                <TabIcon name="achievements" size={17} />
-                Achievements
-              </span>
-              <Chevron />
-            </Link>
-          </>
-        )}
-        {!isNativeApp() && (
-          <Link to="/portal/upgrade" className="more-row" data-nav="upgrade">
-            <span className="more-row-main">
-              <TabIcon name="upgrade" size={17} />
-              Upgrade plan
-            </span>
-            <Chevron />
-          </Link>
-        )}
-        <Link to="/portal/plus" className="more-row" data-nav="plus">
-          <span className="more-row-main">
-            <TabIcon name="plus" size={17} />
-            Sync Plus
-          </span>
-          <Chevron />
-        </Link>
-        <Link to="/portal/checkout" className="more-row" data-nav="checkout">
-          <span className="more-row-main">
-            <TabIcon name="checkout" size={17} />
-            Checkout &amp; orders
-          </span>
-          <Chevron />
-        </Link>
-        {walletEnabled(profile) && (
-          <Link to="/portal/wallet" className="more-row" data-nav="wallet">
-            <span className="more-row-main">
-              <TabIcon name="wallet" size={17} />
-              Wallet
-            </span>
-            <Chevron />
-          </Link>
-        )}
+        <Row to="/portal/pathway" icon="pathway" label="Pathway" />
+        <Row to="/portal/checkout" icon="checkout" label="Checkout & orders" />
+        {walletEnabled(profile) && <Row to="/portal/wallet" icon="wallet" label="Wallet" />}
+        <Row to="/portal/support" icon="support" label="Support" />
+        {!isNativeApp() && <Row to="/portal/upgrade" icon="upgrade" label="Upgrade plan" />}
+        <Row to="/portal/plus" icon="star" label="Sync Plus" />
         {/* Chronos preview: admin-only, and only when Chronos Mode is on — the route
             itself is also wrapped in RequireChronos (App.jsx), so this is
             belt-and-suspenders, not the only gate. */}
-        {profile?.role === "admin" && chronosMode && (
-          <Link to="/portal/store" className="more-row" data-nav="store">
-            <span className="more-row-main">
-              <TabIcon name="store" size={17} />
-              Shopify store (Chronos preview)
-            </span>
-            <Chevron />
-          </Link>
-        )}
-        <Link to="/portal/support" className="more-row" data-nav="support">
+        {profile?.role === "admin" && chronosMode && <Row to="/portal/store" icon="store" label="Shopify store (Chronos preview)" />}
+        {profile?.role === "admin" && <Row to="/admin" icon="user" label="Admin" />}
+        <Row to="/terms" icon="info" label="Terms of Service" />
+        <Row to="/privacy" icon="lock" label="Privacy Policy" />
+        <button type="button" className="more-row" onClick={() => supabase.auth.signOut()}>
           <span className="more-row-main">
-            <TabIcon name="support" size={17} />
-            Support
-          </span>
-          <Chevron />
-        </Link>
-        <Link to="/terms" className="more-row">
-          <span className="more-row-main">Terms of Service</span>
-          <Chevron />
-        </Link>
-        <Link to="/privacy" className="more-row">
-          <span className="more-row-main">Privacy Policy</span>
-          <Chevron />
-        </Link>
-        <button className="more-row" onClick={() => supabase.auth.signOut()}>
-          <span className="more-row-main">
-            <TabIcon name="signout" size={17} />
+            <Icon name="logout" size={20} />
             Sign out
           </span>
         </button>

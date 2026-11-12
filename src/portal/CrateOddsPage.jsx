@@ -40,7 +40,7 @@ export default function CrateOddsPage() {
             {["silver", "gold"].map((type) => (
               <section key={type} className={`dash-card rw-odds-card is-${type}`}>
                 <div className="rw-section-head" style={{ alignItems: "center", marginBottom: 2 }}>
-                  <span className={`rw-crate-pill is-${type}`} style={{ fontSize: 10.5, padding: "5px 12px" }}>
+                  <span className={`rw-crate-pill is-${type}`} style={{ fontSize: 12, padding: "5px 12px" }}>
                     <ShieldIcon size={12} />
                     {CRATES[type].name} crate
                   </span>

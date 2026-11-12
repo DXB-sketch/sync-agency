@@ -25,7 +25,7 @@ export default function CheckoutSuccessNotification() {
       className="exit-overlay"
       onClick={(e) => e.target === e.currentTarget && setVisible(false)}
     >
-      <div className="exit-modal">
+      <div className="exit-modal" role="dialog" aria-modal="true" aria-labelledby="checkout-success-title">
         <button
           className="exit-close"
           onClick={() => setVisible(false)}
@@ -33,20 +33,19 @@ export default function CheckoutSuccessNotification() {
         >
           ✕
         </button>
-        <div className="exit-eyebrow">Payment Confirmed</div>
-        <h2>You're in. Welcome to <em>Sync Agency.</em></h2>
+        <div className="exit-eyebrow">Payment confirmed</div>
+        <h2 id="checkout-success-title">You're in. Welcome to <em>Sync Agency.</em></h2>
         <p>
           Check your email for access details. If you don't see it within 5 minutes,
           check your spam folder.
         </p>
         {tierName && (
-          <p style={{ color: "var(--gold)", fontWeight: 600, fontSize: 14, marginBottom: 20 }}>
+          <p className="exit-tier">
             Tier: {tierName}
           </p>
         )}
         <button
-          className="btn-gold"
-          style={{ display: "flex", width: "100%", justifyContent: "center" }}
+          className="btn btn-primary exit-cta"
           onClick={() => setVisible(false)}
         >
           Got it →

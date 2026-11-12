@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
+import { walletEnabled } from "../lib/walletFlag";
+import Icon from "../components/portal/Icon";
+import { useTutorial } from "./tutorialSteps";
 
 const STATUS_LABELS = { open: "Open", answered: "Answered", closed: "Closed" };
 
 export default function SupportPage() {
   const { profile } = useAuth();
+  const { start: startTour } = useTutorial();
   const [tickets, setTickets] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -202,6 +206,24 @@ export default function SupportPage() {
         </div>
       </div>
 
+      <section className="dash-card support-tours">
+        <div>
+          <h2 className="t-h3">Tours</h2>
+          <p className="t-small">Replay the step-by-step tours any time.</p>
+        </div>
+        <div className="support-tours-actions">
+          <button type="button" className="btn-ghost btn-sm" onClick={() => startTour("portal")}>
+            <Icon name="target" size={18} />
+            Replay the portal tour
+          </button>
+          {walletEnabled(profile) && (
+            <button type="button" className="btn-ghost btn-sm" onClick={() => startTour("rewards")}>
+              <Icon name="rewards" size={18} />
+              Replay the Rewards tour
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

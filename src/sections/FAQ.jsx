@@ -1,6 +1,7 @@
 import { useState } from "react";
 import FadeUp from "../components/FadeUp";
 import Eyebrow from "../components/Eyebrow";
+import Icon from "../components/SiteIcon";
 
 const FAQS = [
   { q: "What do I get when I join?", a: "Every plan includes the Sync dashboard — a step-by-step pathway, product slots stocked by our team, achievements, order fulfilment and support — plus the hands-on coaching for your tier. You get access as soon as your payment goes through." },
@@ -15,52 +16,57 @@ const FAQS = [
 export default function FAQ() {
   const [open, setOpen] = useState(null);
   return (
-    <section className="section" style={{ background: "var(--ink)" }} id="faq">
-      <div className="section-inner">
-        <div className="faq-grid">
-          <div>
-            <FadeUp>
-              <Eyebrow text="FAQ" />
-              <h2 className="section-title">Got questions?<br /><em>Good.</em></h2>
-            </FadeUp>
-            <div className="faq-list" style={{ marginTop: 48 }}>
-              {FAQS.map((faq, i) => (
-                <div key={i} className={`faq-item${open === i ? " open" : ""}`}>
-                  <div className="faq-q" onClick={() => setOpen(open === i ? null : i)} style={{ cursor: "pointer" }}>
-                    <span className="faq-q-text">{faq.q}</span>
-                    <div className="faq-icon">+</div>
-                  </div>
-                  <div className="faq-a">{faq.a}</div>
-                </div>
-              ))}
+    <section className="s-section s-section-alt" id="faq">
+      <div className="wrap s-split faq-grid">
+        <div className="s-col faq-aside">
+          <FadeUp>
+            <Eyebrow text="FAQ" />
+            <h2 className="t-h1 s-title">Got questions? <em className="em">Good.</em></h2>
+          </FadeUp>
+          <FadeUp delay={2}>
+            <div className="card faq-card">
+              <div className="t-eyebrow">Still unsure?</div>
+              <h3 className="t-h3">Ask us directly.</h3>
+              <p className="t-small">
+                Email us and ask anything before you commit. We answer
+                every question, no sales pressure, no scripts. Just straight answers
+                from the people running the programme.
+              </p>
+              <a href="mailto:founder@syncagency.org" className="faq-mail">founder@syncagency.org</a>
+              <a href="mailto:founder@syncagency.org" className="btn btn-secondary">
+                <Icon name="mail" /> Email us
+              </a>
+              <div className="faq-card-foot">
+                <span className="t-small">Typical response time</span>
+                <span className="t-small t-gold">&lt; 2 hours</span>
+              </div>
             </div>
-          </div>
-          <div className="faq-aside">
-            <FadeUp delay={2}>
-              <div className="faq-aside-card">
-                <div className="faq-aside-label">Still unsure?</div>
-                <h3>Ask us directly.</h3>
-                <p>
-                  Email us and ask anything before you commit. We answer
-                  every question, no sales pressure, no scripts. Just straight answers
-                  from the people running the programme.
-                </p>
-                <a href="mailto:founder@syncagency.org" className="btn-gold" style={{ display: "flex", width: "100%", justifyContent: "center" }}>
-                  Email us →
-                </a>
-                <div style={{ marginTop: 28, paddingTop: 24, borderTop: "1px solid var(--border)" }}>
-                  {[
-                    { label: "Typical response time", value: "< 2 hours" },
-                  ].map(({ label, value }) => (
-                    <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.04)", fontSize: 13 }}>
-                      <span style={{ color: "var(--text-dim)" }}>{label}</span>
-                      <span style={{ color: "var(--gold)", fontWeight: 600 }}>{value}</span>
-                    </div>
-                  ))}
+          </FadeUp>
+        </div>
+        <div className="faq-list">
+          {FAQS.map((faq, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={faq.q} className="faq-item">
+                <h3 className="faq-h">
+                  <button
+                    type="button"
+                    className="faq-q"
+                    id={`faq-q-${i}`}
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-a-${i}`}
+                    onClick={() => setOpen(isOpen ? null : i)}
+                  >
+                    <span className="faq-q-text">{faq.q}</span>
+                    <span className={`faq-chev${isOpen ? " open" : ""}`}><Icon name="chevron" /></span>
+                  </button>
+                </h3>
+                <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} className="faq-a" hidden={!isOpen}>
+                  <p className="t-body">{faq.a}</p>
                 </div>
               </div>
-            </FadeUp>
-          </div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
@@ -6,33 +6,38 @@ import { meetsTier, tierRank, TIERS } from "../lib/tiers";
 import { courseTier } from "../lib/rewards";
 import PathwayIcon from "../components/portal/PathwayIcon";
 import NodeBody from "../components/portal/NodeBody";
+import Icon from "../components/portal/Icon";
 
-// Group hubs: one per pathway phase, keyed by pathway slug. Each hub branches
-// into its phase's steps.
+// Stages: one per pathway phase, keyed by pathway slug. `short` labels the mobile chips.
 const GROUPS = {
   depop: {
-    1: { name: "Launch Your Store", icon: "storefront" },
-    2: { name: "List Your Products", icon: "listing-card" },
-    3: { name: "Drive Traffic", icon: "growth-arrow" },
-    4: { name: "Sell & Fulfil", icon: "handshake" },
-    5: { name: "Scale", icon: "sliders" },
-    6: { name: "VIP — Inner Circle", icon: "check-seal" },
+    1: { name: "Launch your store", short: "Launch", icon: "store" },
+    2: { name: "List your products", short: "List", icon: "list" },
+    3: { name: "Drive traffic", short: "Traffic", icon: "megaphone" },
+    4: { name: "Sell & fulfil", short: "Sell", icon: "truck" },
+    5: { name: "Scale", short: "Scale", icon: "profit" },
+    6: { name: "VIP Inner Circle", short: "VIP", icon: "star" },
   },
   shopify: {
-    1: { name: "Set Up Your Store", icon: "browser-store" },
-    2: { name: "Pick Your Products", icon: "catalogue-grid" },
-    3: { name: "Build & List", icon: "layout-blocks" },
-    4: { name: "Connect to Sync", icon: "link-nodes" },
-    5: { name: "Drive Traffic", icon: "megaphone" },
-    6: { name: "Run the Machine", icon: "wallet" },
-    7: { name: "Scale", icon: "growth-arrow" },
+    1: { name: "Set up your store", short: "Set up", icon: "store" },
+    2: { name: "Pick your products", short: "Pick", icon: "box" },
+    3: { name: "Build & list", short: "Build", icon: "list" },
+    4: { name: "Connect to Sync", short: "Connect", icon: "link" },
+    5: { name: "Drive traffic", short: "Traffic", icon: "megaphone" },
+    6: { name: "Run the machine", short: "Run", icon: "wallet" },
+    7: { name: "Scale", short: "Scale", icon: "profit" },
   },
 };
 
-// Layout constants. Both breakpoints stack groups down a central trunk with
-// steps diverging left and right; desktop just spreads wider and breathes more.
-const M = { width: 380, colL: 0.26, colR: 0.74, hubGap: 128, rowH: 138, groupGap: 64, padY: 84 };
-const D = { width: 900, colL: 0.3, colR: 0.7, hubGap: 150, rowH: 150, groupGap: 96, padY: 100 };
+function summary(markdown) {
+  const para = (markdown ?? "")
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .find((p) => p && !/^(#|>|-|\*|\d+\.|```)/.test(p));
+  if (!para) return null;
+  const text = para.replace(/[*_`[\]]/g, "").replace(/\(https?:[^)]+\)/g, "");
+  return text.length > 200 ? `${text.slice(0, 197).trimEnd()}…` : text;
+}
 
 export default function PathwayPage() {
   const { profile } = useAuth();
@@ -40,24 +45,12 @@ export default function PathwayPage() {
   const [progress, setProgress] = useState({});
   const [pathways, setPathways] = useState([]); // owned pathways: [{id, slug, name}]
   const [activeId, setActiveId] = useState(null);
+  const [stagePick, setStagePick] = useState(null); // phase the member picked; null = follow progress
   const [openId, setOpenIdState] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [groupsOpen, setGroupsOpen] = useState(false);
   const [rewardsRank, setRewardsRank] = useState(null); // Sync Rewards rank, which can unlock a course
   const [searchParams, setSearchParams] = useSearchParams();
-  const scrollRef = useRef(null);
-  const drag = useRef(null); // mouse drag-to-pan state
-  const dragMoved = useRef(false);
-  const [isDesktop, setIsDesktop] = useState(
-    () => window.matchMedia("(min-width: 900px)").matches
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 900px)");
-    const onChange = (e) => setIsDesktop(e.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
+  const panelRef = useRef(null);
 
   // Course access: the paid plan, or a higher course unlocked by Sync Rewards rank
   const memberTier = courseTier(profile?.tier, rewardsRank);
@@ -86,101 +79,13 @@ export default function PathwayPage() {
     })();
   }, [profile]);
 
-  const activeSlug = pathways.find((pw) => pw.id === activeId)?.slug;
-  const branchNodes = useMemo(
-    () => (activeId ? nodes.filter((n) => n.pathway_id === activeId) : []),
-    [nodes, activeId]
-  );
-
-  // Groups → hub + child positions. Children flow in rows of two beneath their
-  // hub; a lone child in the last row sits on the trunk line.
-  const { groups, laidOut, width, height } = useMemo(() => {
-    if (!branchNodes.length || !activeSlug) return { groups: [], laidOut: [], width: 0, height: 0 };
-
-    const C = isDesktop ? D : M;
-    const phases = [...new Set(branchNodes.map((n) => n.phase))].sort((a, b) => a - b);
-    const groups = [];
-    const laidOut = [];
-
-    const cx = C.width / 2;
-    const colL = C.width * C.colL;
-    const colR = C.width * C.colR;
-    let y = C.padY;
-    for (const phase of phases) {
-      const children = branchNodes.filter((n) => n.phase === phase);
-      const hub = { phase, ...GROUPS[activeSlug]?.[phase], x: cx, y, children };
-      groups.push(hub);
-      y += C.hubGap;
-      children.forEach((node, i) => {
-        const row = Math.floor(i / 2);
-        const lastInOddCount = i === children.length - 1 && children.length % 2 === 1;
-        laidOut.push({
-          ...node,
-          x: lastInOddCount ? cx : i % 2 === 0 ? colL : colR,
-          y: y + row * C.rowH,
-        });
-      });
-      y += Math.ceil(children.length / 2) * C.rowH + C.groupGap;
-    }
-    return { groups, laidOut, width: C.width, height: y };
-  }, [branchNodes, activeSlug, isDesktop]);
-
-  // ?start=1 → the first node is open until the member picks another one
-  const effectiveOpenId = searchParams.get("start") ? laidOut[0]?.id ?? null : openId;
-
-  function setOpenId(id) {
-    setOpenIdState(id);
-    if (searchParams.has("start")) {
-      const next = new URLSearchParams(searchParams);
-      next.delete("start");
-      setSearchParams(next, { replace: true });
-    }
-  }
-
-  const byId = useMemo(() => Object.fromEntries(laidOut.map((n) => [n.id, n])), [laidOut]);
-
-  // Initial view: centre the trunk horizontally, starting from the top.
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el || !laidOut.length) return;
-    el.scrollLeft = Math.max(0, width / 2 - el.clientWidth / 2);
-  }, [laidOut, isDesktop, width]);
-
-  // ?start=1 → scroll to the first node (getting-started popup lands here)
-  useEffect(() => {
-    if (searchParams.get("start") && laidOut.length) {
-      const el = scrollRef.current;
-      el?.scrollTo({
-        top: 0,
-        left: Math.max(0, laidOut[0].x - el.clientWidth / 2),
-        behavior: "smooth",
-      });
-    }
-  }, [laidOut, searchParams, setSearchParams]);
-
-  // Click-and-drag panning with the mouse (touch uses native scroll).
-  function onPointerDown(e) {
-    if (e.pointerType !== "mouse" || e.button !== 0) return;
-    const el = scrollRef.current;
-    drag.current = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop };
-    dragMoved.current = false;
-  }
-  function onPointerMove(e) {
-    const d = drag.current;
-    if (!d) return;
-    const dx = e.clientX - d.x;
-    const dy = e.clientY - d.y;
-    if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved.current = true;
-    const el = scrollRef.current;
-    el.scrollLeft = d.left - dx;
-    el.scrollTop = d.top - dy;
-  }
-  function onPointerUp() {
-    drag.current = null;
-  }
+  const active = pathways.find((pw) => pw.id === activeId);
+  const activeSlug = active?.slug;
+  const branchNodes = activeId ? nodes.filter((n) => n.pathway_id === activeId) : [];
+  const byId = Object.fromEntries(branchNodes.map((n) => [n.id, n]));
 
   function nodeState(node) {
-    if (!meetsTier(memberTier, node.min_tier)) return "locked";
+    if (!meetsTier(memberTier, node.min_tier)) return "tier";
     const status = progress[node.id]?.status;
     if (status === "complete") return "complete";
     if (status === "in_progress") return "in_progress";
@@ -193,38 +98,64 @@ export default function PathwayPage() {
     return depsDone ? "available" : "locked";
   }
 
-  // A group's state summarises its tier-eligible children.
-  function groupState(hub) {
-    const eligible = hub.children.filter((c) => meetsTier(memberTier, c.min_tier));
-    if (eligible.length === 0) {
-      const minTier = hub.children.reduce(
-        (best, c) => (tierRank(c.min_tier) < tierRank(best) ? c.min_tier : best),
-        hub.children[0].min_tier
-      );
-      return { kind: "tier-locked", minTier, done: 0, total: hub.children.length };
+  // Stages with a summary of their tier-eligible steps
+  const stages = (() => {
+    const phases = [...new Set(branchNodes.map((n) => n.phase))].sort((a, b) => a - b);
+    return phases.map((phase) => {
+      const steps = branchNodes.filter((n) => n.phase === phase);
+      const eligible = steps.filter((s) => meetsTier(memberTier, s.min_tier));
+      const done = eligible.filter((s) => progress[s.id]?.status === "complete").length;
+      const minTier = eligible.length
+        ? null
+        : steps.reduce((best, c) => (tierRank(c.min_tier) < tierRank(best) ? c.min_tier : best), steps[0].min_tier);
+      const g = GROUPS[activeSlug]?.[phase] ?? { name: `Stage ${phase}`, short: `${phase}`, icon: "pathway" };
+      return { phase, ...g, steps, eligible: eligible.length, done, minTier };
+    });
+  })();
+
+  const totalEligible = stages.reduce((s, g) => s + g.eligible, 0);
+  const totalDone = stages.reduce((s, g) => s + g.done, 0);
+  // The step that's up next: first eligible step that isn't complete
+  const upNext = branchNodes.find((n) => {
+    const st = nodeState(n);
+    return st === "available" || st === "in_progress";
+  });
+  const currentPhase = upNext?.phase ?? stages.find((g) => !g.minTier && g.done < g.eligible)?.phase ?? stages[0]?.phase;
+
+  // ?open=<id> (dashboard "Start this step") and ?start=1 open a step directly
+  const openParam = searchParams.get("open") ?? (searchParams.get("start") ? branchNodes[0]?.id : null);
+  const effectiveOpenId = openParam && byId[openParam] ? openParam : openId;
+  const open = effectiveOpenId ? byId[effectiveOpenId] : null;
+  const openState = open ? nodeState(open) : null;
+  const phase = stagePick ?? (openParam && byId[openParam] ? byId[openParam].phase : currentPhase);
+  const stageIdx = stages.findIndex((g) => g.phase === phase);
+  const stage = stages[stageIdx];
+  const nextStage = stages[stageIdx + 1];
+
+  function setOpenId(id) {
+    setOpenIdState(id);
+    if (searchParams.has("start") || searchParams.has("open")) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("start");
+      next.delete("open");
+      setSearchParams(next, { replace: true });
     }
-    const done = eligible.filter((c) => progress[c.id]?.status === "complete").length;
-    const started = eligible.some((c) => progress[c.id]?.status);
-    if (done === eligible.length) return { kind: "complete", done, total: eligible.length };
-    if (started) return { kind: "in_progress", done, total: eligible.length };
-    return { kind: "not_started", done, total: eligible.length };
   }
 
-  function jumpToGroup(hub) {
-    const el = scrollRef.current;
-    el?.scrollTo({
-      left: Math.max(0, hub.x - el.clientWidth / 2),
-      top: Math.max(0, hub.y - 90),
-      behavior: "smooth",
-    });
-    setGroupsOpen(false);
-  }
+  useEffect(() => {
+    if (!open) return;
+    panelRef.current?.focus();
+    const onKey = (e) => e.key === "Escape" && setOpenId(null);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open?.id]);
 
   function switchPathway(id) {
     if (id === activeId) return;
     setActiveId(id);
+    setStagePick(null);
     setOpenId(null);
-    setGroupsOpen(false);
   }
 
   async function setStatus(node, status) {
@@ -242,287 +173,213 @@ export default function PathwayPage() {
     setSaving(false);
   }
 
-  const open = effectiveOpenId ? byId[effectiveOpenId] : null;
-  const openState = open ? nodeState(open) : null;
-
-  // Connector styling mirrors progression: bright while a group is live,
-  // dimmed and dashed for the not-yet-started reaches of the tree.
-  function trunkStyle(state) {
-    if (state.kind === "complete") return { stroke: "oklch(78% 0.13 86)", opacity: 0.9, dash: "none" };
-    if (state.kind === "in_progress") return { stroke: "oklch(78% 0.13 86)", opacity: 0.5, dash: "none" };
-    if (state.kind === "not_started") return { stroke: "oklch(58% 0.10 68)", opacity: 0.5, dash: "6 6" };
-    return { stroke: "oklch(50% 0.018 85)", opacity: 0.4, dash: "5 7" };
-  }
+  const stageDonePct = stage && stage.eligible ? (stage.done / stage.eligible) * 100 : 0;
+  // The trail line fills up to the last completed step in this stage
+  const lastDoneIdx = stage ? stage.steps.reduce((acc, s, i) => (progress[s.id]?.status === "complete" ? i : acc), -1) : -1;
+  const linePct = stage && stage.steps.length > 1 ? Math.max(0, Math.min(100, ((lastDoneIdx + 0.5) / (stage.steps.length - 1)) * 100)) : 0;
 
   return (
-    <div className="portal-page pathway-page">
-      <div className="portal-page-head">
-        <h1 className="portal-h1">Your Pathway</h1>
-        <p className="portal-sub">
-          Every group branches into its own steps — all connected, all in one place.
-        </p>
-      </div>
-
-      {pathways.length >= 2 && (
-        <div className="pathway-switch">
-          {pathways.map((pw) => {
-            const pwNodes = nodes.filter((n) => n.pathway_id === pw.id);
-            const done = pwNodes.filter((n) => progress[n.id]?.status === "complete").length;
-            return (
-              <button
-                key={pw.id}
-                type="button"
-                className={`pathway-switch-btn${pw.id === activeId ? " pathway-switch-active" : ""}`}
-                onClick={() => switchPathway(pw.id)}
-              >
-                <span>{pw.name}</span>
-                <span className="pathway-switch-count">
-                  {done}/{pwNodes.length}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="pathway-wrap">
-        <div className="pathway-groups">
-          <button
-            className="pathway-groups-btn"
-            aria-expanded={groupsOpen}
-            onClick={() => setGroupsOpen((v) => !v)}
-          >
-            Groups
-            <svg
-              width="11"
-              height="11"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ transform: groupsOpen ? "rotate(90deg)" : "none", transition: "transform .2s" }}
-            >
-              <path d="M9 6l6 6-6 6" />
-            </svg>
-          </button>
-          {groupsOpen && (
-            <div className="pathway-groups-list">
-              {groups.map((hub) => {
-                const st = groupState(hub);
-                return (
-                  <button
-                    key={hub.phase}
-                    className={`pathway-groups-item pathway-groups-${st.kind}`}
-                    onClick={() => jumpToGroup(hub)}
-                  >
-                    <span>{hub.name}</span>
-                    <span className="pathway-groups-count">
-                      {st.kind === "tier-locked"
-                        ? `${TIERS[st.minTier].short}+`
-                        : `${st.done}/${st.total}`}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        <div
-          className="pathway-scroll"
-          ref={scrollRef}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
-        >
-          <div className="pathway-tree" style={{ width, height }}>
-            <svg
-              className="pathway-lines"
-              viewBox={`0 0 ${width} ${height}`}
-              width={width}
-              height={height}
-              aria-hidden="true"
-            >
-              {/* Trunk: hub to hub */}
-              {groups.map((hub, i) => {
-                const next = groups[i + 1];
-                if (!next) return null;
-                const st = trunkStyle(groupState(next));
-                const midY = (hub.y + next.y) / 2;
-                return (
-                  <path
-                    key={`trunk-${hub.phase}`}
-                    d={`M ${hub.x} ${hub.y} C ${hub.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`}
-                    fill="none"
-                    stroke={st.stroke}
-                    strokeOpacity={st.opacity}
-                    strokeWidth={3}
-                    strokeDasharray={st.dash}
-                  />
-                );
-              })}
-              {/* Branches: hub to each of its steps */}
-              {groups.map((hub) =>
-                hub.children.map((child) => {
-                  const node = byId[child.id];
-                  if (!node) return null;
-                  const done = progress[child.id]?.status === "complete";
-                  const eligible = meetsTier(memberTier, child.min_tier);
-                  const stroke = done
-                    ? "oklch(78% 0.13 86)"
-                    : eligible
-                      ? "oklch(58% 0.10 68)"
-                      : "oklch(50% 0.018 85)";
-                  const midY = (hub.y + node.y) / 2;
-                  return (
-                    <path
-                      key={`branch-${child.id}`}
-                      d={`M ${hub.x} ${hub.y} C ${hub.x} ${midY}, ${node.x} ${midY}, ${node.x} ${node.y}`}
-                      fill="none"
-                      stroke={stroke}
-                      strokeOpacity={done ? 0.9 : eligible ? 0.5 : 0.35}
-                      strokeWidth={done ? 2.2 : 2}
-                      strokeDasharray={done ? "none" : eligible ? "none" : "4 6"}
-                    />
-                  );
-                })
-              )}
-            </svg>
-
-            {/* Group hubs */}
-            {groups.map((hub) => {
-              const st = groupState(hub);
-              return (
-                <button
-                  key={`hub-${hub.phase}`}
-                  type="button"
-                  className={`pathway-hub pathway-hub-${st.kind}`}
-                  style={{ left: hub.x, top: hub.y }}
-                  onClick={() => {
-                    if (dragMoved.current) return;
-                    jumpToGroup(hub);
-                  }}
-                >
-                  <span className="pathway-hub-circle">
-                    <PathwayIcon
-                      name={hub.icon}
-                      state={
-                        st.kind === "complete"
-                          ? "complete"
-                          : st.kind === "in_progress"
-                            ? "in_progress"
-                            : st.kind === "not_started"
-                              ? "available"
-                              : "locked"
-                      }
-                      size={44}
-                    />
-                  </span>
-                  <span className="pathway-hub-name">{hub.name}</span>
-                  {st.kind === "tier-locked" ? (
-                    <span className={`tier-badge tier-${st.minTier} pathway-node-tier`}>
-                      {TIERS[st.minTier].short}+
-                    </span>
-                  ) : (
-                    <span className="pathway-hub-count">
-                      {st.kind === "not_started" ? "Not started" : `${st.done} of ${st.total} done`}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Step nodes */}
-            {laidOut.map((node) => {
-              const state = nodeState(node);
-              return (
-                <button
-                  key={node.id}
-                  type="button"
-                  className={`pathway-node pathway-node-${state}${effectiveOpenId === node.id ? " open" : ""}`}
-                  style={{ left: node.x, top: node.y }}
-                  onClick={() => {
-                    if (dragMoved.current) return; // was a pan, not a click
-                    setOpenId(node.id);
-                  }}
-                >
-                  <PathwayIcon name={node.icon} state={state} size={52} />
-                  <span className="pathway-node-title">{node.title}</span>
-                  {node.min_tier && (
-                    <span className={`tier-badge tier-${node.min_tier} pathway-node-tier`}>
-                      {TIERS[node.min_tier].short}+
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+    <div className="portal-page pw-page">
+      <aside className="pw-rail">
+        <div>
+          <h1 className="portal-h1">Pathway</h1>
+          <p className="portal-sub">
+            {[active?.name, `${totalDone} of ${totalEligible} steps done`].filter(Boolean).join(" · ")}
+          </p>
+          <div className="bar" style={{ marginTop: 12 }}>
+            <span style={{ width: `${totalEligible ? (totalDone / totalEligible) * 100 : 0}%` }} />
           </div>
         </div>
 
-        {open && (
-          <>
-            <div className="node-panel-backdrop" onClick={() => setOpenId(null)} />
-            <aside className="node-panel">
-              <button className="node-panel-close" onClick={() => setOpenId(null)}>
-                ×
+        {pathways.length >= 2 && (
+          <div className="pw-switch" role="group" aria-label="Pathways">
+            {pathways.map((pw) => (
+              <button
+                key={pw.id}
+                type="button"
+                className={`chip ${pw.id === activeId ? "chip-gold" : "chip-plain"}`}
+                aria-pressed={pw.id === activeId}
+                onClick={() => switchPathway(pw.id)}
+              >
+                {pw.name}
               </button>
-              <div className="node-panel-head">
-                <PathwayIcon name={open.icon} state={openState} size={44} />
-                <div>
-                  <span className="pathway-node-phase">
-                    {GROUPS[activeSlug]?.[open.phase]?.name ?? `Phase ${open.phase}`}
+            ))}
+          </div>
+        )}
+
+        <nav className="pw-stages card" aria-label="Stages">
+          {stages.map((g) => {
+            const kind = g.minTier ? "tier" : g.phase === currentPhase ? "now" : g.done === g.eligible ? "done" : "open";
+            return (
+              <button
+                key={g.phase}
+                type="button"
+                className={`pw-stage is-${kind}${g.phase === phase ? " is-on" : ""}`}
+                aria-current={g.phase === phase ? "step" : undefined}
+                onClick={() => setStagePick(g.phase)}
+              >
+                <span className="pw-stage-ring">
+                  <Icon name={kind === "tier" ? "lock" : kind === "done" ? "check" : g.icon} size={18} />
+                </span>
+                <span className="pw-stage-text">
+                  <span className="pw-stage-name">{g.name}</span>
+                  <span className="pw-stage-meta">
+                    {g.minTier
+                      ? `${g.steps.length} step${g.steps.length === 1 ? "" : "s"}`
+                      : g.done
+                        ? `${g.done} of ${g.eligible} done`
+                        : `${g.eligible} step${g.eligible === 1 ? "" : "s"}`}
                   </span>
-                  <h2 className="node-panel-title">{open.title}</h2>
+                </span>
+                {g.minTier && <span className="chip chip-plain pw-stage-tier">{TIERS[g.minTier].short}</span>}
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
+
+      <div className="pw-chips" role="group" aria-label="Stages">
+        {stages.map((g, i) => (
+          <button
+            key={g.phase}
+            type="button"
+            className={`chip ${g.phase === phase ? "chip-on" : "chip-plain"}${g.minTier ? " is-locked" : ""}`}
+            aria-pressed={g.phase === phase}
+            onClick={() => setStagePick(g.phase)}
+          >
+            {g.minTier && <Icon name="lock" size={14} />}
+            {i + 1} · {g.short}
+          </button>
+        ))}
+      </div>
+
+      {stage && (
+        <section className="pw-main">
+          <div className="pw-stage-head card-feature">
+            <span className="pw-stage-icon">
+              <Icon name={stage.icon} size={30} />
+            </span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="t-eyebrow">
+                Stage {stageIdx + 1} of {stages.length}
+              </div>
+              <h2 className="pw-stage-title">{stage.name}</h2>
+            </div>
+            {!stage.minTier && (
+              <div className="pw-stage-progress">
+                <span className="t-label" style={{ color: "var(--text)" }}>
+                  {stage.done} of {stage.eligible} done
+                </span>
+                <div className="bar">
+                  <span style={{ width: `${stageDonePct}%` }} />
                 </div>
               </div>
+            )}
+          </div>
 
-              {openState === "locked" ? (
-                <p className="node-locked-msg">
-                  {!meetsTier(memberTier, open.min_tier)
-                    ? `This step unlocks with ${TIERS[open.min_tier]?.name}. Upgrade to access it.`
-                    : "Complete the previous steps to unlock this one."}
-                </p>
-              ) : (
-                <>
-                  <NodeBody markdown={open.body} />
-                  <div className="node-panel-actions">
-                    {openState !== "complete" && openState !== "in_progress" && (
-                      <button
-                        className="btn-ghost"
-                        disabled={saving}
-                        onClick={() => setStatus(open, "in_progress")}
-                      >
-                        Start this step
-                      </button>
-                    )}
-                    {openState !== "complete" && (
-                      <button
-                        className="btn-gold"
-                        disabled={saving}
-                        onClick={() => setStatus(open, "complete")}
-                      >
-                        Mark complete
-                      </button>
-                    )}
-                    {openState === "complete" && (
-                      <button
-                        className="btn-ghost"
-                        disabled={saving}
-                        onClick={() => setStatus(open, "in_progress")}
-                      >
-                        Re-open step
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </aside>
-          </>
-        )}
-      </div>
+          <ol className="pw-trail" style={{ "--pw-fill": `${linePct}%` }}>
+            {stage.steps.map((node, i) => {
+              const st = nodeState(node);
+              const isNext = upNext?.id === node.id;
+              return (
+                <li key={node.id} className={`pw-step is-${st}${isNext ? " is-next" : ""}`}>
+                  <span className="pw-step-dot" aria-hidden="true">
+                    {st === "complete" ? <Icon name="check" strokeWidth={2.5} /> : st === "locked" || st === "tier" ? <Icon name="lock" size={18} /> : i + 1}
+                  </span>
+                  {isNext ? (
+                    <div className="pw-step-card is-next">
+                      <div className="pw-step-row">
+                        <span className="pw-step-title">{node.title}</span>
+                        <span className="chip chip-gold">Up next</span>
+                      </div>
+                      {summary(node.body) && <p className="t-body">{summary(node.body)}</p>}
+                      <div>
+                        <button type="button" className="btn-gold" data-tut="next-step" onClick={() => setOpenId(node.id)}>
+                          Open step
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" className="pw-step-card" onClick={() => setOpenId(node.id)}>
+                      <span className="pw-step-title">{node.title}</span>
+                      {st === "complete" && <span className="chip chip-ok">Done</span>}
+                      {st === "in_progress" && <span className="chip chip-plain">In progress</span>}
+                      {st === "available" && <span className="chip chip-plain">Open</span>}
+                      {st === "locked" && <span className="chip chip-plain">Locked</span>}
+                      {st === "tier" && <span className="chip chip-plain">{TIERS[node.min_tier].short}+</span>}
+                    </button>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+
+          {nextStage && (
+            <div className="pw-next card">
+              <span className="icon-well">
+                <Icon name="lock" />
+              </span>
+              <span className="pw-next-text">
+                <span className="pw-next-title">Next: {nextStage.name}</span>
+                <span className="t-small">
+                  {nextStage.minTier
+                    ? `Unlocks with ${TIERS[nextStage.minTier].name}.`
+                    : `${nextStage.eligible} step${nextStage.eligible === 1 ? "" : "s"}. Unlocks when you finish this stage.`}
+                </span>
+              </span>
+            </div>
+          )}
+        </section>
+      )}
+
+      {open && (
+        <>
+          <div className="node-panel-backdrop" onClick={() => setOpenId(null)} />
+          <aside className="node-panel" role="dialog" aria-modal="true" aria-labelledby="node-panel-title" tabIndex={-1} ref={panelRef}>
+            <button className="pt-icon-btn node-panel-close" aria-label="Close" data-tut="panel-close" onClick={() => setOpenId(null)}>
+              <Icon name="x" />
+            </button>
+            <div className="node-panel-head">
+              <PathwayIcon name={open.icon} state={openState === "tier" ? "locked" : openState} size={44} />
+              <div>
+                <span className="t-eyebrow">{GROUPS[activeSlug]?.[open.phase]?.name ?? `Stage ${open.phase}`}</span>
+                <h2 className="node-panel-title" id="node-panel-title">
+                  {open.title}
+                </h2>
+              </div>
+            </div>
+
+            {openState === "locked" || openState === "tier" ? (
+              <p className="node-locked-msg">
+                {openState === "tier"
+                  ? `This step unlocks with ${TIERS[open.min_tier]?.name}. Upgrade to access it.`
+                  : "Complete the previous steps to unlock this one."}
+              </p>
+            ) : (
+              <>
+                <NodeBody markdown={open.body} />
+                <div className="node-panel-actions">
+                  {openState !== "complete" && (
+                    <button className="btn-gold" data-tut="mark-complete" disabled={saving} onClick={() => setStatus(open, "complete")}>
+                      Mark complete
+                    </button>
+                  )}
+                  {openState === "available" && (
+                    <button className="btn-ghost" disabled={saving} onClick={() => setStatus(open, "in_progress")}>
+                      Start this step
+                    </button>
+                  )}
+                  {openState === "complete" && (
+                    <button className="btn-ghost" disabled={saving} onClick={() => setStatus(open, "in_progress")}>
+                      Re-open step
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </aside>
+        </>
+      )}
     </div>
   );
 }

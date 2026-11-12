@@ -1,48 +1,54 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import Icon from "./SiteIcon";
+
+const LINKS = [
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#pricing", label: "Pricing" },
+  { href: "/#expectations", label: "Expectations" },
+  { href: "/#faq", label: "FAQ" },
+];
 
 export default function Nav() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", fn);
-    return () => window.removeEventListener("scroll", fn);
-  }, []);
+    if (!menuOpen) return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setMenuOpen(false); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
+  const close = () => setMenuOpen(false);
+
   return (
-    <nav className={`nav${scrolled ? " scrolled" : ""}`}>
-      <div className="nav-left">
-        <div className="nav-logo">Sync Agency</div>
-        <Link to="/login" className="nav-login">Login</Link>
+    <header className="s-header">
+      <div className="wrap s-header-row">
+        <a href="/" className="logo s-logo">Sync Agency</a>
+        <nav className="s-nav" aria-label="Main">
+          {LINKS.map((l) => <a key={l.href} className="s-navlink" href={l.href}>{l.label}</a>)}
+        </nav>
+        <Link to="/login" className="s-navlink s-login">Log in</Link>
+        <a href="/#pricing" className="btn btn-primary btn-sm">Join now</a>
+        <button
+          type="button"
+          className="s-menu-btn"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-expanded={menuOpen}
+          aria-controls="site-menu"
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+        >
+          <Icon name={menuOpen ? "x" : "menu"} />
+        </button>
       </div>
-      <div className="nav-links">
-        <a href="/#how-it-works">How it works</a>
-        <a href="/#pricing">Pricing</a>
-        <a href="/#expectations">Expectations</a>
-        <a href="/#faq">FAQ</a>
-        <a href="/#pricing" className="nav-btn">Join Now →</a>
-      </div>
-      {/* Mobile hamburger */}
-      <button
-        onClick={() => setMenuOpen(v => !v)}
-        style={{ display: "none", background: "none", border: "1px solid var(--border-md)", color: "var(--gold)", padding: "8px 12px", borderRadius: 2, cursor: "pointer", fontSize: 18, lineHeight: 1 }}
-        className="nav-hamburger"
-        aria-label="Menu"
-      >
-        {menuOpen ? "✕" : "☰"}
-      </button>
       {menuOpen && (
-        <div style={{ position: "fixed", top: 60, left: 0, right: 0, background: "rgba(8,8,8,0.97)", backdropFilter: "blur(16px)", borderBottom: "1px solid var(--border)", padding: "24px 20px", zIndex: 499, display: "flex", flexDirection: "column", gap: 0 }}>
-          {["/#how-it-works", "/#pricing", "/#expectations", "/#faq"].map((href, i) => (
-            <a key={href} href={href} onClick={() => setMenuOpen(false)} style={{ padding: "16px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-md)", fontWeight: 500 }}>
-              {["How it works", "Pricing", "Expectations", "FAQ"][i]}
-            </a>
+        <nav id="site-menu" className="s-menu" aria-label="Mobile">
+          {LINKS.map((l) => (
+            <a key={l.href} href={l.href} className="s-menu-link" onClick={close}>{l.label}</a>
           ))}
-          <a href="/#pricing" className="btn-gold" style={{ marginTop: 20, justifyContent: "center" }} onClick={() => setMenuOpen(false)}>
-            Join Now →
-          </a>
-        </div>
+          <Link to="/login" className="s-menu-link" onClick={close}>Log in</Link>
+        </nav>
       )}
-    </nav>
+    </header>
   );
 }

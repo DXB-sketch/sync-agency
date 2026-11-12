@@ -3,12 +3,11 @@ import Hero from "../sections/Hero";
 import WhatIsDropshipping from "../sections/WhatIsDropshipping";
 import About from "../sections/About";
 import Pricing from "../sections/Pricing";
-import Testimonials from "../sections/Testimonials";
+import Expectations from "../sections/Testimonials";
 import FAQ from "../sections/FAQ";
 import CTASection from "../sections/CTASection";
 import Marquee from "../components/Marquee";
 import ExitIntentPopup from "../components/ExitIntentPopup";
-import StickyCTABar from "../components/StickyCTABar";
 
 export default function HomePage() {
   useEffect(() => {
@@ -19,17 +18,16 @@ export default function HomePage() {
   }, []);
 
   return (
-    <>
+    <main id="main">
       <ExitIntentPopup />
-      <StickyCTABar />
       <Hero />
       <Pricing />
       <Marquee />
       <WhatIsDropshipping />
       <About />
-      <Testimonials />
+      <Expectations />
       <FAQ />
       <CTASection />
-    </>
+    </main>
   );
 }

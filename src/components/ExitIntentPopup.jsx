@@ -18,10 +18,10 @@ export default function ExitIntentPopup() {
   if (!show) return null;
   return (
     <div className="exit-overlay" onClick={(e) => e.target === e.currentTarget && setShow(false)}>
-      <div className="exit-modal">
-        <button className="exit-close" onClick={() => setShow(false)} aria-label="Close">×</button>
+      <div className="exit-modal" role="dialog" aria-modal="true" aria-labelledby="exit-title">
+        <button className="exit-close" onClick={() => setShow(false)} aria-label="Close">✕</button>
         <div className="exit-eyebrow">Wait, before you go</div>
-        <h2>Questions before<br />you <em>decide?</em></h2>
+        <h2 id="exit-title">Questions before<br />you <em>decide?</em></h2>
         <p>
           Every client gets the step-by-step pathway, product slots stocked by our team,
           and coaching that answers within hours. Pick the level of support that suits you.
@@ -34,8 +34,7 @@ export default function ExitIntentPopup() {
         </div>
         <a
           href="#pricing"
-          className="btn-gold"
-          style={{ display: "flex", width: "100%", justifyContent: "center", fontSize: 14, padding: "16px 32px" }}
+          className="btn btn-primary exit-cta"
           onClick={() => setShow(false)}
         >
           Choose your plan →

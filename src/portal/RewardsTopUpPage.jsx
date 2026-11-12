@@ -21,6 +21,7 @@ import {
   topupXp,
 } from "../lib/rewards";
 import { BackIcon, CheckIcon } from "../components/portal/RewardIcons";
+import { useTutorial } from "./tutorialSteps";
 
 // Bonus credit per top-up amount (cents). Credited by stripe-webhook, which holds the same table.
 const TOPUP_BONUSES = { 50000: 8000 };
@@ -28,6 +29,9 @@ const SHOW_REWARDS = 8;
 
 export default function RewardsTopUpPage() {
   const { profile } = useAuth();
+  // Rewards tutorial: practice mode. Taps on the packs go to the tutorial, never to checkout.
+  const { kind: tourKind, sim, practiceLine } = useTutorial();
+  const practice = tourKind === "rewards" && !!sim?.practice;
   const [data, setData] = useState(null);
   const [picked, setPicked] = useState(null);
   const [paying, setPaying] = useState(false);
@@ -133,6 +137,11 @@ export default function RewardsTopUpPage() {
           </Link>
           <div className="rw-head" style={{ alignItems: "flex-end" }}>
             <div>
+              {practice && (
+                <span className="tut-practice" style={{ marginBottom: 10 }}>
+                  Practice mode · no payment
+                </span>
+              )}
               <h1 className="rw-title" style={{ marginTop: 0 }}>
                 Top up and earn XP
               </h1>
@@ -164,6 +173,7 @@ export default function RewardsTopUpPage() {
                 type="button"
                 role="radio"
                 aria-checked={on}
+                data-tut={`pack-${p.cents}`}
                 className={`rw-pack${on ? " is-on" : ""}`}
                 onClick={() => setPicked(p.cents)}
               >
@@ -188,7 +198,9 @@ export default function RewardsTopUpPage() {
                   <span>Gets you to</span>
                   <span className={`rw-rank-pill rw-rank-${p.toRank.key}`}>{p.toRank.name}</span>
                 </span>
-                <span className="rw-pack-level">Level {p.toLevel}</span>
+                <span className="rw-pack-level">
+                  {practice && p.cents === 50000 && practiceLine ? practiceLine : `Level ${p.toLevel}`}
+                </span>
               </button>
             );
           })}
