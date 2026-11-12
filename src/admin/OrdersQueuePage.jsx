@@ -3,11 +3,10 @@ import { supabase } from "../lib/supabase";
 
 // Fulfilment queue: every paid order across clients, with each item's
 // shipping address, tracking entry, and status advancement.
-// `paid` is no longer manually advanced — the fulfilment engine (dispatch-order)
-// owns paid -> dispatching -> dispatched automatically. Manual advance stays only
-// for pre-engine orders sitting in `sourcing` and the shipped -> delivered step.
-// See docs/PHASE1_PLAN.md §3.5.
-const NEXT_STATUS = { sourcing: "shipped", shipped: "delivered" };
+// The fulfilment engine (dispatch-order) isn't deployed, so paid orders are
+// advanced here. Orders also ship automatically once every item has a tracking
+// number (order_items_ship_when_tracked trigger); "Mark shipped" is the override.
+const NEXT_STATUS = { paid: "shipped", sourcing: "shipped", shipped: "delivered" };
 
 export default function OrdersQueuePage() {
   const [orders, setOrders] = useState([]);
