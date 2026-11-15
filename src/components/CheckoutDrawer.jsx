@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { getAffiliate } from "../utils/affiliate.js";
+import ReferralCodeField from "./ReferralCodeField";
 
 function trackEvent(name, props) {
   if (typeof window.trackEvent === "function") window.trackEvent(name, props);
@@ -16,6 +17,11 @@ function CheckoutDrawerInner({ onClose, tier }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [animate, setAnimate] = useState(false);
+  const [referral, setReferral] = useState(null);
+  // Preview only — create-landing-checkout prices the 10% from the database
+  const discounted = (Math.round(Number(tier.price.replace(/,/g, "")) * 90) / 100).toLocaleString("en-AU", {
+    minimumFractionDigits: 2,
+  });
 
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
@@ -32,7 +38,13 @@ function CheckoutDrawerInner({ onClose, tier }) {
     setError(null);
     trackEvent("checkout_initiated", { tier: tier.name, plan: "lifetime" });
     const { data, error: fnErr } = await supabase.functions.invoke("create-landing-checkout", {
-      body: { tier: tier.id, plan: "lifetime", affiliate: getAffiliate() },
+      body: {
+        tier: tier.id,
+        plan: "lifetime",
+        affiliate: getAffiliate(),
+        code: referral?.typed ? referral.code : null,
+        link_code: referral && !referral.typed ? referral.code : null,
+      },
     });
     if (fnErr || !data?.url) {
       setError(data?.error || "Something went wrong. Please try again.");
@@ -65,11 +77,23 @@ function CheckoutDrawerInner({ onClose, tier }) {
 
         <div>
           <div className="checkout-price-display">
-            ${tier.price}
+            {referral ? (
+              <>
+                <s className="checkout-price-was">${tier.price}</s> ${discounted}
+              </>
+            ) : (
+              <>${tier.price}</>
+            )}
             <span className="checkout-price-unit"> one-time</span>
           </div>
           <div className="checkout-price-period">AUD · lifetime access</div>
         </div>
+
+        <ReferralCodeField
+          onChange={setReferral}
+          appliedNote="10% off"
+          removeLabel="Have a different promo code? Use it instead"
+        />
 
         <div>
           <button

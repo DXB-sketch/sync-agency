@@ -1,10 +1,10 @@
 import { useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from "react-router-dom";
 import "./styles/global.css";
 import "./styles/portal.css";
 import "./styles/rewards.css";
 import "./styles/tour.css";
-import { captureAffiliate } from "./utils/affiliate.js";
+import { captureAffiliate, trackReferral } from "./utils/affiliate.js";
 import { AuthProvider } from "./lib/AuthContext";
 import { ChronosModeProvider } from "./lib/ChronosModeContext";
 import Nav from "./components/Nav";
@@ -44,9 +44,19 @@ import AchievementsReviewPage from "./admin/AchievementsReviewPage";
 import SupportQueuePage from "./admin/SupportQueuePage";
 import PromosAdminPage from "./admin/PromosAdminPage";
 import PlusAdminPage from "./admin/PlusAdminPage";
+import CreatorsAdminPage from "./admin/CreatorsAdminPage";
 import ExceptionQueuePage from "./admin/ExceptionQueuePage";
 import MarginAlertsPage from "./admin/MarginAlertsPage";
 import ChronosPreviewPage from "./admin/ChronosPreviewPage";
+
+// Creator referral link (/r/jake): remember the code, then show the home page
+function ReferralRedirect() {
+  const { code } = useParams();
+  useEffect(() => {
+    trackReferral(code);
+  }, [code]);
+  return <Navigate to="/" replace />;
+}
 
 // Orders merged into Checkout — forward old links (incl. Stripe's ?paid=1 return)
 function OrdersRedirect() {
@@ -68,6 +78,7 @@ function Shell() {
           path="/"
           element={<HomePage />}
         />
+        <Route path="/r/:code" element={<ReferralRedirect />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -143,6 +154,7 @@ function Shell() {
           <Route path="orders" element={<OrdersQueuePage />} />
           <Route path="promos" element={<PromosAdminPage />} />
           <Route path="plus" element={<PlusAdminPage />} />
+          <Route path="creators" element={<CreatorsAdminPage />} />
           <Route
             path="exceptions"
             element={

@@ -79,6 +79,61 @@ async function syncPlus(subscriptionId: string, memberIdHint?: string) {
   if (error) throw error;
 }
 
+// Creator referral commission for a course payment (metadata.creator_id is only ever set
+// server-side, by create-landing-checkout or create-checkout-session). The creator's current rate
+// is snapshotted onto the row. Unique per payment intent, so a retried webhook adds nothing twice.
+// Never called for stock orders, wallet top-ups or Sync Plus.
+async function recordCommission(
+  session: Stripe.Checkout.Session,
+  kind: "new_purchase" | "upgrade",
+  fields: { member_id?: string; customer_email?: string | null; tier?: string }
+) {
+  const creatorId = session.metadata?.creator_id;
+  const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : null;
+  // A Stripe promo code beats a creator code: no credit if one was used
+  if (!creatorId || !paymentIntent || (session.total_details?.amount_discount ?? 0) > 0) return;
+
+  const { data: creator } = await supabase
+    .from("creators")
+    .select("commission_rate")
+    .eq("id", creatorId)
+    .single();
+  if (!creator) return;
+
+  const amountPaid = session.amount_total ?? 0;
+  const rate = Number(creator.commission_rate);
+  const { error } = await supabase.from("referral_commissions").upsert(
+    {
+      creator_id: creatorId,
+      kind,
+      stripe_payment_intent: paymentIntent,
+      stripe_session_id: session.id,
+      ...fields,
+      amount_paid_cents: amountPaid,
+      commission_rate: rate,
+      commission_cents: Math.round((amountPaid * rate) / 100),
+    },
+    { onConflict: "stripe_payment_intent", ignoreDuplicates: true }
+  );
+  if (error) throw error;
+}
+
+// Refund or dispute: void a commission that hasn't been paid out; flag one that has.
+async function voidCommission(paymentIntent: string, reason: string) {
+  const { error } = await supabase
+    .from("referral_commissions")
+    .update({ status: "voided", voided_at: new Date().toISOString(), void_reason: reason })
+    .eq("stripe_payment_intent", paymentIntent)
+    .eq("status", "pending");
+  if (error) throw error;
+  const { error: flagErr } = await supabase
+    .from("referral_commissions")
+    .update({ needs_attention: true, attention_reason: `${reason} after payout` })
+    .eq("stripe_payment_intent", paymentIntent)
+    .eq("status", "paid");
+  if (flagErr) throw flagErr;
+}
+
 async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   if (session.payment_status !== "paid" && session.payment_status !== "no_payment_required") return;
   const kind = session.metadata?.kind;
@@ -105,6 +160,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   if (kind === "upgrade" && session.metadata?.member_id) {
+    await recordCommission(session, "upgrade", {
+      member_id: session.metadata.member_id,
+      customer_email: session.customer_details?.email ?? session.customer_email,
+      tier: session.metadata.target_tier,
+    });
     const update: Record<string, unknown> = {
       tier: session.metadata.target_tier,
       billing_type: "lifetime",
@@ -168,6 +228,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
   // Marketing-site plan purchase: tier comes from metadata (price lives in public.course_tiers).
   if (kind === "course" && session.metadata?.tier) {
+    // Before the purchase insert: if this throws, Stripe's retry won't find a half-recorded sale
+    await recordCommission(session, "new_purchase", { customer_email: email, tier: session.metadata.tier });
     await recordCoursePurchase(session, email, session.metadata.tier, "lifetime", (session.amount_total ?? 0) / 100);
     return;
   }
@@ -197,6 +259,7 @@ async function recordCoursePurchase(
       billing_type: billingType,
       amount: amountPaid,
       stripe_session_id: session.id,
+      creator_id: session.metadata?.creator_id ?? null,
     })
     .select()
     .single();
@@ -265,7 +328,13 @@ Deno.serve(async (req) => {
             p_refunded_total_cents: charge.amount_refunded,
           });
           if (error) throw error;
+          await voidCommission(charge.payment_intent, "Refunded");
         }
+        break;
+      }
+      case "charge.dispute.created": {
+        const dispute = event.data.object as Stripe.Dispute;
+        if (typeof dispute.payment_intent === "string") await voidCommission(dispute.payment_intent, "Disputed");
         break;
       }
     }

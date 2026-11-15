@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
 import { TIERS, PAID_TIERS, tierRank } from "../lib/tiers";
 import { isNativeApp } from "../lib/nativeApp";
 import { PLUS, isPlus, plusPrice } from "../lib/plus";
 import { TIERS as PLAN_COPY } from "../data/pricing";
+import ReferralCodeField from "../components/ReferralCodeField";
 
 const EXECUTIVE = PLAN_COPY.find((t) => t.id === "executive");
 
@@ -13,6 +14,15 @@ export default function UpgradePage() {
   const [busy, setBusy] = useState(null);
   const [error, setError] = useState(null);
   const native = isNativeApp();
+  // Creator code: only for members not already credited to a creator. 10% off unless Sync Plus
+  // already discounts the upgrade (no stacking). create-checkout-session enforces all of this.
+  const [hasReferrer, setHasReferrer] = useState(true);
+  const [referral, setReferral] = useState(null);
+  const referralOff = referral && !isPlus(profile);
+
+  useEffect(() => {
+    supabase.rpc("member_has_referrer").then(({ data }) => setHasReferrer(data !== false));
+  }, []);
 
   const currentRank = tierRank(profile?.tier);
   const paid = profile?.tier_price_paid ?? 0;
@@ -21,7 +31,13 @@ export default function UpgradePage() {
     setError(null);
     setBusy(tierKey);
     const { data, error: fnErr } = await supabase.functions.invoke("create-checkout-session", {
-      body: { kind: "upgrade", target_tier: tierKey, target_billing: "lifetime" },
+      body: {
+        kind: "upgrade",
+        target_tier: tierKey,
+        target_billing: "lifetime",
+        code: referral?.typed ? referral.code : null,
+        link_code: referral && !referral.typed ? referral.code : null,
+      },
     });
     if (fnErr || !data?.url) {
       setError(data?.error ?? "Could not start the upgrade checkout.");
@@ -37,7 +53,7 @@ export default function UpgradePage() {
     const isLower = t.rank < currentRank;
     // Credit what's already been paid; minimum charge $1, rounded to cents
     const prorated = Math.max(Math.round((t.lifetime - paid) * 100), 100) / 100;
-    const youPay = plusPrice(Math.round(prorated * 100), profile) / 100;
+    const youPay = Math.round(plusPrice(Math.round(prorated * 100), profile) * (referralOff ? 0.9 : 1)) / 100;
     return (
       <div key={key} className={`upgrade-card${isCurrent ? " current" : ""}${t.unlimited ? " flagship" : ""}`}>
         <span className={`tier-badge tier-${key}`}>{t.unlimited ? "Flagship · The Ultimate Tier" : t.short}</span>
@@ -65,7 +81,8 @@ export default function UpgradePage() {
             {isPlus(profile) && (
               <p className="upgrade-prorate">{PLUS.name}: 10% off</p>
             )}
-            {(prorated !== t.lifetime || isPlus(profile)) && (
+            {referralOff && <p className="upgrade-prorate">Creator code {referral.code}: 10% off</p>}
+            {(prorated !== t.lifetime || isPlus(profile) || referralOff) && (
               <p className="upgrade-prorate">
                 You pay <strong>${youPay.toFixed(2)}</strong>
               </p>
@@ -113,6 +130,15 @@ export default function UpgradePage() {
       ) : (
         <>
           {error && <p className="auth-error">{error}</p>}
+
+          {!hasReferrer && (
+            <div className="upgrade-referral">
+              <ReferralCodeField
+                onChange={setReferral}
+                appliedNote={isPlus(profile) ? `your ${PLUS.name} 10% applies instead` : "10% off"}
+              />
+            </div>
+          )}
 
           <div className="upgrade-grid">
             {PAID_TIERS.filter((key) => !TIERS[key].unlimited).map(card)}

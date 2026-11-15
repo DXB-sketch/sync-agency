@@ -405,6 +405,17 @@ section[id] { scroll-margin-top: 72px; }
 .checkout-smallprint a { color: var(--gold); text-decoration: underline; text-underline-offset: 3px; }
 .checkout-secure { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: var(--text-2); margin-top: auto; padding-top: 24px; border-top: 1px solid var(--line); }
 .checkout-error { font-size: 14px; color: var(--bad); text-align: center; padding: 10px; background: color-mix(in oklch, var(--bad) 12%, transparent); border-radius: var(--r-sm); }
+.checkout-price-was { font-size: 28px; color: var(--text-2); font-weight: 400; }
+/* Creator code field — shared by the checkout drawer and the portal upgrade page */
+.referral-code { display: flex; flex-direction: column; gap: 8px; }
+.referral-code-label { font-size: 13px; color: var(--text-2); }
+.referral-code-row { display: flex; gap: 8px; }
+.referral-code-input { flex: 1; min-width: 0; font: inherit; font-size: 15px; text-transform: uppercase; color: var(--text); background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 12px; }
+.referral-code-apply { font: inherit; font-size: 14px; color: var(--gold); background: transparent; border: 1px solid var(--line-strong); border-radius: var(--r-sm); padding: 10px 16px; cursor: pointer; }
+.referral-code-apply:disabled { opacity: .5; cursor: default; }
+.referral-code-applied { font-size: 14px; color: var(--gold); }
+.referral-code-remove { align-self: flex-start; font: inherit; font-size: 13px; color: var(--text-2); background: none; border: none; padding: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.referral-code-error { font-size: 13px; color: var(--bad); }
 @media (max-width: 768px) {
   .checkout-drawer { top: 64px; width: 100%; height: calc(100% - 64px); border-left: none; border-top: 1px solid var(--line-strong); transform: translateY(100%); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 32px 24px 40px; }
   .checkout-drawer.open { transform: translateY(0); }

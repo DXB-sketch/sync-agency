@@ -1,3 +1,5 @@
+import { supabase } from "../lib/supabase";
+
 const STORAGE_KEY = "syncAffiliate";
 const WINDOW_MS = 30 * 24 * 60 * 60 * 1000; // 30-day attribution window
 
@@ -7,16 +9,23 @@ function sanitize(raw) {
   return raw.replace(/[^A-Za-z0-9_-]/g, "").slice(0, 200);
 }
 
-// Read ?aff= from the current URL, sanitize it, and persist it client-side.
-// Call once on app load. A new code overwrites an older one.
+// Read ?ref= (creator referral links) or the older ?aff= from the current URL.
+// Call once on app load.
 export function captureAffiliate() {
   let code;
   try {
-    code = new URLSearchParams(window.location.search).get("aff");
+    const params = new URLSearchParams(window.location.search);
+    code = params.get("ref") ?? params.get("aff");
   } catch {
     return;
   }
-  if (!code) return;
+  if (code) trackReferral(code);
+}
+
+// Sanitize and persist a referral code, and count the visit for an active creator code.
+// A new code overwrites an older one (most recent link wins). Checkout re-validates it
+// server-side, so nothing stored here can unlock a discount on its own.
+export function trackReferral(code) {
   const clean = sanitize(code);
   if (!clean) return;
   try {
@@ -24,6 +33,7 @@ export function captureAffiliate() {
   } catch {
     // localStorage unavailable (private mode / disabled) — nothing to persist.
   }
+  supabase.rpc("record_referral_click", { p_code: clean }).then(() => {});
 }
 
 // Return the stored affiliate code if still within the attribution window,

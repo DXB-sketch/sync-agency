@@ -16,6 +16,16 @@ type CourseTier = { id: string; name: string; rank: number; price_cents: number 
 // Sync Plus perk: 10% off every portal purchase. Applied per line in cents.
 const PLUS_DISCOUNT_RATE = 0.1;
 
+// Creator referral: an upgrade is credited to the creator who referred the member's first
+// referred purchase. A member with no referrer can enter a creator code on an upgrade: that
+// creator is credited and the member gets 10% off, unless the Sync Plus discount already
+// applies (existing discounts win, they never stack).
+const REFERRAL_DISCOUNT_RATE = 0.1;
+
+function cleanCode(raw: unknown) {
+  return typeof raw === "string" ? raw.replace(/[^A-Za-z0-9]/g, "").slice(0, 20) : "";
+}
+
 // Stripe product hygiene (docs/INCIDENT_2026-07-17): never use price_data.product_data — that
 // creates a brand-new Stripe Product on every single Checkout Session, which is exactly what ran
 // the account up to 500+ products before. getOrCreateUpgradeProduct() creates one persistent
@@ -219,12 +229,36 @@ Deno.serve(async (req) => {
         return json({ error: "Courses only support one-time payments" }, 400);
       }
 
+      // A typed code beats a remembered link; a typed code must be active, a stale link is ignored.
+      const { data: referrerId } = await admin.rpc("member_referrer", { p_member: user.id });
+      const typedCode = cleanCode(body.code);
+      const linkCode = cleanCode(body.link_code);
+      let creatorId: string | null = null;
+      let referralRate = 1;
+      if (referrerId) {
+        if (typedCode) {
+          return json({ error: "Your account is already linked to a creator, so codes can't be applied." }, 400);
+        }
+        const { data: c } = await admin.from("creators").select("id").eq("id", referrerId).eq("active", true).maybeSingle();
+        creatorId = c?.id ?? null;
+      } else if (typedCode || linkCode) {
+        const { data: c } = await admin
+          .from("creators")
+          .select("id")
+          .ilike("code", typedCode || linkCode)
+          .eq("active", true)
+          .maybeSingle();
+        if (typedCode && !c) return json({ error: "That code isn't valid." }, 400);
+        creatorId = c?.id ?? null;
+        if (creatorId && plusRate === 1) referralRate = 1 - REFERRAL_DISCOUNT_RATE;
+      }
+
       // Lifetime upgrade: one-time payment of (target lifetime price − what they already paid),
       // less the Sync Plus discount for members
       const alreadyPaid = profile.tier_price_paid ?? 0;
       const targetPrice = targetTier.price_cents / 100;
       const diff = Math.max(targetPrice - alreadyPaid, 1);
-      const unitAmount = Math.round(Math.round(diff * 100) * plusRate);
+      const unitAmount = Math.round(Math.round(diff * 100) * plusRate * referralRate);
       const upgradeProductId = await getOrCreateUpgradeProduct(target, targetTier.name);
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
@@ -247,6 +281,7 @@ Deno.serve(async (req) => {
           target_tier: target,
           target_billing: "lifetime",
           new_price_paid: String(targetPrice),
+          ...(creatorId ? { creator_id: creatorId } : {}),
         },
       });
       return json({ url: session.url });
