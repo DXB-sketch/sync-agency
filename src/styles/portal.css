@@ -441,8 +441,7 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .wallet-banner-warn { border: 1px solid oklch(64% 0.13 55 / .4); background: oklch(64% 0.13 55 / .12); color: oklch(74% 0.13 55); border-radius: var(--p-radius-md); padding: 14px 18px; font-size: 13px; margin-bottom: 24px; }
 .wallet-holds { margin-bottom: 20px; }
 .wallet-hold-card { border-color: oklch(58% 0.14 25 / .35); }
-.wallet-topup-card, .wallet-threshold-card { margin-bottom: 20px; }
-.wallet-preset-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.wallet-threshold-card { margin: 20px 0; }
 .wallet-custom-row { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
 .wallet-custom-row .auth-label { display: flex; flex-direction: column; gap: 6px; font-size: 11px; }
 .wallet-custom-row .auth-input { padding: 10px 12px; }
@@ -518,8 +517,6 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .plus-status-card { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
 
 /* Top-up preset bonus badge ("Bonus $80!") */
-.wallet-preset-row .btn-ghost { position: relative; }
-.wallet-bonus-badge { position: absolute; top: -10px; right: -8px; background: var(--p-grad-gold); color: var(--p-ink); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 7px; border-radius: 999px; transform: rotate(6deg); box-shadow: 0 4px 12px -4px oklch(78% 0.13 86 / .6); white-space: nowrap; }
 
 /* ════════════════════════════════════════════════════════════════════
    Design refresh v2: portal chrome, shared portal pieces and the rebuilt

@@ -4,10 +4,7 @@ import { supabase } from "../lib/supabase";
 import { walletEnabled } from "../lib/walletFlag";
 import { useAuth } from "../lib/useAuth";
 import { fetchLivePromo, rewardText, requirementText } from "../lib/walletPromo";
-
-const PRESETS = [5000, 10000, 25000, 50000, 100000];
-// Bonus credit per top-up amount (cents). Credited by stripe-webhook, which holds the same table.
-const TOPUP_BONUSES = { 50000: 8000 };
+import TopUpPanel from "./TopUpPanel";
 
 const TYPE_LABELS = {
   topup: "Top-up",
@@ -187,24 +184,11 @@ export default function WalletPage() {
         </div>
       )}
 
-      <div className="dash-card wallet-topup-card">
-        <h2 className="dash-card-title">Top up</h2>
-        <div className="wallet-preset-row">
-          {PRESETS.map((p) => (
-            <button
-              key={p}
-              className="btn-ghost"
-              disabled={toppingUp}
-              onClick={() => topUp(p)}
-            >
-              {money(p)}
-              {TOPUP_BONUSES[p] && <span className="wallet-bonus-badge">Bonus {money(TOPUP_BONUSES[p])}!</span>}
-            </button>
-          ))}
-        </div>
+      {/* Same top-up screen as /portal/rewards/top-up; Stripe returns here (no return_to) */}
+      <TopUpPanel titleAs="h2">
         <div className="wallet-custom-row">
           <label className="auth-label">
-            Custom amount (AUD, $10–$1,000)
+            Or enter an amount (AUD, $10–$1,000)
             <input
               className="auth-input"
               type="number"
@@ -222,7 +206,7 @@ export default function WalletPage() {
             {toppingUp ? "Preparing…" : "Top up"}
           </button>
         </div>
-      </div>
+      </TopUpPanel>
 
       <div className="dash-card wallet-threshold-card">
         <h2 className="dash-card-title">Low-balance alert</h2>
