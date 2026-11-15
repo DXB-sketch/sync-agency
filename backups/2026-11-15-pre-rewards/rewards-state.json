@@ -1,0 +1,11 @@
+{"taken_at":"2026-11-15T07:35:51Z",
+ "members":["a5c21088-d48d-4517-bc10-11809c00a642","ef534573-eac0-4c13-8ccb-9b3c0cc943c9","305f80ab-61dc-4c8e-8436-d1c0dc647716","e744711e-3e49-4ab2-9dc0-3064a858b753"],
+ "member_rewards":[
+  {"member_id":"ef534573-eac0-4c13-8ccb-9b3c0cc943c9","xp_total":17100,"lifetime_credit_cents":150000,"rank":"gold","rank_seen":"gold","level_rewarded":18},
+  {"member_id":"a5c21088-d48d-4517-bc10-11809c00a642","xp_total":1100,"lifetime_credit_cents":11000,"rank":"bronze","rank_seen":"bronze","level_rewarded":2}],
+ "members_without_rewards_row":["305f80ab-61dc-4c8e-8436-d1c0dc647716","e744711e-3e49-4ab2-9dc0-3064a858b753"],
+ "existing_crate_ids":["30c0fda8-5dba-492a-bbb5-b6e531c70e7f","97b75478-72fe-4b79-8838-414c8529e4f0","075958dc-5d47-4c17-9820-195ff0c54e3c"],
+ "existing_grant_ids":["d32c9e6c-4b2c-42cb-9d28-c9c141363140","46aad2de-200c-41c1-81c6-551340aec8d9","b6ecb697-73be-43a5-9874-4d9f3ae83c53"],
+ "wallet_balance_cents":{"a5c21088-d48d-4517-bc10-11809c00a642":2669,"ef534573-eac0-4c13-8ccb-9b3c0cc943c9":65089,"305f80ab-61dc-4c8e-8436-d1c0dc647716":18979,"e744711e-3e49-4ab2-9dc0-3064a858b753":1375},
+ "owed_topups_stripe_refs":["pi_3UafOPPDABwVk3W5033SfSBU","pi_3Uat7sPDABwVk3W502KhsSqF","pi_3Ub6zgPDABwVk3W527Grb8p1","pi_3UbdmTPDABwVk3W52qyBLcbZ","pi_3UbxR5PDABwVk3W500kyaeTZ","pi_3UbxaCPDABwVk3W50P4bMz8L","pi_3UbxqGPDABwVk3W50YSjNtfH","pi_3UbxxjPDABwVk3W51bLNdqxt"]
+}
