@@ -1,0 +1,4 @@
+.env
+.webhook-secret.local
+node_modules/
+supabase/.temp/
