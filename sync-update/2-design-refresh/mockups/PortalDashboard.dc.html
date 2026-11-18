@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portal dashboard, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="rf" style="min-height: 100vh; background: radial-gradient(ellipse at 30% -20%, oklch(20% 0.03 85), var(--bg-0) 55%);">
+  <header class="topbar">
+    <div style="display: flex; align-items: baseline; gap: 10px;"><span class="logo">SYNC</span><span class="t-label" style="color: var(--text-3);">Portal</span></div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <a href="#" class="chip chip-gold" style="height: 36px; padding: 0 6px 0 14px; text-decoration: none;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><path d="{{ic.wallet}}"></path></svg>$248.00<span style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; stroke-width: 2.5;"><path d="{{ic.plus}}"></path></svg></span></a>
+      <button class="btn btn-quiet" aria-label="Help and tour" style="width: 40px; padding: 0; color: var(--text-2);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.info}}"></path></svg></button>
+      <button class="btn btn-quiet" aria-label="Notifications" style="width: 40px; padding: 0; color: var(--text-2);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.bell}}"></path></svg></button>
+      <button class="btn btn-secondary btn-sm" style="padding: 0 12px 0 6px; gap: 10px;"><span style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-2); color: var(--gold); font-size: 13px; font-weight: 700;">DM</span>Demo<span class="chip chip-gold" style="height: 22px; padding: 0 8px; font-size: 11px;">Pro</span></button>
+    </div>
+  </header>
+  <nav class="navbar" aria-label="Portal">
+    <a class="navlink navlink-on" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.pathway}}"></path></svg>Pathway</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg>Checkout</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achievements</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.wallet}}"></path></svg>Wallet</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.support}}"></path></svg>Support</a>
+    <span style="flex: 1;"></span>
+    <a class="btn btn-secondary btn-sm" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.upgrade}}"></path></svg>Upgrade</a>
+  </nav>
+
+  <main style="max-width: 1240px; margin: 0 auto; padding: 36px 40px 64px; display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap;">
+      <div>
+        <h1 class="t-h1">Good evening, Demo</h1>
+        <p class="t-body" style="margin-top: 6px;">Pro Accelerator · 2 of 8 steps done</p>
+      </div>
+    </div>
+
+    <div class="card" style="padding: 14px 16px 14px 18px; display: flex; align-items: center; gap: 14px; background: var(--bg-1);">
+      <span class="icon-well" style="width: 40px; height: 40px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg></span>
+      <span style="flex: 1; font-size: 15px;"><strong style="font-weight: 600;">Made a sale on Depop?</strong> <span style="color: var(--text-2);">Add the item to your order and we ship it straight to your buyer.</span></span>
+      <a class="btn btn-secondary btn-sm" href="#">Go to Products</a>
+      <button class="btn btn-quiet" aria-label="Dismiss" style="width: 40px; padding: 0; color: var(--text-3);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px;">
+      <section class="card-feature" style="grid-column: span 2; padding: 32px; display: flex; flex-direction: column; gap: 18px; position: relative; overflow: hidden;">
+        <div aria-hidden="true" style="position: absolute; right: -80px; top: -80px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, oklch(79% 0.14 84 / .22), transparent 70%);"></div>
+        <div class="t-eyebrow" style="position: relative;">Today's focus</div>
+        <h2 class="t-h1" style="position: relative; font-size: 48px;">Pick your shop photo</h2>
+        <div style="position: relative; display: flex; flex-wrap: wrap; gap: 8px;"><span class="chip chip-plain">Step 3 of 8</span><span class="chip chip-plain">Launch your store</span><span class="chip chip-plain">About 10 minutes</span></div>
+        <p class="t-body" style="position: relative; max-width: 560px;">A clear, friendly shop photo is the first thing buyers see. This step shows you what works on Depop and how to set it.</p>
+        <div style="position: relative; display: flex; gap: 12px; margin-top: 6px;">
+          <a class="btn btn-primary btn-lg" href="#">Start this step<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a>
+          <a class="btn btn-secondary btn-lg" href="#">See the whole pathway</a>
+        </div>
+      </section>
+
+      <section class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <div style="position: relative; width: 84px; height: 84px; flex-shrink: 0;">
+            <svg aria-hidden="true" width="84" height="84" viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke-width="8" style="stroke: var(--bg-3);"></circle><circle cx="42" cy="42" r="36" fill="none" stroke-width="8" stroke-linecap="round" stroke-dasharray="56.5 226.2" transform="rotate(-90 42 42)" style="stroke: var(--gold-strong);"></circle></svg>
+            <span class="t-num" style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--gold);">25%</span>
+          </div>
+          <div><div class="t-h3">Your pathway</div><div class="t-small">2 of 8 steps done</div></div>
+        </div>
+        <div class="divider"></div>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px; stroke-width: 2.5;"><path d="{{ic.check}}"></path></svg></span><span class="t-small" style="color: var(--text-3); text-decoration: line-through;">Write your shop bio</span></div>
+          <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--gold-strong); box-shadow: 0 0 0 4px oklch(79% 0.14 84 / .15);"></span><span style="font-size: 15px; font-weight: 600;">Pick your shop photo</span></div>
+          <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong);"></span><span class="t-small">List your first product</span></div>
+          <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong);"></span><span class="t-small">Price it to sell</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px;"><span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.profit}}"></path></svg></span><span class="t-num" style="font-size: 32px;">$0</span><span class="t-label">Total sales</span><span class="t-small t-muted">Your first sale shows here.</span></div>
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px;"><span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.truck}}"></path></svg></span><span class="t-num" style="font-size: 32px;">0</span><span class="t-label">Orders shipped</span><span class="t-small t-muted">We ship straight to your buyer.</span></div>
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px;"><span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.box}}"></path></svg></span><span class="t-num" style="font-size: 32px;">5 of 9</span><span class="t-label">Product slots used</span><span class="t-small t-muted">New products drop weekly.</span></div>
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px;"><span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg></span><span class="t-num" style="font-size: 32px;">1</span><span class="t-label">Achievements</span><span class="t-small t-muted">Next: First sale.</span></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px;">
+      <section class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Sync Rewards</span><span class="chip chip-plain">Silver · Level 12</span></div>
+        <div class="bar" style="height: 10px;"><span style="width: 64%;"></span></div>
+        <div style="display: flex; justify-content: space-between;"><span class="t-small">360 XP to Level 13</span><span class="t-small t-gold">Gold in $336</span></div>
+        <a class="btn btn-quiet" href="#" style="align-self: flex-start; padding: 0;">Open Rewards<svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></a>
+      </section>
+      <section class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+        <span class="t-h3">Recent orders</span>
+        <div style="flex: 1; display: flex; align-items: center; gap: 16px; padding: 14px; border-radius: 12px; background: var(--bg-1);">
+          <span class="icon-well" style="background: var(--bg-2);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.truck}}"></path></svg></span>
+          <span class="t-small">No orders yet. When you make a Depop sale, add it from Products and you can track it here.</span>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { ic: {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      pathway: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17v-1a3 3 0 0 1 3-3h6a3 3 0 0 0 3-3V7',
+      checkout: 'M3 4h2.5l2 11h10.5l2-8H6.5M9 20h.01M17 20h.01',
+      wallet: 'M4 7a2 2 0 0 1 2-2h12v4M4 7v11a2 2 0 0 0 2 2h14V9H6a2 2 0 0 1-2-2zM16 14.5h.01',
+      support: 'M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM8 10h8M8 13h5',
+      upgrade: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16V8M8.5 11.5 12 8l3.5 3.5',
+      truck: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+      box: 'M3 7.5 12 3l9 4.5v9L12 21l-9-4.5zM3 7.5 12 12l9-4.5M12 12v9',
+      profit: 'M3 17l6-6 4 4 8-8M15 7h6v6',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      bell: 'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0',
+      info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01',
+      plus: 'M12 5v14M5 12h14'
+    } };
+  }
+}
+</script>
+</body>
+</html>

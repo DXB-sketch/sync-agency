@@ -263,7 +263,7 @@ export default function ClientDetailPage() {
 
   return (
     <div className="portal-page">
-      <Link to="/admin" className="admin-back">
+      <Link to="/admin/clients" className="admin-back">
         ← All clients
       </Link>
       <div className="portal-page-head portal-page-head-row">

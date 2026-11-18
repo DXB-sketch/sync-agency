@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,700&family=Syne:wght@400;500;600;700;800&family=Jost:wght@300;400;500;600&display=swap');
+
+/* Sync Agency portal components — class names match src/styles/portal.css.
+   Gradients are composed from color tokens here (tokens.json holds no gradients). */
+:root {
+  --p-grad-gold: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));
+  --p-grad-card: linear-gradient(165deg, var(--p-card-hi), var(--p-card-lo));
+}
+body { margin: 0; background: var(--p-bg); color: var(--p-text); font-family: var(--font-portal); font-size: 14px; }
+.ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; }
+.ds-col { display: flex; flex-direction: column; gap: 12px; padding: 16px; }
+
+.btn-gold { background: var(--p-grad-gold); color: var(--p-ink); border: none; border-radius: var(--p-radius-btn); padding: 13px 26px; font-family: var(--font-portal); font-size: 11.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; display: inline-flex; align-items: center; gap: 10px; transition: transform .2s, box-shadow .2s; }
+.btn-gold:hover { transform: translateY(-1px); box-shadow: var(--p-shadow-btn); }
+.btn-ghost { border: 1px solid var(--p-line); background: var(--p-elev); color: var(--p-gold); border-radius: var(--p-radius-btn); padding: 12px 24px; font-family: var(--font-portal); font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; }
+.btn-ghost:hover { border-color: var(--p-line-gold); }
+.btn-gold:focus-visible, .btn-ghost:focus-visible { outline: 2px solid var(--p-gold-bright); outline-offset: 2px; }
+.dash-btn { padding: 9px 18px; font-size: 11px; border-radius: var(--p-radius-pill); }
+
+.tier-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 11px; border-radius: var(--p-radius-pill); border: 1px solid var(--p-line-gold); color: var(--p-gold); background: var(--p-card-hi); }
+.tier-badge.tier-free { color: var(--p-muted); border-color: var(--p-line); background: none; }
+.tier-badge.tier-elite { color: oklch(88% 0.008 85); border-color: oklch(88% 0.008 85 / 0.3); background: oklch(88% 0.008 85 / 0.06); }
+.tier-badge.tier-vip { color: var(--p-ink); background: var(--p-grad-gold); border-color: transparent; }
+
+.dash-card { background: var(--p-grad-card); border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-lg); box-shadow: var(--p-shadow-card); padding: 24px; }
+.dash-card-title { font-family: var(--font-display); font-size: 21px; font-weight: 600; margin: 0 0 6px; }
+.dash-card-sub { font-size: 12.5px; color: var(--p-muted); line-height: 1.55; margin: 0; }
+.dash-progress { background: linear-gradient(155deg, oklch(24% 0.03 85), oklch(17% 0.018 85) 65%); border: 1px solid oklch(60% 0.09 80 / .35); box-shadow: var(--p-shadow-glow); }
+.wallet-balance-amount { font-family: var(--font-display); font-size: 40px; font-weight: 600; color: var(--p-gold); margin-top: 6px; }
+
+.dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px 10px; }
+.dash-stat-tile { display: flex; align-items: center; gap: 12px; border-radius: var(--p-radius-md); padding: 14px 12px; }
+.dash-stat-icon { width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--p-elev); color: var(--p-gold); }
+.dash-stat-num { display: block; font-family: var(--font-display); font-size: 21px; font-weight: 600; color: var(--p-text); line-height: 1; }
+.dash-stat-label { display: block; font-size: 9.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--p-muted); margin-top: 3px; }
+
+.portal-nav { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: var(--p-bg); overflow-x: auto; }
+.portal-nav-link { padding: 13px 16px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-dim); font-weight: 600; border-bottom: 2px solid transparent; white-space: nowrap; text-decoration: none; }
+.portal-nav-link:hover { color: var(--p-muted); }
+.portal-nav-link.active { color: var(--p-gold); border-bottom-color: var(--p-gold-bright); }
+
+.ach-status { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 11px; border-radius: var(--p-radius-pill); }
+.ach-status-verified { color: var(--p-gold-deep); background: oklch(60% 0.1 80 / .1); border: 1px solid var(--p-line-gold); }
+.ach-status-pending { color: var(--p-muted); border: 1px dashed var(--p-line-gold); }
+.ach-status-rejected { color: var(--p-danger); border: 1px solid oklch(64% 0.11 25 / 0.3); }

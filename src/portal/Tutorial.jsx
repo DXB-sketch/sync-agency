@@ -20,8 +20,8 @@ const MUTE_KEY = "sync-crate-muted";
 const PACK_CENTS = 50000;
 const UNLOCK = {
   silver: "the Elite Scale course",
-  gold: "the VIP Inner Circle course",
-  platinum: "quarterly 1:1 strategy calls",
+  gold: "priority stock drops",
+  platinum: "the VIP Inner Circle course",
   black: "the Founders' mastermind",
 };
 const TRACK = ["Paid", "Sourcing", "Shipped", "Delivered"];

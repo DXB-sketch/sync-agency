@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portal products, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="rf" style="min-height: 100vh;">
+  <header class="topbar">
+    <div style="display: flex; align-items: baseline; gap: 10px;"><span class="logo">SYNC</span><span class="t-label" style="color: var(--text-3);">Portal</span></div>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="chip chip-gold" style="height: 36px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><path d="{{ic.wallet}}"></path></svg>$248.00</span>
+      <button class="btn btn-secondary btn-sm" style="padding: 0 12px 0 6px; gap: 10px;"><span style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-2); color: var(--gold); font-size: 13px; font-weight: 700;">DM</span>Demo</button>
+    </div>
+  </header>
+  <nav class="navbar" aria-label="Portal">
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.pathway}}"></path></svg>Pathway</a>
+    <a class="navlink navlink-on" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg>Checkout</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achievements</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.wallet}}"></path></svg>Wallet</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.support}}"></path></svg>Support</a>
+  </nav>
+
+  <main style="max-width: 1240px; margin: 0 auto; padding: 36px 40px 64px; display: flex; flex-direction: column; gap: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap;">
+      <div>
+        <h1 class="t-h1">Products</h1>
+        <p class="t-body" style="margin-top: 6px;">Made a sale on Depop? Find the item and add it to your order. We ship it straight to your buyer.</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <div style="width: 200px; display: flex; flex-direction: column; gap: 6px;"><div style="display: flex; justify-content: space-between;"><span class="t-label">Product slots</span><span class="t-label" style="color: var(--text);">6 of 9</span></div><div class="bar"><span style="width: 66%;"></span></div></div>
+        <a class="btn btn-primary" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg>Checkout<span style="min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--on-gold); color: var(--gold-strong); font-size: 12px; display: inline-flex; align-items: center; justify-content: center;">1</span></a>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 8px;" role="tablist" aria-label="Filter products">
+      <button class="chip chip-gold" role="tab" aria-selected="true" style="height: 36px; padding: 0 16px; border: none; cursor: pointer;">All 6</button>
+      <button class="chip chip-plain" role="tab" aria-selected="false" style="height: 36px; padding: 0 16px; border: none; cursor: pointer;">Pro Accelerator 5</button>
+      <button class="chip chip-plain" role="tab" aria-selected="false" style="height: 36px; padding: 0 16px; border: none; cursor: pointer;">Bonus 1</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px;">
+      <sc-for list="{{products}}" as="p" hint-placeholder-count="6">
+        <article class="card" style="overflow: hidden; display: flex; flex-direction: column;">
+          <div style="position: relative; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; background: {{p.bg}}; color: oklch(100% 0 0 / .25);">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 40px; height: 40px; stroke-width: 1.25;"><path d="{{ic.products}}"></path></svg>
+            <sc-if value="{{p.bonus}}" hint-placeholder-val="{{false}}"><span class="chip chip-gold" style="position: absolute; top: 12px; left: 12px; background: var(--bg-0);">Bonus</span></sc-if>
+          </div>
+          <div style="padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px; flex: 1;">
+            <span class="t-h3" style="font-size: 17px;">{{p.name}}</span>
+            <div style="display: flex; align-items: baseline; gap: 8px;"><span class="t-num" style="font-size: 34px; color: var(--gold); line-height: 1;">{{p.profit}}</span><span class="t-small">profit per sale</span></div>
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: var(--bg-1);">
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 14px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px; color: var(--gold);"><path d="{{ic.tag}}"></path></svg><span>List at <strong style="font-weight: 600;">{{p.list}}</strong></span><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px; color: var(--text-3);"><path d="M5 12h14M13 6l6 6-6 6"></path></svg><span>discount to <strong style="font-weight: 600;">{{p.disc}}</strong></span></div>
+              <span class="t-small t-muted">You pay {{p.cost}} when it sells</span>
+            </div>
+            <span style="flex: 1;"></span>
+            <sc-if value="{{p.added}}" hint-placeholder-val="{{false}}"><span class="btn btn-secondary btn-sm" style="width: 100%; border-color: var(--gold-deep); color: var(--gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.check}}"></path></svg>In your order</span></sc-if>
+            <sc-if value="{{p.notAdded}}" hint-placeholder-val="{{true}}"><button class="btn btn-secondary btn-sm" style="width: 100%;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.plus}}"></path></svg>Add to order</button></sc-if>
+          </div>
+        </article>
+      </sc-for>
+      <article style="border: 1.5px dashed var(--line-strong); border-radius: 16px; padding: 24px; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+        <span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.box}}"></path></svg></span>
+        <span class="t-h3" style="font-size: 17px;">3 open slots</span>
+        <span class="t-small">New products drop every week. You'll get a notification when your slots fill.</span>
+      </article>
+      <article class="card" style="padding: 24px; display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+        <span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.upgrade}}"></path></svg></span>
+        <span class="t-h3" style="font-size: 17px;">Want more products?</span>
+        <span class="t-small">Elite Scale gives you 12 slots.</span>
+        <a class="btn btn-quiet" href="#" style="padding: 0; align-self: flex-start;">Compare plans</a>
+      </article>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var bgs = ['oklch(30% 0.03 60)', 'oklch(27% 0.03 230)', 'oklch(28% 0.04 140)', 'oklch(27% 0.03 20)', 'oklch(30% 0.02 85)', 'oklch(28% 0.03 300)'];
+    var names = ['Vintage graphic tee', 'Knit beanie', 'Cargo pants', 'Zip hoodie', 'Corduroy cap', 'Fleece quarter-zip'];
+    var products = names.map(function (n, i) {
+      var cost = 18 + i * 4, list = 45 + i * 5, disc = 38 + i * 4;
+      var f = function (v) { return '$' + v.toFixed(2); };
+      return { name: n, cost: f(cost), list: f(list), disc: f(disc), profit: f(disc - cost), bonus: i === 5, added: i === 0, notAdded: i !== 0, bg: 'linear-gradient(140deg, ' + bgs[i] + ', oklch(16% 0.014 85))' };
+    });
+    return { products: products, ic: {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      pathway: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17v-1a3 3 0 0 1 3-3h6a3 3 0 0 0 3-3V7',
+      checkout: 'M3 4h2.5l2 11h10.5l2-8H6.5M9 20h.01M17 20h.01',
+      wallet: 'M4 7a2 2 0 0 1 2-2h12v4M4 7v11a2 2 0 0 0 2 2h14V9H6a2 2 0 0 1-2-2zM16 14.5h.01',
+      support: 'M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM8 10h8M8 13h5',
+      upgrade: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16V8M8.5 11.5 12 8l3.5 3.5',
+      box: 'M3 7.5 12 3l9 4.5v9L12 21l-9-4.5zM3 7.5 12 12l9-4.5M12 12v9',
+      tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      plus: 'M12 5v14M5 12h14'
+    } };
+  }
+}
+</script>
+</body>
+</html>

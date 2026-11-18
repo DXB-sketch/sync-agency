@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rank ladder</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85);--bronze:oklch(66% 0.10 55);--plat:oklch(84% 0.035 220)}
+body{margin:0}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 oklch(78% 0.13 86 / .5)}50%{box-shadow:0 0 0 9px oklch(78% 0.13 86 / 0)}}
+.pulse{animation:pulse 2s ease-out infinite}
+@media (prefers-reduced-motion: reduce){.pulse{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 0%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 60%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--p-line);">
+    <a href="Main.dc.html" aria-label="Back to rewards" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-muted);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--p-muted);">Rewards</span>
+  </header>
+
+  <div style="padding: 16px 20px 6px;">
+    <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1.05;">Five ranks. Every one unlocks more.</h1>
+    <p style="margin: 6px 0 0; font-size: 12.5px; color: var(--p-muted); line-height: 1.5;">Your rank is set by the wallet credit you've bought in total. It never drops.</p>
+  </div>
+
+  <ol style="list-style: none; margin: 0; padding: 10px 20px 0; position: relative; display: flex; flex-direction: column; gap: 8px;">
+    <li aria-hidden="true" style="position: absolute; left: 41px; top: 34px; bottom: 34px; width: 2px; background: linear-gradient(180deg, var(--p-line) 0%, var(--p-line) 38%, var(--p-gold-bright) 52%, var(--p-gold-deep) 100%);"></li>
+
+    <li style="position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px 12px 8px; border-radius: var(--p-radius-lg); border: 1px dashed oklch(50% 0.018 85 / .5);">
+      <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: oklch(11% 0.01 85); border: 1.5px solid var(--p-gold-deep); color: var(--p-gold-deep);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;"><span style="font-family: var(--font-display); font-size: 21px; font-weight: 600;">Black</span><span style="font-size: 11px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$10,000 · Lvl 101</span></div>
+        <div style="font-size: 12px; color: var(--p-muted); line-height: 1.45; margin-top: 2px;">Founders' mastermind · 5% back as credit · free express shipping</div>
+      </div>
+    </li>
+
+    <li style="position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px 12px 8px; border-radius: var(--p-radius-lg); border: 1px dashed oklch(50% 0.018 85 / .5);">
+      <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-bg); border: 1.5px solid oklch(84% 0.035 220 / .5); color: var(--plat);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;"><span style="font-family: var(--font-display); font-size: 21px; font-weight: 600;">Platinum</span><span style="font-size: 11px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$4,000 · Lvl 41</span></div>
+        <div style="font-size: 12px; color: var(--p-muted); line-height: 1.45; margin-top: 2px;">Quarterly 1:1 strategy call · 3% back as credit</div>
+      </div>
+    </li>
+
+    <li class="dash-card dash-progress" style="position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 8px;">
+      <span class="pulse" style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;"><span style="font-family: var(--font-display); font-size: 23px; font-weight: 700; color: var(--p-gold);">Gold</span><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: var(--p-radius-pill); color: var(--p-ink); background: var(--p-gold-bright);">Next · $336</span></div>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--p-radius-sm); background: oklch(78% 0.13 86 / .1); border: 1px solid var(--p-line-gold);">
+          <span class="tier-badge tier-vip">VIP</span>
+          <span style="font-size: 12.5px; font-weight: 600;">VIP Inner Circle course</span>
+        </div>
+        <div style="font-size: 12px; color: var(--p-muted); line-height: 1.45;">Priority access to new stock drops · $1,500 · Lvl 16</div>
+      </div>
+    </li>
+
+    <li class="dash-card" style="position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 14px 14px 14px 8px; border-color: oklch(86% 0.012 85 / .3);">
+      <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-bg); border: 2.5px solid var(--silver); color: var(--silver);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;"><span style="font-family: var(--font-display); font-size: 21px; font-weight: 600; color: var(--silver);">Silver</span><span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver);">You're here</span></div>
+        <div style="height: 6px; border-radius: var(--p-radius-pill); background: var(--p-card-lo); overflow: hidden;"><div style="width: 66%; height: 100%; background: linear-gradient(90deg, var(--silver), var(--p-gold-bright));"></div></div>
+        <div style="font-size: 12px; color: var(--p-muted); line-height: 1.45;"><span class="tier-badge tier-elite" style="padding: 2px 8px; font-size: 9px; margin-right: 4px;">Elite</span>Elite Scale course · a crate every level</div>
+      </div>
+    </li>
+
+    <li style="position: relative; display: flex; gap: 12px; align-items: center; padding: 10px 14px 10px 8px; border-radius: var(--p-radius-lg); background: oklch(19% 0.016 85 / .6); border: 1px solid var(--p-line-soft);">
+      <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bronze); color: var(--p-ink);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <div style="flex: 1; min-width: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;"><span style="font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--bronze);">Bronze</span><span style="font-size: 11px; color: var(--p-muted);">Complete</span></div>
+        <div style="font-size: 12px; color: var(--p-muted);">Rewards access · weekly streak bonus</div>
+      </div>
+    </li>
+  </ol>
+
+  <div style="margin-top: auto; padding: 12px 20px 22px; display: flex; flex-direction: column; gap: 6px;">
+    <a href="TopUp.dc.html" class="btn-gold" style="justify-content: center; padding: 16px 20px; font-size: 12.5px; text-decoration: none;">Reach Gold now</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

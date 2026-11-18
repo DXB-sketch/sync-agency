@@ -1,0 +1,75 @@
+/* Sync Rewards — crate opening motion. Tokens mirror the Sync Agency design system. */
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85);--r-legendary:oklch(80% 0.14 86);--r-epic:oklch(74% 0.15 52);--r-rare:oklch(80% 0.08 225);--r-common:oklch(86% 0.012 85)}
+
+.crate-btn{all:unset;cursor:pointer;display:block;position:relative;border-radius:24px;-webkit-tap-highlight-color:transparent}
+.crate-btn:focus-visible{outline:2px solid var(--p-gold-bright);outline-offset:6px}
+
+/* idle: the crate floats and the gem breathes */
+.crate-idle{animation:bob 2.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-12px) rotate(-1deg)}}
+.gem-pulse{animation:gem 1.6s ease-in-out infinite}
+@keyframes gem{0%,100%{opacity:.75}50%{opacity:1}}
+.shadow-idle{animation:shadowbob 2.6s ease-in-out infinite}
+@keyframes shadowbob{0%,100%{transform:scaleX(1);opacity:.55}50%{transform:scaleX(.82);opacity:.35}}
+.tap-hint{animation:tap 1.4s ease-in-out infinite}
+@keyframes tap{0%,100%{opacity:.55;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+
+/* shake: builds for 1.4s, scales up, the seam floods with light */
+.crate-shake{animation:shake 1.4s cubic-bezier(.36,.07,.19,.97) forwards}
+@keyframes shake{
+  0%{transform:scale(1) rotate(0)}
+  10%{transform:scale(1.02) rotate(-2deg)}20%{transform:scale(1.03) rotate(2deg)}
+  30%{transform:scale(1.04) rotate(-3deg) translateX(-2px)}40%{transform:scale(1.05) rotate(3deg) translateX(2px)}
+  50%{transform:scale(1.06) rotate(-4deg) translateX(-3px)}60%{transform:scale(1.08) rotate(5deg) translateX(3px)}
+  70%{transform:scale(1.1) rotate(-6deg) translateX(-4px)}78%{transform:scale(1.12) rotate(7deg) translateX(4px)}
+  86%{transform:scale(1.14) rotate(-8deg) translateX(-5px)}93%{transform:scale(1.16) rotate(8deg) translateX(5px)}
+  100%{transform:scale(1.18) rotate(0)}
+}
+.seam-glow{animation:seam 1.4s ease-in forwards}
+@keyframes seam{from{stroke-opacity:.25;stroke-width:2}to{stroke-opacity:1;stroke-width:9}}
+.leak{animation:leak 1.4s ease-in forwards;transform-origin:50% 100%}
+@keyframes leak{0%{opacity:0;transform:scaleY(.3)}60%{opacity:.5}100%{opacity:1;transform:scaleY(1.15)}}
+.aura-shake{animation:aura 1.4s ease-in forwards}
+@keyframes aura{from{transform:scale(1);opacity:.6}to{transform:scale(1.5);opacity:1}}
+
+/* burst: lid launches, body drops away, flash and jolt */
+.lid-fly{animation:lidfly .75s cubic-bezier(.2,.75,.3,1) forwards;transform-box:fill-box;transform-origin:center}
+@keyframes lidfly{to{transform:translate(30px,-320px) rotate(-38deg);opacity:0}}
+.body-out{animation:bodyout .55s .2s ease-in forwards;transform-box:fill-box;transform-origin:center bottom}
+@keyframes bodyout{to{transform:scale(.6) translateY(30px);opacity:0}}
+.flash{animation:flash .8s ease-out forwards}
+@keyframes flash{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.jolt{animation:jolt .45s ease-out}
+@keyframes jolt{0%{transform:translate(0,0)}20%{transform:translate(-6px,4px)}40%{transform:translate(5px,-5px)}60%{transform:translate(-3px,3px)}80%{transform:translate(2px,-1px)}100%{transform:translate(0,0)}}
+.ring-wave{animation:ringwave .9s ease-out forwards}
+@keyframes ringwave{from{transform:scale(.2);opacity:1}to{transform:scale(3.2);opacity:0}}
+
+/* particles spray from the crate's centre */
+.particle{position:absolute;animation:fly 1s cubic-bezier(.1,.8,.3,1) forwards}
+@keyframes fly{from{transform:translate(0,0) scale(1);opacity:1}80%{opacity:1}to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+
+/* reveal */
+.rays-spin{animation:spin 14s linear infinite}
+.rays-fast{animation:spin 4s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.card-pop{animation:cardpop .85s cubic-bezier(.2,1.55,.4,1) both}
+@keyframes cardpop{from{transform:scale(.3) translateY(60px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.value-pop{animation:valuepop .6s .25s cubic-bezier(.2,1.8,.4,1) both}
+@keyframes valuepop{from{transform:scale(.4)}to{transform:scale(1)}}
+.rise{animation:rise .5s ease-out both}
+@keyframes rise{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.shimmer-text{background:linear-gradient(100deg,var(--rc) 20%,oklch(98% 0.02 90) 45%,var(--rc) 70%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 2.2s linear infinite}
+@keyframes shim{from{background-position:120% 0}to{background-position:-120% 0}}
+.confetti{position:absolute;top:-30px;animation:fall var(--dur) linear var(--delay) infinite}
+@keyframes fall{0%{transform:translate3d(0,-20px,0) rotate(0)}100%{transform:translate3d(var(--sway),900px,0) rotate(var(--spin))}}
+.twinkle{animation:twinkle 1.8s ease-in-out infinite}
+@keyframes twinkle{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.1) rotate(45deg)}}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.6s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+.odds-btn{all:unset;cursor:pointer}
+
+@media (prefers-reduced-motion: reduce){
+  .crate-idle,.gem-pulse,.shadow-idle,.tap-hint,.crate-shake,.seam-glow,.leak,.aura-shake,.rays-spin,.rays-fast,.shimmer-text,.confetti,.twinkle,.shine::after,.jolt{animation:none}
+  .card-pop,.value-pop,.rise{animation-duration:.01s}
+}

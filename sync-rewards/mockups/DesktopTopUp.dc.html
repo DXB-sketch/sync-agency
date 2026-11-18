@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Top-up packs, desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85)}
+body{margin:0;background:var(--p-bg-deep)}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.pack{all:unset;box-sizing:border-box;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:10px;padding:26px 20px 20px;border-radius:18px;transition:transform .2s, border-color .2s, box-shadow .2s}
+.pack:hover{transform:translateY(-3px)}
+.pack:focus-visible{outline:2px solid var(--p-gold-bright);outline-offset:3px}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion: reduce){.shine::after{animation:none}.pack:hover{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 55%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: linear-gradient(180deg, oklch(17% 0.016 85) 0%, var(--p-bg) 100%);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span>
+      <span class="tier-badge">Pro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="display: flex; align-items: center; gap: 10px; padding: 7px 14px; border: 1px solid var(--p-line-gold); border-radius: var(--p-radius-pill); background: var(--p-card-hi); color: var(--p-gold); font-size: 13px; font-weight: 600;"><span style="font-size: 10px; letter-spacing: 0.1em; color: var(--p-muted);">WALLET</span>$248.00 AUD</span>
+      <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-muted);">Sign out</span>
+    </div>
+  </header>
+  <nav class="portal-nav" aria-label="Portal">
+    <a class="portal-nav-link" href="#">Dashboard</a>
+    <a class="portal-nav-link" href="#">Pathway</a>
+    <a class="portal-nav-link" href="#">Products</a>
+    <a class="portal-nav-link" href="#">Checkout</a>
+    <a class="portal-nav-link" href="#">Achievements</a>
+    <a class="portal-nav-link active" href="DesktopHub.dc.html">Rewards</a>
+    <a class="portal-nav-link" href="#">Wallet</a>
+  </nav>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 32px clamp(16px, 4vw, 48px) 80px; display: flex; flex-direction: column; gap: 26px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <a href="DesktopHub.dc.html" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--p-muted); text-decoration: none;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>Rewards</a>
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px;">
+        <div>
+          <h1 style="margin: 0; font-family: var(--font-display); font-size: clamp(34px, 4vw, 48px); font-weight: 600; line-height: 1.02;">Top up and earn XP</h1>
+          <p style="margin: 8px 0 0; font-size: 14px; color: var(--p-muted);">10 XP for every $1 of credit. Bigger packs add bonus XP on top.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-radius: var(--p-radius-md); border: 1px solid var(--p-line-soft); background: oklch(19% 0.016 85 / .6);">
+          <span style="font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--p-gold);">Lvl 12</span>
+          <span style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 11px; color: var(--p-muted);">Silver · 11,640 XP</span><span style="width: 140px; height: 5px; border-radius: 100px; background: var(--p-card-lo); overflow: hidden;"><span style="display: block; width: 64%; height: 100%; background: var(--p-gold-bright);"></span></span></span>
+        </div>
+      </div>
+    </div>
+
+    <div role="radiogroup" aria-label="Top-up amount" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; padding-top: 10px;">
+      <sc-for list="{{packs}}" as="p" hint-placeholder-count="5">
+        <button class="pack" role="radio" aria-checked="{{p.checked}}" onClick="{{p.pick}}" style="{{p.style}}">
+          <sc-if value="{{p.hasTag}}" hint-placeholder-val="{{false}}">
+            <span style="position: absolute; top: -11px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: 9.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 12px; border-radius: 100px; color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); box-shadow: 0 6px 14px -6px oklch(78% 0.13 86 / .6);">{{p.tag}}</span>
+          </sc-if>
+          <span style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+            <span style="font-family: var(--font-display); font-size: 46px; font-weight: 700; line-height: 0.95; color: var(--p-gold); font-variant-numeric: tabular-nums;">{{p.label}}</span>
+            <span style="{{p.checkStyle}}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          </span>
+          <span style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums;">{{p.xpText}}</span>
+            <sc-if value="{{p.hasBonus}}" hint-placeholder-val="{{true}}">
+              <span style="font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 100px; color: var(--p-gold-bright); border: 1px solid var(--p-line-gold); background: oklch(78% 0.13 86 / .08);">{{p.bonusText}}</span>
+            </sc-if>
+          </span>
+          <span style="height: 1px; background: var(--p-line-soft);"></span>
+          <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+            <span style="font-size: 12.5px; color: var(--p-muted);">Gets you to</span>
+            <span style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 9px; border-radius: 100px; {{p.rankStyle}}">{{p.rank}}</span>
+          </span>
+          <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; line-height: 1;">Level {{p.level}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;">
+      <section class="dash-card" style="flex: 999 1 560px; min-width: 0; padding: 26px 28px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 10px;">
+          <h2 style="margin: 0; font-family: var(--font-display); font-size: 26px; font-weight: 600;">Your climb with {{sel.label}}</h2>
+          <span style="font-size: 12px; color: var(--p-muted);">{{sel.rewardCount}} rewards unlocked on the way</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--p-muted); flex-shrink: 0;">12</span>
+          <div style="flex: 1; height: 12px; border-radius: 100px; background: var(--p-card-lo); border: 1px solid var(--p-line); overflow: hidden; position: relative;">
+            <div class="shine" style="width: 100%; height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--p-gold-deep), var(--p-gold-bright) 70%, var(--p-gold));"></div>
+          </div>
+          <span style="font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--p-gold); flex-shrink: 0;">{{sel.level}}</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+          <sc-for list="{{sel.rewards}}" as="r" hint-placeholder-count="3">
+            <div style="{{r.style}}">
+              <span style="width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; {{r.badgeStyle}}">{{r.level}}</span>
+              <span style="font-size: 13px; line-height: 1.35; {{r.textStyle}}">{{r.name}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{sel.hasMore}}" hint-placeholder-val="{{false}}">
+          <span style="font-size: 12px; color: var(--p-muted);">+ {{sel.more}} more Gold crates and credit drops</span>
+        </sc-if>
+      </section>
+
+      <aside class="dash-card dash-progress" style="flex: 1 1 340px; min-width: 0; padding: 26px; display: flex; flex-direction: column; gap: 14px;">
+        <span style="font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-deep);">Order summary</span>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13.5px; font-variant-numeric: tabular-nums;">
+          <div style="display: flex; justify-content: space-between;"><span style="color: var(--p-muted);">Wallet credit</span><span>{{sel.label}}.00 AUD</span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: var(--p-muted);">Base XP</span><span>{{sel.baseText}}</span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: var(--p-muted);">Pack bonus</span><span style="color: var(--p-gold-bright);">{{sel.bonusXpText}}</span></div>
+          <div style="height: 1px; background: oklch(60% 0.09 80 / .25);"></div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline;"><span style="font-weight: 600;">Total XP</span><span style="font-family: var(--font-display); font-size: 30px; font-weight: 700; color: var(--p-gold);">{{sel.xpText}}</span></div>
+          <div style="display: flex; justify-content: space-between;"><span style="color: var(--p-muted);">New balance</span><span>{{sel.balance}} AUD</span></div>
+        </div>
+        <sc-if value="{{sel.rankUp}}" hint-placeholder-val="{{true}}">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--p-radius-md); background: oklch(78% 0.13 86 / .12); border: 1px solid var(--p-line-gold);">
+            <span class="tier-badge tier-vip">VIP</span>
+            <span style="font-size: 13px; font-weight: 600;">Gold rank unlocks VIP Inner Circle</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{sel.noRankUp}}" hint-placeholder-val="{{false}}">
+          <span style="font-size: 12.5px; color: var(--p-muted); line-height: 1.5; padding: 12px 14px; border-radius: var(--p-radius-md); border: 1px dashed var(--p-line-gold);">{{sel.gap}}</span>
+        </sc-if>
+        <a href="DesktopRankUp.dc.html" class="btn-gold shine" style="justify-content: center; padding: 16px 20px; font-size: 12.5px; text-decoration: none;">Pay {{sel.label}}.00 AUD</a>
+        <span style="text-align: center; font-size: 11.5px; color: var(--p-muted);">Secure checkout with Stripe. XP is added as soon as your payment clears.</span>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: 500 }; }
+  renderVals() {
+    var XP_NOW = 11640, GOLD_XP = 15000, BAL = 248, SHOW = 8;
+    var defs = [
+      { amt: 50, bonus: 0, tag: '' },
+      { amt: 100, bonus: 5, tag: '' },
+      { amt: 250, bonus: 10, tag: 'Most popular' },
+      { amt: 500, bonus: 15, tag: 'Best value' },
+      { amt: 1000, bonus: 20, tag: '' }
+    ];
+    var self = this;
+    var fmt = function (n) { return n.toLocaleString('en-AU'); };
+    var rewardAt = function (l) {
+      if (l === 13) return 'Mystery crate';
+      if (l === 14) return '$5 wallet credit';
+      if (l === 15) return '+1 product slot';
+      if (l === 16) return 'Gold rank · VIP Inner Circle course';
+      if (l === 20) return '$10 wallet credit';
+      return 'Gold crate';
+    };
+    var packs = defs.map(function (d) {
+      var base = d.amt * 10;
+      var xp = Math.round(base * (1 + d.bonus / 100));
+      var total = XP_NOW + xp;
+      var level = Math.floor(total / 1000) + 1;
+      var gold = total >= GOLD_XP;
+      var on = self.state.picked === d.amt;
+      var all = [];
+      for (var l = 13; l <= level; l++) {
+        var big = l === 16;
+        all.push({
+          level: l,
+          name: rewardAt(l),
+          style: 'display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; ' + (big ? 'background: oklch(78% 0.13 86 / .12); border: 1px solid var(--p-gold-bright);' : 'background: oklch(19% 0.016 85 / .7); border: 1px solid var(--p-line-soft);'),
+          badgeStyle: big ? 'color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));' : 'color: var(--p-gold); background: var(--p-elev);',
+          textStyle: big ? 'color: var(--p-gold); font-weight: 600;' : ''
+        });
+      }
+      return {
+        amt: d.amt,
+        label: '$' + fmt(d.amt),
+        xpText: '+' + fmt(xp) + ' XP',
+        baseText: fmt(base) + ' XP',
+        bonusXpText: '+' + fmt(xp - base) + ' XP (' + d.bonus + '%)',
+        bonusText: '+' + d.bonus + '% bonus',
+        hasBonus: d.bonus > 0,
+        tag: d.tag,
+        hasTag: !!d.tag,
+        level: level,
+        rank: gold ? 'Gold' : 'Silver',
+        rankUp: gold,
+        noRankUp: !gold,
+        rankStyle: gold ? 'color: var(--p-ink); background: var(--p-gold-bright);' : 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35);',
+        gap: 'Gold and the VIP Inner Circle course are another $' + fmt(Math.ceil((GOLD_XP - total) / 10)) + ' after this.',
+        balance: '$' + fmt(BAL + d.amt) + '.00',
+        rewards: all.slice(0, SHOW),
+        rewardCount: all.length,
+        more: Math.max(all.length - SHOW, 0),
+        hasMore: all.length > SHOW,
+        checked: on ? 'true' : 'false',
+        checkStyle: 'width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; ' + (on ? 'background: var(--p-gold-bright); color: var(--p-ink);' : 'border: 1.5px solid var(--p-line); color: transparent;'),
+        style: on
+          ? 'border: 1.5px solid var(--p-gold-bright); background: linear-gradient(160deg, oklch(27% 0.045 85), oklch(18% 0.02 85) 75%); box-shadow: 0 22px 44px -22px oklch(78% 0.13 86 / .55), 0 0 0 4px oklch(78% 0.13 86 / .08);'
+          : 'border: 1px solid var(--p-line-soft); background: linear-gradient(165deg, var(--p-card-hi), var(--p-card-lo)); box-shadow: var(--p-shadow-card);',
+        pick: function () { self.setState({ picked: d.amt }); }
+      };
+    });
+    var sel = packs.filter(function (p) { return p.amt === self.state.picked; })[0];
+    return { packs: packs, sel: sel };
+  }
+}
+</script>
+</body>
+</html>

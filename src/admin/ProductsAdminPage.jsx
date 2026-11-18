@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/useAuth";
-import { useChronosMode } from "../lib/useChronosMode";
 import { TIERS } from "../lib/tiers";
 import { productImages, uploadProductImages } from "../lib/productImages";
 import { CATEGORIES } from "../lib/categories";
@@ -52,7 +51,6 @@ function buildCatalogue(products, membersById, catalogRows) {
       if (entry.listing_price == null && p.listing_price != null) entry.listing_price = Number(p.listing_price);
       if (entry.discount_price == null && p.discount_price != null) entry.discount_price = Number(p.discount_price);
       if (entry.category == null && p.category) entry.category = p.category;
-      if (!entry.supplierProduct && p.supplier_products) entry.supplierProduct = p.supplier_products;
     } else {
       map.set(key, {
         key,
@@ -68,7 +66,6 @@ function buildCatalogue(products, membersById, catalogRows) {
         storeCount: 1,
         firstMember: membersById[p.member_id]?.email ?? null,
         category: p.category ?? null,
-        supplierProduct: p.supplier_products ?? null,
       });
     }
   }
@@ -93,7 +90,6 @@ function buildCatalogue(products, membersById, catalogRows) {
       storeCount: 0,
       firstMember: null,
       category: row.category ?? null,
-      supplierProduct: null,
     });
   }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
@@ -213,7 +209,6 @@ function DestinationPicker({ dest, onChange, members, fill }) {
 
 export default function ProductsAdminPage() {
   const { profile: admin } = useAuth();
-  const { chronosMode } = useChronosMode();
   const [catalogue, setCatalogue] = useState([]);
   const [pool, setPool] = useState([]);
   const [members, setMembers] = useState([]);
@@ -225,7 +220,6 @@ export default function ProductsAdminPage() {
   const [busy, setBusy] = useState(null); // "assign" | "create" | "delete" | "images" | "fill" | "dist-pro" | ... | null
   const [editingImages, setEditingImages] = useState(null); // catalogue entry key | null
   const [editingPrices, setEditingPrices] = useState(null); // { key, listing, discount } | null
-  const [linkerTarget, setLinkerTarget] = useState(null); // supplier-link modal target | null
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
 
@@ -245,7 +239,7 @@ export default function ProductsAdminPage() {
         supabase
           .from("products")
           .select(
-            "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, stripe_product_id, category, supplier_product_id, supplier_products(external_sku, stock_state, display_name)"
+            "id, member_id, name, description, price, listing_price, discount_price, image_url, image_urls, is_bonus, active, stripe_price_id, stripe_product_id, category"
           )
           .order("created_at"),
         supabase
@@ -257,7 +251,7 @@ export default function ProductsAdminPage() {
         supabase
           .from("pool_products")
           .select(
-            "*, profiles!pool_products_assigned_member_id_fkey(email), supplier_products(external_sku, stock_state, display_name)"
+            "*, profiles!pool_products_assigned_member_id_fkey(email)"
           )
           .order("created_at", { ascending: false }),
         supabase
@@ -637,30 +631,6 @@ export default function ProductsAdminPage() {
     setBusy(null);
   }
 
-  // Clears the supplier link across every row a catalogue entry spans (or the
-  // single pool row). Linking itself happens in the SupplierLinkerModal via
-  // the cj-search edge function — this is a direct write under the existing
-  // admin write policy, same as unassigning any other field.
-  async function unlinkSupplier(target) {
-    setError(null);
-    setBusy("unlink");
-    await supabase.from(target.table).update({ supplier_product_id: null }).in("id", target.allIds);
-    await load();
-    setBusy(null);
-  }
-
-  // Propagates a fresh supplier link (set by the modal on one row) across the
-  // rest of a merged catalogue entry's store copies.
-  async function onSupplierLinked(target, supplierProductId) {
-    if (target.allIds.length > 1) {
-      await supabase
-        .from(target.table)
-        .update({ supplier_product_id: supplierProductId })
-        .in("id", target.allIds);
-    }
-    await load();
-  }
-
   // Writes the new gallery to every store copy; first image is the cover.
   async function saveImages(entry, images) {
     setError(null);
@@ -688,42 +658,6 @@ export default function ProductsAdminPage() {
     }
   }
 
-  // Link badge + link/unlink buttons for one catalogue/pool row (docs/PHASE1_PLAN.md §3.3).
-  // Chronos-only (CJ supplier tooling) — hidden entirely unless Chronos Mode is on.
-  function supplierCell(target) {
-    if (!chronosMode) return null;
-    const sp = target.supplierProduct;
-    return (
-      <div className="admin-supplier-cell">
-        {sp ? (
-          <span className="admin-supplier-linked">
-            {sp.external_sku ?? sp.display_name ?? "linked"} · {sp.stock_state}
-          </span>
-        ) : (
-          <span className="admin-warn">Not linked</span>
-        )}
-        <div>
-          <button
-            className="btn-ghost admin-view-btn"
-            type="button"
-            onClick={() => setLinkerTarget(target)}
-          >
-            {sp ? "Relink" : "Link supplier"}
-          </button>{" "}
-          {sp && (
-            <button
-              className="btn-ghost admin-view-btn"
-              type="button"
-              disabled={busy === "unlink"}
-              onClick={() => unlinkSupplier(target)}
-            >
-              Unlink
-            </button>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   const allShownSelected =
     shownCatalogue.length > 0 && shownCatalogue.every((c) => selected[c.key]);
@@ -966,14 +900,6 @@ export default function ProductsAdminPage() {
                           </option>
                         ))}
                       </select>
-                      {c.ids.length > 0 &&
-                        supplierCell({
-                        table: "products",
-                        allIds: c.ids,
-                        singleId: c.ids[0],
-                        label: c.name,
-                        supplierProduct: c.supplierProduct,
-                      })}
                       <div className="catalogue-card-actions">
                         <button
                           className="btn-ghost admin-view-btn"
@@ -1248,7 +1174,6 @@ export default function ProductsAdminPage() {
                   <tr>
                     <th>Product</th>
                     <th>Price</th>
-                    <th>Supplier</th>
                     <th>Status</th>
                   </tr>
                 </thead>
@@ -1262,15 +1187,6 @@ export default function ProductsAdminPage() {
                         </div>
                       </td>
                       <td>${Number(p.price).toFixed(2)}</td>
-                      <td>
-                        {supplierCell({
-                          table: "pool_products",
-                          allIds: [p.id],
-                          singleId: p.id,
-                          label: p.name,
-                          supplierProduct: p.supplier_products,
-                        })}
-                      </td>
                       <td>
                         {p.released ? (
                           <span className="admin-warn">Waiting for a free slot</span>
@@ -1289,15 +1205,6 @@ export default function ProductsAdminPage() {
                         </div>
                       </td>
                       <td>${Number(p.price).toFixed(2)}</td>
-                      <td>
-                        {supplierCell({
-                          table: "pool_products",
-                          allIds: [p.id],
-                          singleId: p.id,
-                          label: p.name,
-                          supplierProduct: p.supplier_products,
-                        })}
-                      </td>
                       <td>→ {p.profiles?.email ?? "assigned"}</td>
                     </tr>
                   ))}
@@ -1308,203 +1215,7 @@ export default function ProductsAdminPage() {
         );
       })}
 
-      {linkerTarget && (
-        <SupplierLinkerModal
-          target={linkerTarget}
-          onClose={() => setLinkerTarget(null)}
-          onLinked={onSupplierLinked}
-        />
-      )}
     </div>
   );
 }
 
-// Supplier product search/link modal (docs/PHASE1_PLAN.md §3.3). CJ's listV2
-// search doesn't return a variant id, only a product id — "variants" is the
-// extra step the deployed cj-search function adds between search and link to
-// fetch per-SKU vids (see supabase/functions/cj-search/index.ts comment).
-function SupplierLinkerModal({ target, onClose, onLinked }) {
-  const [categories, setCategories] = useState([]);
-  const [categoryId, setCategoryId] = useState("");
-  const [keyword, setKeyword] = useState("");
-  const [results, setResults] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [variants, setVariants] = useState([]);
-  const [linkResult, setLinkResult] = useState(null);
-  const [busy, setBusy] = useState("categories");
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    supabase.functions.invoke("cj-search", { body: { action: "categories" } }).then(({ data, error: fnErr }) => {
-      if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Could not load categories");
-      else setCategories(data?.categories ?? []);
-      setBusy(null);
-    });
-  }, []);
-
-  async function search(e) {
-    e?.preventDefault();
-    setError(null);
-    setSelectedProduct(null);
-    setVariants([]);
-    setLinkResult(null);
-    setBusy("search");
-    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", {
-      body: {
-        action: "search",
-        keyword: keyword.trim() || undefined,
-        category_id: categoryId || undefined,
-      },
-    });
-    if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Search failed");
-    setResults(data?.results ?? []);
-    setBusy(null);
-  }
-
-  async function pickProduct(product) {
-    setError(null);
-    setSelectedProduct(product);
-    setVariants([]);
-    setLinkResult(null);
-    setBusy("variants");
-    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", {
-      body: { action: "variants", pid: product.pid },
-    });
-    if (fnErr || data?.error) setError(data?.error ?? fnErr?.message ?? "Could not load variants");
-    setVariants(data?.variants ?? []);
-    setBusy(null);
-  }
-
-  async function pickVariant(variant) {
-    setError(null);
-    setBusy("link");
-    const body = {
-      action: "link",
-      pid: selectedProduct.pid,
-      vid: variant.vid,
-      productSku: variant.variantSku ?? selectedProduct.productSku,
-      name: variant.variantName ?? selectedProduct.name,
-      image: variant.image ?? selectedProduct.image,
-      sell_price_usd: variant.sellPrice ?? selectedProduct.sellPrice,
-    };
-    if (target.table === "products") body.product_id = target.singleId;
-    else body.pool_product_id = target.singleId;
-
-    const { data, error: fnErr } = await supabase.functions.invoke("cj-search", { body });
-    if (fnErr || data?.error) {
-      setError(data?.error ?? fnErr?.message ?? "Link failed");
-      setBusy(null);
-      return;
-    }
-    setLinkResult(data);
-    await onLinked(target, data.supplier_product_id);
-    setBusy(null);
-  }
-
-  const breach =
-    linkResult?.margin_pct != null &&
-    linkResult?.margin_floor_pct != null &&
-    Number(linkResult.margin_pct) < Number(linkResult.margin_floor_pct);
-
-  return (
-    <div className="admin-modal-overlay" onClick={onClose}>
-      <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-        <h2 className="dash-card-title">Link supplier — {target.label}</h2>
-        {error && <p className="auth-error">{error}</p>}
-
-        {linkResult ? (
-          <>
-            <p className={breach ? "admin-warn" : "admin-notice"}>
-              Linked.{" "}
-              {linkResult.margin_pct != null
-                ? `Live margin ${Number(linkResult.margin_pct).toFixed(1)}%`
-                : "Live margin unknown (no FX rate yet — run a price sync)"}
-              {linkResult.margin_floor_pct != null
-                ? ` (floor ${Number(linkResult.margin_floor_pct).toFixed(0)}%)`
-                : ""}
-            </p>
-            <button className="btn-gold" type="button" onClick={onClose}>
-              Done
-            </button>
-          </>
-        ) : (
-          <>
-            <form className="admin-form-grid" onSubmit={search}>
-              <label className="auth-label">
-                Category
-                <select
-                  className="auth-input"
-                  value={categoryId}
-                  onChange={(e) => setCategoryId(e.target.value)}
-                >
-                  <option value="">All categories</option>
-                  {categories.map((c) => (
-                    <option key={c.categoryId ?? c.id} value={c.categoryId ?? c.id}>
-                      {c.categoryName ?? c.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="auth-label">
-                Keyword
-                <input
-                  className="auth-input"
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  placeholder="e.g. phone case"
-                />
-              </label>
-              <button className="btn-gold" type="submit" disabled={busy === "search"}>
-                {busy === "search" ? "Searching…" : "Search CJ"}
-              </button>
-            </form>
-
-            {!selectedProduct && results.length > 0 && (
-              <div className="linker-results">
-                {results.map((r) => (
-                  <button key={r.pid} type="button" className="linker-result" onClick={() => pickProduct(r)}>
-                    {r.image && <img src={r.image} alt="" />}
-                    <span>
-                      <span className="linker-result-name">{r.name}</span>
-                      <span className="portal-sub">
-                        {r.productSku} · ${Number(r.sellPrice).toFixed(2)} USD
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {busy === "variants" && <p className="portal-sub">Loading variants…</p>}
-
-            {selectedProduct && variants.length > 0 && (
-              <div className="linker-results">
-                {variants.map((v) => (
-                  <button
-                    key={v.vid}
-                    type="button"
-                    className="linker-result"
-                    disabled={busy === "link"}
-                    onClick={() => pickVariant(v)}
-                  >
-                    {v.image && <img src={v.image} alt="" />}
-                    <span>
-                      <span className="linker-result-name">{v.variantName}</span>
-                      <span className="portal-sub">
-                        {v.variantSku} · ${Number(v.sellPrice).toFixed(2)} USD
-                      </span>
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <button className="btn-ghost admin-view-btn" type="button" onClick={onClose}>
-              Cancel
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}

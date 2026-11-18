@@ -2,10 +2,10 @@ import { NavLink, Outlet, Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { isNativeApp } from "../lib/nativeApp";
 import BottomTabBar from "../components/BottomTabBar";
-import { useChronosMode } from "../lib/useChronosMode";
 
 const BASE_LINKS = [
-  { to: "/admin", label: "Clients", end: true, icon: "clients" },
+  { to: "/admin", label: "Analytics", end: true, icon: "analytics" },
+  { to: "/admin/clients", label: "Clients", icon: "clients" },
   { to: "/admin/products", label: "Products", icon: "products" },
   { to: "/admin/orders", label: "Orders queue", icon: "orders" },
   { to: "/admin/achievements", label: "Achievements review", icon: "achievements" },
@@ -15,24 +15,13 @@ const BASE_LINKS = [
   { to: "/admin/creators", label: "Creators", icon: "megaphone" },
 ];
 
-// Chronos-only admin nav — hidden unless Chronos Mode is on (route itself also
-// redirects via RequireChronos, so this is visibility only, not the real gate).
-const CHRONOS_LINKS = [
-  { to: "/admin/exceptions", label: "Exceptions", icon: "exceptions" },
-  { to: "/admin/margins", label: "Margins", icon: "margins" },
-  { to: "/admin/chronos", label: "Chronos Preview", icon: "chronos" },
-];
-
 function labelForTab(label) {
-  return { "Orders queue": "Orders", "Achievements review": "Achieve" }[label] ?? label;
+  return { "Orders queue": "Orders", "Achievements review": "Achieve", Analytics: "Stats" }[label] ?? label;
 }
 
 export default function AdminLayout() {
   const native = isNativeApp();
-  const { chronosMode, setChronosMode } = useChronosMode();
-
-  const links = chronosMode ? [...BASE_LINKS, ...CHRONOS_LINKS] : BASE_LINKS;
-  const tabLinks = links.map((l) => ({ ...l, label: labelForTab(l.label) }));
+  const tabLinks = BASE_LINKS.map((l) => ({ ...l, label: labelForTab(l.label) }));
 
   return (
     <div className={`portal portal-admin${native ? " portal-native" : ""}`}>
@@ -43,16 +32,6 @@ export default function AdminLayout() {
           </Link>
         </div>
         <div className="portal-topbar-right">
-          <label className="chronos-mode-switch">
-            <span>Chronos Mode</span>
-            <input
-              type="checkbox"
-              aria-label="Chronos Mode"
-              checked={chronosMode}
-              onChange={(e) => setChronosMode(e.target.checked)}
-            />
-            <span className="chronos-mode-track" aria-hidden="true" />
-          </label>
           <Link to="/portal" className="portal-admin-link">
             Member portal
           </Link>
@@ -62,7 +41,7 @@ export default function AdminLayout() {
         </div>
       </header>
       <nav className="portal-nav">
-        {links.map((l) => (
+        {BASE_LINKS.map((l) => (
           <NavLink
             key={l.to}
             to={l.to}

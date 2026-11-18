@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile dashboard, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}html,body{overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}</style>
+</helmet>
+<div class="rf" style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 30% -10%, oklch(20% 0.03 85), var(--bg-0) 55%);">
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-1);">
+    <span class="logo" style="font-size: 20px;">SYNC</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span class="chip chip-gold" style="height: 34px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><path d="{{ic.wallet}}"></path></svg>$248</span>
+      <button class="btn btn-quiet" aria-label="Account" style="width: 44px; height: 44px; padding: 0;"><span style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-3); color: var(--gold); font-size: 13px; font-weight: 700;">DM</span></button>
+    </div>
+  </header>
+
+  <main style="flex: 1; padding: 18px 16px 0; display: flex; flex-direction: column; gap: 14px;">
+    <div><h1 class="t-h2">Good evening, Demo</h1><p class="t-small" style="margin-top: 4px;">Pro Accelerator · 2 of 8 steps done</p></div>
+
+    <div class="card" style="padding: 10px 8px 10px 12px; display: flex; align-items: center; gap: 10px; background: var(--bg-1);">
+      <span class="icon-well" style="width: 36px; height: 36px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px;"><path d="{{ic.products}}"></path></svg></span>
+      <span style="flex: 1; font-size: 14px; line-height: 1.35;"><strong style="font-weight: 600;">Made a sale?</strong> <span style="color: var(--text-2);">Add it in Products.</span></span>
+      <button class="btn btn-quiet" aria-label="Dismiss" style="width: 44px; padding: 0; color: var(--text-3);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+
+    <section class="card-feature" style="padding: 22px 20px; display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden;">
+      <div aria-hidden="true" style="position: absolute; right: -70px; top: -70px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, oklch(79% 0.14 84 / .22), transparent 70%);"></div>
+      <div class="t-eyebrow" style="position: relative;">Today's focus</div>
+      <h2 class="t-h2" style="position: relative; font-size: 34px;">Pick your shop photo</h2>
+      <div style="position: relative; display: flex; flex-wrap: wrap; gap: 6px;"><span class="chip chip-plain">Step 3 of 8</span><span class="chip chip-plain">About 10 min</span></div>
+      <a class="btn btn-primary btn-lg" href="#" style="position: relative; width: 100%; margin-top: 4px;">Start this step</a>
+    </section>
+
+    <a href="#" class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--text);">
+      <div style="position: relative; width: 52px; height: 52px; flex-shrink: 0;"><svg aria-hidden="true" width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="22" fill="none" stroke-width="6" style="stroke: var(--bg-3);"></circle><circle cx="26" cy="26" r="22" fill="none" stroke-width="6" stroke-linecap="round" stroke-dasharray="34.6 138.2" transform="rotate(-90 26 26)" style="stroke: var(--gold-strong);"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--gold);">25%</span></div>
+      <span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 16px; font-weight: 600;">Your pathway</span><span class="t-small">Next up: List your first product</span></span>
+      <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--text-3);"><path d="M9 6l6 6-6 6"></path></svg>
+    </a>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+      <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 6px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gold);"><path d="{{ic.profit}}"></path></svg><span class="t-num" style="font-size: 26px;">$0</span><span class="t-small">Total sales</span></div>
+      <div class="card" style="padding: 14px; display: flex; flex-direction: column; gap: 6px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--gold);"><path d="{{ic.rewards}}"></path></svg><span class="t-num" style="font-size: 26px;">Lvl 12</span><span class="t-small">Silver · 360 XP to go</span></div>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="Portal">
+    <a class="tab tab-on" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achieve<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.6;"><path d="{{ic.more}}"></path></svg>More<span class="tab-dot"></span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { ic: {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      more: 'M5 12h.01M12 12h.01M19 12h.01',
+      wallet: 'M4 7a2 2 0 0 1 2-2h12v4M4 7v11a2 2 0 0 0 2 2h14V9H6a2 2 0 0 1-2-2zM16 14.5h.01',
+      profit: 'M3 17l6-6 4 4 8-8M15 7h6v6'
+    } };
+  }
+}
+</script>
+</body>
+</html>

@@ -19,8 +19,8 @@ export const PACKS = [
 export const RANKS = [
   { key: "bronze", name: "Bronze", minCents: 0, level: 1, perks: "Rewards access and the weekly streak bonus." },
   { key: "silver", name: "Silver", minCents: 50000, level: 6, course: "elite", perks: "Elite Scale course and a crate at every level." },
-  { key: "gold", name: "Gold", minCents: 150000, level: 16, course: "vip", perks: "VIP Inner Circle course and priority stock drops." },
-  { key: "platinum", name: "Platinum", minCents: 400000, level: 41, perks: "Quarterly 1:1 strategy call and 3% back as credit." },
+  { key: "gold", name: "Gold", minCents: 150000, level: 16, perks: "Priority stock drops." },
+  { key: "platinum", name: "Platinum", minCents: 400000, level: 41, course: "vip", perks: "VIP Inner Circle course, quarterly 1:1 strategy call and 3% back as credit." },
   { key: "black", name: "Black", minCents: 1000000, level: 101, perks: "Founders' mastermind, 5% back as credit, free express shipping." },
 ];
 

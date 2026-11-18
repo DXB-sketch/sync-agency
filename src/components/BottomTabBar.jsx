@@ -4,6 +4,7 @@ import { ICONS } from "../lib/icons";
 // Admin-only glyphs; anything in the v2 icon set (lib/icons.js) is drawn from there.
 const GLYPHS = {
   dashboard: <path d="M4 13 L12 5 L20 13 M6 11 V20 H18 V11" />,
+  analytics: <path d="M4 20 H20 M7 16 V11 M12 16 V6 M17 16 V9" />,
   pathway: <path d="M6 19 Q6 13 10 13 Q14 13 14 8 Q14 5 18 5 M6 19 A2 2 0 1 1 6 18.99 M18 5 A2 2 0 1 1 18 5.01" />,
   products: <path d="M5 8 L12 4 L19 8 V17 L12 21 L5 17 Z M5 8 L12 12 L19 8 M12 12 V21" />,
   checkout: <path d="M4 6 H6 L8.5 16 H18 L20 8 H7 M9 20 A1 1 0 1 1 9 19.99 M17 20 A1 1 0 1 1 17 19.99" />,
@@ -12,14 +13,11 @@ const GLYPHS = {
   upgrade: <path d="M12 20 V6 M6 12 L12 6 L18 12" />,
   clients: <path d="M9 11 A3 3 0 1 1 9 10.99 M17 12 A2.5 2.5 0 1 1 17 11.99 M3 20 Q3 14 9 14 Q15 14 15 20 M15 20 Q15 16 20 16 Q21.5 16 21 15" />,
   orders: <path d="M4 7 H20 M4 12 H20 M4 17 H14" />,
-  exceptions: <path d="M12 4 L21.5 20 H2.5 Z M12 10.5 V14.5 M12 17.2 A0.15 0.15 0 1 1 12 17.19" />,
-  margins: <path d="M4 18 L9.5 12 L13.5 15 L20 7 M20 7 H14.5 M20 7 V12.5" />,
   more: <path d="M5 12 A1.4 1.4 0 1 1 5 11.99 M12 12 A1.4 1.4 0 1 1 12 11.99 M19 12 A1.4 1.4 0 1 1 19 11.99" />,
   store: <path d="M4 9 L5 4 H19 L20 9 M4 9 A2 2 0 0 0 8 9 A2 2 0 0 0 12 9 A2 2 0 0 0 16 9 A2 2 0 0 0 20 9 M5 9 V20 H19 V9 M9 20 V14 H15 V20" />,
   plus: <path d="M12 3 L14.2 9.8 H21 L15.5 14 L17.6 21 L12 16.8 L6.4 21 L8.5 14 L3 9.8 H9.8 Z" />,
   rewards: <path d="M12 3 L19 6 V11 Q19 17 12 21 Q5 17 5 11 V6 Z M9 12 L11 14 L15 10" />,
   wallet: <path d="M4 7 A2 2 0 0 1 6 5 H18 A2 2 0 0 1 20 7 V17 A2 2 0 0 1 18 19 H6 A2 2 0 0 1 4 17 Z M4 10 H20 M15 14 A1 1 0 1 1 15 13.99" />,
-  chronos: <path d="M12 3 L13.2 9.2 L19 7 L14.5 11.5 L20 13.5 L13.5 14 L15 20 L12 15 L9 20 L10.5 14 L4 13.5 L9.5 11.5 L5 7 L10.8 9.2 Z" />,
   signout: <path d="M9 21 H5 A2 2 0 0 1 3 19 V5 A2 2 0 0 1 5 3 H9 M16 17 L21 12 L16 7 M21 12 H9" />,
 };
 

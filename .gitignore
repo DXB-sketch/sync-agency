@@ -13,6 +13,14 @@ dist
 # Env — real values never committed
 .env
 .env.production
+.env.*
+!.env.example
+
+# Supabase CLI local state
+supabase/.temp/
+
+# Internal working files (catalogue photo originals, ~157 MB) — kept out of git
+Internal/
 dist-ssr
 *.local
 .vite

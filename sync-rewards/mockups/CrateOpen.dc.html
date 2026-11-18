@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate opening</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+<link rel="stylesheet" href="crate.css">
+<script src="crate-fx.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div class="{{rootClass}}" style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% 38%, oklch(22% 0.035 85) 0%, oklch(11% 0.014 85) 55%, var(--p-bg-deep) 80%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="position: relative; z-index: 5; height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 12px;">
+    <a href="Main.dc.html" aria-label="Back to rewards" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-muted);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <span style="font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--p-muted);">{{left}} crates to open</span>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <button class="odds-btn" onClick="{{toggleSound}}" aria-label="{{soundLabel}}" aria-pressed="{{soundOn}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-gold);">
+        <sc-if value="{{soundOn}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg></sc-if>
+        <sc-if value="{{soundOff}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--p-muted);"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg></sc-if>
+      </button>
+      <a href="CrateOdds.dc.html" style="height: 34px; padding: 0 12px; display: flex; align-items: center; gap: 6px; border-radius: 100px; border: 1px solid var(--p-line-gold); background: oklch(19% 0.016 85 / .7); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none;"><svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Odds</a>
+    </div>
+  </header>
+
+  <div style="position: relative; z-index: 4; display: flex; justify-content: center; padding-top: 6px;">
+    <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; {{c.pillStyle}}">
+      <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>{{c.name}} crate
+    </span>
+  </div>
+
+  <div style="position: relative; height: 480px; flex-shrink: 0;">
+
+    <sc-if value="{{notReveal}}" hint-placeholder-val="{{true}}">
+      <div aria-hidden="true" class="{{auraClass}}" style="position: absolute; left: 50%; top: 245px; width: 340px; height: 340px; margin: -170px 0 0 -170px; border-radius: 50%; background: radial-gradient(circle, {{c.aura}} 0%, transparent 65%);"></div>
+      <div aria-hidden="true" class="rays-spin" style="position: absolute; left: 50%; top: 245px; width: 620px; height: 620px; margin: -310px 0 0 -310px; border-radius: 50%; opacity: .55; background: repeating-conic-gradient(from 0deg, {{c.ray}} 0deg 5deg, transparent 5deg 18deg); -webkit-mask-image: radial-gradient(circle, #000 12%, transparent 55%); mask-image: radial-gradient(circle, #000 12%, transparent 55%);"></div>
+      <div aria-hidden="true" class="shadow-idle" style="position: absolute; left: 50%; top: 392px; width: 180px; height: 26px; margin-left: -90px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.75), transparent 70%);"></div>
+
+      <div style="position: absolute; left: 50%; top: 95px; width: 280px; height: 280px; margin-left: -140px;">
+        <button class="crate-btn" aria-label="Open the crate" onClick="{{open}}" style="width: 280px; height: 280px;">
+          <div class="{{crateClass}}" style="width: 280px; height: 280px;">
+            <svg aria-hidden="true" width="280" height="280" viewBox="0 0 240 240" style="overflow: visible; filter: drop-shadow(0 20px 30px rgba(0,0,0,.55));">
+              <defs>
+                <linearGradient id="inside" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: oklch(97% 0.04 90)"></stop><stop offset="1" style="stop-color: var(--p-gold-bright)"></stop></linearGradient>
+                <linearGradient id="beam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color: oklch(96% 0.05 90)" stop-opacity=".95"></stop><stop offset="1" style="stop-color: var(--p-gold-bright)" stop-opacity="0"></stop></linearGradient>
+              </defs>
+              <g class="{{bodyClass}}">
+                <polygon points="40,114 120,72 200,114 120,156" fill="url(#inside)"></polygon>
+                <polygon points="40,114 120,156 120,226 40,184" style="fill: {{c.front}}"></polygon>
+                <polygon points="120,156 200,114 200,184 120,226" style="fill: {{c.right}}"></polygon>
+                <polygon points="56,122.4 64,126.6 64,196.6 56,192.4" style="fill: {{c.band}}"></polygon>
+                <polygon points="96,143.4 104,147.6 104,217.6 96,213.4" style="fill: {{c.band}}"></polygon>
+                <polygon points="136,147.6 144,143.4 144,213.4 136,217.6" style="fill: {{c.band}}"></polygon>
+                <polygon points="176,126.6 184,122.4 184,192.4 176,196.6" style="fill: {{c.band}}"></polygon>
+                <polyline points="40,184 120,226 200,184" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="2"></polyline>
+                <line x1="120" y1="156" x2="120" y2="226" stroke="#fff" stroke-opacity=".25" stroke-width="1.5"></line>
+                <polygon points="120,160 132,172 120,184 108,172" style="fill: {{c.band}}"></polygon>
+                <circle class="gem-pulse" cx="120" cy="172" r="6" style="fill: {{c.gem}}; filter: drop-shadow(0 0 6px {{c.gem}});"></circle>
+              </g>
+              <sc-if value="{{isShake}}" hint-placeholder-val="{{false}}">
+                <polygon class="leak" points="50,112 120,146 190,112 236,-60 4,-60" fill="url(#beam)"></polygon>
+              </sc-if>
+              <g class="{{lidClass}}">
+                <polygon points="36,96 120,138 120,154 36,112" style="fill: {{c.lidFront}}"></polygon>
+                <polygon points="120,138 204,96 204,112 120,154" style="fill: {{c.lidRight}}"></polygon>
+                <polygon points="36,96 120,54 204,96 120,138" style="fill: {{c.top}}"></polygon>
+                <polygon points="56,106 64,110 64,126 56,122" style="fill: {{c.band}}"></polygon>
+                <polygon points="176,110 184,106 184,122 176,126" style="fill: {{c.band}}"></polygon>
+                <polygon points="56,86 64,82 148,124 140,128" style="fill: {{c.band}}"></polygon>
+                <polygon points="176,86 184,90 100,132 92,128" style="fill: {{c.band}}"></polygon>
+                <polyline points="36,96 120,54 204,96" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"></polyline>
+                <polyline points="36,112 120,154 204,112" fill="none" style="stroke: var(--p-gold-bright)" class="{{seamClass}}" stroke-opacity="{{seamOpacity}}" stroke-width="2"></polyline>
+              </g>
+            </svg>
+          </div>
+        </button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{isBurst}}" hint-placeholder-val="{{false}}">
+      <div aria-hidden="true" class="ring-wave" style="position: absolute; left: 50%; top: 240px; width: 160px; height: 160px; margin: -80px 0 0 -80px; border-radius: 50%; border: 4px solid {{r.color}}; box-shadow: 0 0 40px {{r.color}};"></div>
+      <sc-for list="{{particles}}" as="pt" hint-placeholder-count="0">
+        <span aria-hidden="true" class="particle" style="{{pt.style}}"></span>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+      <div aria-hidden="true" class="{{r.raysClass}}" style="position: absolute; left: 50%; top: 230px; width: 760px; height: 760px; margin: -380px 0 0 -380px; border-radius: 50%; opacity: {{r.rayOpacity}}; background: repeating-conic-gradient(from 0deg, {{r.color}} 0deg 7deg, transparent 7deg 20deg); -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 56%); mask-image: radial-gradient(circle, #000 10%, transparent 56%);"></div>
+      <div aria-hidden="true" style="position: absolute; left: 50%; top: 230px; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; background: radial-gradient(circle, {{r.glow}} 0%, transparent 62%);"></div>
+      <sc-for list="{{stars}}" as="s" hint-placeholder-count="0">
+        <svg aria-hidden="true" class="twinkle" width="{{s.size}}" height="{{s.size}}" viewBox="0 0 24 24" style="{{s.style}}"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/></svg>
+      </sc-for>
+
+      <div class="card-pop" style="position: absolute; left: 50%; top: 30px; width: 300px; margin-left: -150px; padding: 26px 22px 24px; box-sizing: border-box; border-radius: 26px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; background: linear-gradient(165deg, oklch(25% 0.03 85 / .96), oklch(15% 0.016 85 / .96)); border: 1.5px solid {{r.color}}; box-shadow: 0 0 0 6px {{r.ring}}, 0 30px 60px -20px rgba(0,0,0,.8), 0 0 70px -10px {{r.color}};">
+        <span style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; color: var(--p-ink); background: {{r.color}};">{{r.rarity}} · {{r.chance}}</span>
+        <span class="rise" style="width: 76px; height: 76px; border-radius: 22px; display: flex; align-items: center; justify-content: center; color: var(--p-ink); background: linear-gradient(135deg, oklch(97% 0.03 90), {{r.color}} 60%, var(--p-gold-deep)); box-shadow: 0 14px 30px -10px {{r.color}};">
+          <sc-if value="{{r.isCredit}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/><path d="M3 10h18"/></svg></sc-if>
+          <sc-if value="{{r.isXp}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></sc-if>
+          <sc-if value="{{r.isDiscount}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5" fill="currentColor"/></svg></sc-if>
+          <sc-if value="{{r.isSlot}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/><path d="M12 11v5M9.5 13.5h5"/></svg></sc-if>
+        </span>
+        <div class="value-pop" style="display: flex; align-items: baseline; justify-content: center; gap: 6px; line-height: 0.9;">
+          <span class="shimmer-text" style="--rc: {{r.color}}; font-family: var(--font-display); font-size: 84px; font-weight: 700; font-variant-numeric: tabular-nums;">{{r.valueText}}</span>
+          <span style="font-size: 16px; font-weight: 700; letter-spacing: 0.12em; color: {{r.color}};">{{r.unit}}</span>
+        </div>
+        <span class="rise" style="font-family: var(--font-display); font-size: 24px; font-weight: 600; line-height: 1.1;">{{r.name}}</span>
+        <span class="rise" style="font-size: 12.5px; color: var(--p-muted); line-height: 1.5; max-width: 230px;">{{r.sub}}</span>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position: relative; z-index: 4; margin-top: auto; padding: 0 20px 26px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <sc-if value="{{isIdle}}" hint-placeholder-val="{{true}}">
+      <span class="tap-hint" style="font-family: var(--font-display); font-size: 24px; font-weight: 600; color: var(--p-gold);">Tap the crate to open</span>
+      <button class="btn-gold shine" onClick="{{open}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">Open crate</button>
+      <span style="font-size: 11.5px; color: var(--p-muted);">{{c.topLine}} · <a href="CrateOdds.dc.html">see all odds</a></span>
+    </sc-if>
+    <sc-if value="{{isOpening}}" hint-placeholder-val="{{false}}">
+      <span style="font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: 0.04em; color: var(--p-gold-bright); padding-bottom: 60px;">Opening…</span>
+    </sc-if>
+    <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+      <button class="btn-gold shine rise" onClick="{{collect}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">{{r.collect}}</button>
+      <button class="btn-ghost rise" onClick="{{collect}}" style="width: 100%; text-align: center; padding: 14px 20px; cursor: pointer;">{{nextLabel}}</button>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+    <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;">
+      <sc-for list="{{confetti}}" as="cf" hint-placeholder-count="0">
+        <span class="confetti" style="{{cf.style}}"></span>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{isBurst}}" hint-placeholder-val="{{false}}">
+    <div aria-hidden="true" class="flash" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 42%, oklch(99% 0.02 90) 0%, {{r.color}} 35%, transparent 75%);"></div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"crate":{"editor":"enum","options":["silver","gold"],"default":"silver"},"startPhase":{"editor":"enum","options":["idle","reveal"],"default":"idle"},"demoResult":{"editor":"enum","options":["random","jackpot"],"default":"random"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { phase: 'idle', pick: 0, shown: 0, left: 3, muted: false };
+    this.timers = [];
+  }
+  fx() { return (typeof window !== 'undefined' && window.CrateFX) || null; }
+  pools() {
+    return {
+      silver: [
+        { kind: 'credit', num: 30, w: 3, rarity: 'legendary' },
+        { kind: 'credit', num: 10, w: 12, rarity: 'epic' },
+        { kind: 'credit', num: 5, w: 20, rarity: 'rare' },
+        { kind: 'credit', num: 2, w: 20, rarity: 'common' },
+        { kind: 'xp', num: 200, w: 20, rarity: 'common' },
+        { kind: 'discount', num: 5, w: 15, rarity: 'rare' },
+        { kind: 'slot', num: 1, w: 10, rarity: 'rare' }
+      ],
+      gold: [
+        { kind: 'credit', num: 50, w: 3, rarity: 'legendary' },
+        { kind: 'credit', num: 20, w: 10, rarity: 'epic' },
+        { kind: 'credit', num: 10, w: 20, rarity: 'rare' },
+        { kind: 'credit', num: 5, w: 17, rarity: 'common' },
+        { kind: 'xp', num: 500, w: 20, rarity: 'common' },
+        { kind: 'discount', num: 10, w: 18, rarity: 'rare' },
+        { kind: 'slot', num: 1, w: 12, rarity: 'rare' }
+      ]
+    };
+  }
+  crateKey() { return this.props.crate === 'gold' ? 'gold' : 'silver'; }
+  roll() {
+    if (this.props.demoResult === 'jackpot') return 0;
+    var pool = this.pools()[this.crateKey()], r = Math.random() * 100, acc = 0;
+    for (var i = 0; i < pool.length; i++) { acc += pool[i].w; if (r < acc) return i; }
+    return pool.length - 1;
+  }
+  clear() { this.timers.forEach(function (t) { clearTimeout(t); clearInterval(t); }); this.timers = []; }
+  countUp(target, withSound) {
+    var self = this, step = 0, steps = 26, fx = withSound ? this.fx() : null;
+    if (target <= 1) { this.setState({ shown: target }); return; }
+    this.setState({ shown: 0 });
+    var t = setInterval(function () {
+      step++;
+      if (fx && step % 2 === 0) fx.tick(step / steps);
+      var eased = 1 - Math.pow(1 - step / steps, 3);
+      self.setState({ shown: step >= steps ? target : Math.max(1, Math.round(target * eased)) });
+      if (step >= steps) clearInterval(t);
+    }, 38);
+    this.timers.push(t);
+  }
+  componentDidMount() {
+    if (this.props.startPhase === 'reveal') {
+      var pick = this.roll();
+      this.setState({ phase: 'reveal', pick: pick });
+      this.countUp(this.pools()[this.crateKey()][pick].num);
+    }
+  }
+  componentWillUnmount() { this.clear(); var fx = this.fx(); if (fx) fx.cancel(); }
+  open() {
+    if (this.state.phase !== 'idle') return;
+    var self = this, pick = this.roll(), res = this.pools()[this.crateKey()][pick], target = res.num, fx = this.fx();
+    var reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.clear();
+    if (fx) fx.tap();
+    if (reduced) { this.setState({ phase: 'reveal', pick: pick, shown: target }); if (fx) fx.reveal(res.rarity); return; }
+    this.setState({ phase: 'shake', pick: pick });
+    if (fx) fx.shake(1.4);
+    this.timers.push(setTimeout(function () { self.setState({ phase: 'burst' }); if (fx) fx.burst(); }, 1400));
+    this.timers.push(setTimeout(function () { self.setState({ phase: 'reveal' }); if (fx) fx.reveal(res.rarity); self.countUp(target, true); }, 2050));
+  }
+  collect() {
+    this.clear();
+    var fx = this.fx(); if (fx) fx.coin();
+    this.setState({ phase: 'idle', shown: 0, left: Math.max(this.state.left - 1, 1) });
+  }
+  toggleSound() {
+    var m = !this.state.muted, fx = this.fx();
+    if (fx) fx.setMuted(m);
+    this.setState({ muted: m });
+  }
+  renderVals() {
+    var self = this, key = this.crateKey(), phase = this.state.phase;
+    var pool = this.pools()[key], res = pool[this.state.pick] || pool[0];
+    var total = pool.reduce(function (s, p) { return s + p.w; }, 0);
+    var C = {
+      silver: { name: 'Silver', top: 'oklch(84% 0.01 85)', lidFront: 'oklch(68% 0.012 85)', lidRight: 'oklch(54% 0.012 85)', front: 'oklch(60% 0.012 85)', right: 'oklch(44% 0.012 85)', band: 'oklch(52% 0.09 70)', gem: 'oklch(82% 0.14 86)', aura: 'oklch(86% 0.012 85 / .3)', ray: 'oklch(86% 0.012 85 / .18)', pillStyle: 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35); background: oklch(86% 0.012 85 / .07);', topLine: 'Up to $30 credit' },
+      gold: { name: 'Gold', top: 'oklch(90% 0.08 88)', lidFront: 'oklch(76% 0.13 84)', lidRight: 'oklch(63% 0.12 76)', front: 'oklch(70% 0.13 80)', right: 'oklch(54% 0.11 72)', band: 'oklch(24% 0.02 85)', gem: 'oklch(97% 0.03 90)', aura: 'oklch(78% 0.13 86 / .42)', ray: 'oklch(78% 0.13 86 / .22)', pillStyle: 'color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));', topLine: 'Up to $50 credit' }
+    }[key];
+    var R = {
+      legendary: { name: 'Legendary', color: 'oklch(80% 0.14 86)', glow: 'oklch(80% 0.14 86 / .45)', ring: 'oklch(80% 0.14 86 / .16)', rays: 'rays-fast', op: .95 },
+      epic: { name: 'Epic', color: 'oklch(74% 0.15 52)', glow: 'oklch(74% 0.15 52 / .38)', ring: 'oklch(74% 0.15 52 / .14)', rays: 'rays-spin', op: .8 },
+      rare: { name: 'Rare', color: 'oklch(80% 0.08 225)', glow: 'oklch(80% 0.08 225 / .3)', ring: 'oklch(80% 0.08 225 / .12)', rays: 'rays-spin', op: .6 },
+      common: { name: 'Common', color: 'oklch(86% 0.012 85)', glow: 'oklch(86% 0.012 85 / .22)', ring: 'oklch(86% 0.012 85 / .1)', rays: 'rays-spin', op: .45 }
+    }[res.rarity];
+    var n = this.state.shown;
+    var copy = {
+      credit: { valueText: '$' + n, unit: '', name: 'Wallet credit', sub: 'Added to your wallet. Spend it on your next stock order.', collect: 'Collect $' + res.num },
+      xp: { valueText: '+' + n, unit: 'XP', name: 'Bonus XP', sub: 'Added to your level progress straight away.', collect: 'Collect XP' },
+      discount: { valueText: n + '%', unit: 'OFF', name: 'Next stock order', sub: 'Applied automatically at your next checkout.', collect: 'Save discount' },
+      slot: { valueText: '+' + n, unit: 'SLOT', name: 'Extra product slot', sub: 'One more product in your store for 30 days.', collect: 'Activate slot' }
+    }[res.kind];
+    var r = {
+      color: R.color, glow: R.glow, ring: R.ring, raysClass: R.rays, rayOpacity: R.op,
+      rarity: R.name, chance: Math.round(res.w / total * 100) + '% chance',
+      isCredit: res.kind === 'credit', isXp: res.kind === 'xp', isDiscount: res.kind === 'discount', isSlot: res.kind === 'slot',
+      valueText: copy.valueText, unit: copy.unit, name: copy.name, sub: copy.sub, collect: copy.collect
+    };
+    var particles = [], confetti = [], stars = [];
+    var pc = ['var(--p-gold-bright)', 'var(--p-gold)', R.color, 'oklch(97% 0.03 90)'];
+    for (var i = 0; i < 32; i++) {
+      var a = (i * 360 / 32 + (i % 3) * 7) * Math.PI / 180, d = 150 + (i * 47 % 110), s = 5 + (i * 7 % 9);
+      particles.push({ style: 'left: 195px; top: 240px; width: ' + s + 'px; height: ' + s + 'px; margin: -' + (s / 2) + 'px 0 0 -' + (s / 2) + 'px; background: ' + pc[i % 4] + '; box-shadow: 0 0 10px ' + pc[i % 4] + '; ' + (i % 2 ? 'border-radius: 50%;' : 'clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);') + ' --dx: ' + Math.round(Math.cos(a) * d) + 'px; --dy: ' + Math.round(Math.sin(a) * d) + 'px; animation-delay: ' + ((i % 4) * 0.03) + 's;' });
+    }
+    var cc = ['var(--p-gold-bright)', 'var(--p-gold)', R.color, 'var(--silver)', 'var(--p-gold-deep)'];
+    for (var j = 0; j < 42; j++) {
+      var w = 6 + (j * 5 % 6), h = j % 3 === 0 ? w : 10 + (j * 3 % 8);
+      confetti.push({ style: 'left: ' + (j * 29 % 100) + '%; width: ' + w + 'px; height: ' + h + 'px; background: ' + cc[j % 5] + '; border-radius: ' + (j % 3 === 0 ? '50%' : '2px') + '; --dur: ' + (2.8 + (j % 5) * 0.4) + 's; --delay: -' + ((j * 0.37) % 3.2).toFixed(2) + 's; --sway: ' + ((j % 2 ? 1 : -1) * (20 + j % 40)) + 'px; --spin: ' + (360 + (j % 4) * 180) + 'deg;' });
+    }
+    var sp = [[40, 70, 18], [326, 54, 22], [28, 300, 14], [340, 280, 16], [70, 420, 12], [310, 430, 20]];
+    sp.forEach(function (p, k) { stars.push({ size: p[2], style: 'position: absolute; left: ' + p[0] + 'px; top: ' + p[1] + 'px; fill: ' + R.color + '; animation-delay: ' + (k * 0.3) + 's;' }); });
+    return {
+      c: C, r: r, left: this.state.left,
+      particles: particles, confetti: confetti, stars: stars,
+      isIdle: phase === 'idle', isShake: phase === 'shake', isBurst: phase === 'burst', isReveal: phase === 'reveal',
+      isOpening: phase === 'shake' || phase === 'burst', notReveal: phase !== 'reveal',
+      rootClass: phase === 'burst' ? 'jolt' : '',
+      crateClass: phase === 'idle' ? 'crate-idle' : (phase === 'shake' ? 'crate-shake' : ''),
+      auraClass: phase === 'shake' ? 'aura-shake' : 'gem-pulse',
+      lidClass: phase === 'burst' ? 'lid-fly' : '',
+      bodyClass: phase === 'burst' ? 'body-out' : '',
+      seamClass: phase === 'shake' ? 'seam-glow' : '',
+      seamOpacity: phase === 'idle' ? '.25' : '1',
+      nextLabel: this.state.left > 1 ? 'Open next crate (' + (this.state.left - 1) + ' left)' : 'Back to rewards',
+      soundOn: !this.state.muted, soundOff: this.state.muted,
+      soundLabel: this.state.muted ? 'Turn sound on' : 'Turn sound off',
+      toggleSound: function () { self.toggleSound(); },
+      open: function () { self.open(); },
+      collect: function () { self.collect(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

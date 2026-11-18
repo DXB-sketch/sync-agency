@@ -21,12 +21,6 @@
 .portal-signout { background: none; border: none; color: var(--p-muted); font-family: var(--p-font); font-size: 12px; cursor: pointer; }
 .portal-signout:hover { color: var(--p-text); }
 
-.chronos-mode-switch { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--p-muted); cursor: pointer; }
-.chronos-mode-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
-.chronos-mode-track { position: relative; width: 34px; height: 18px; border-radius: 999px; background: var(--p-card-hi); border: 1px solid var(--p-line-gold); transition: background 0.15s ease; }
-.chronos-mode-track::after { content: ""; position: absolute; top: 1px; left: 1px; width: 14px; height: 14px; border-radius: 50%; background: var(--p-muted); transition: transform 0.15s ease, background 0.15s ease; }
-.chronos-mode-switch input:checked + .chronos-mode-track { background: rgba(201, 168, 76, 0.25); }
-.chronos-mode-switch input:checked + .chronos-mode-track::after { transform: translateX(16px); background: var(--p-gold); }
 
 /* Tier badges */
 .tier-badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: var(--p-radius-pill); border: 1px solid var(--p-line-gold); color: var(--p-gold); background: var(--p-card-hi); }
@@ -168,38 +162,6 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 .order-item-ship { display: block; font-size: 12px; color: var(--p-muted); margin-top: 2px; }
 .order-item-tracking { display: block; font-size: 12px; color: var(--p-gold); margin-top: 2px; font-family: 'Courier New', monospace; }
 .order-item-price { font-size: 14px; color: var(--p-text); font-weight: 600; }
-
-/* ── Exceptions ── */
-.exception-status { display: inline-block; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: var(--p-radius-pill); border: 1px solid var(--p-line-gold); color: var(--p-gold); background: oklch(60% 0.1 80 / .1); margin-right: 12px; }
-.exception-status-open, .exception-status-retrying { color: #D97A6C; border-color: oklch(58% 0.14 25 / .4); background: oklch(58% 0.14 25 / .08); }
-.exception-status-resolved, .exception-status-refunded { color: oklch(78% 0.1 145); border-color: oklch(78% 0.1 145 / 0.35); background: oklch(78% 0.1 145 / 0.08); }
-.admin-payload { margin-top: 10px; padding: 14px; background: var(--p-bg-deep); border: 1px solid var(--p-line-soft); border-radius: var(--p-radius-sm); font-size: 11px; color: var(--p-muted); overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
-.admin-exception-resolve { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
-.admin-exception-resolve .auth-input { max-width: 260px; }
-.admin-exception-hint { width: 100%; margin-top: 4px; }
-
-/* ── Margins ── */
-.margin-row-breach td { color: #D97A6C; }
-
-/* ── Shopify store connect / product linking ── */
-.store-status-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
-.store-status-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-.store-status-connected { color: oklch(78% 0.1 145); border-color: oklch(78% 0.1 145 / 0.35); background: oklch(78% 0.1 145 / 0.08); }
-.store-status-pending { color: var(--p-muted); border-color: var(--p-line); background: none; }
-.store-status-error { color: #D97A6C; border-color: oklch(58% 0.14 25 / .4); background: oklch(58% 0.14 25 / .08); }
-.store-status-disconnected { color: var(--p-dim); border-color: var(--p-line); background: none; }
-.connect-store-steps { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; padding-left: 20px; font-size: 13px; color: var(--p-muted); line-height: 1.6; }
-.connect-store-steps code { background: var(--p-card-lo); border: 1px solid var(--p-line); border-radius: 4px; padding: 2px 6px; font-size: 12px; color: var(--p-gold); }
-.connect-store-form { display: flex; flex-direction: column; gap: 12px; max-width: 420px; }
-.product-links-list { display: flex; flex-direction: column; gap: 16px; }
-.product-link-card { padding: 20px; }
-.product-link-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.product-link-img { width: 40px; height: 40px; border-radius: var(--p-radius-sm); object-fit: cover; }
-.product-link-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--p-line-soft); padding-top: 12px; margin-top: 12px; }
-.product-link-variant { font-size: 13px; color: var(--p-text); }
-.product-link-linked { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.product-link-linked .auth-input { min-width: 180px; padding: 9px 12px; font-size: 12px; }
-.product-link-linked .btn-gold, .product-link-linked .btn-ghost { padding: 9px 16px; font-size: 11px; }
 
 /* ── Achievements ── */
 .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
@@ -388,16 +350,9 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
   .admin-selected-bar span { white-space: nowrap; }
 }
 
-/* ── Supplier linker ── */
-.admin-supplier-cell { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-.admin-supplier-linked { font-size: 12px; color: oklch(78% 0.1 145); }
+/* ── Modal ── */
 .admin-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 16px; }
 .admin-modal { width: min(520px, 100%); max-height: 85vh; overflow-y: auto; background: var(--p-grad-card); border: 1px solid var(--p-line-gold); border-radius: var(--p-radius-lg); box-shadow: 0 24px 70px rgba(0,0,0,0.6); padding: 28px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
-.linker-results { display: flex; flex-direction: column; gap: 6px; max-height: 260px; overflow-y: auto; width: 100%; border: 1px solid var(--p-line); border-radius: var(--p-radius-sm); padding: 8px; }
-.linker-result { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-radius: var(--p-radius-sm); padding: 8px; color: var(--p-text); font-family: var(--p-font); cursor: pointer; }
-.linker-result:hover { background: var(--p-elev); }
-.linker-result img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
-.linker-result-name { display: block; font-size: 13px; }
 
 /* ── Support tickets ── */
 .support-layout { display: grid; grid-template-columns: 340px 1fr; gap: 20px; align-items: start; }
@@ -470,7 +425,6 @@ a.dash-stat-tile:hover { background: oklch(28% 0.02 85 / .5); }
 @media (max-width: 768px) {
   .portal-topbar { padding: 0 16px; gap: 10px; }
   .portal-topbar-left, .portal-topbar-right { gap: 8px; min-width: 0; }
-  .chronos-mode-switch > span:first-child { display: none; }
   .portal-admin-link { padding: 7px 10px; white-space: nowrap; }
 
   .portal-page { padding: 28px 16px 140px; }
@@ -756,17 +710,17 @@ button.pw-step-card:focus-visible { outline: 2px solid var(--gold-strong); outli
 .cart-toast-link { font-size: 15px; font-weight: 600; color: var(--gold); }
 
 /* Status: status colours, never gold */
-.order-status, .exception-status, .ach-status, .support-status { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; border: none; background: oklch(78% 0.08 230 / .14); color: var(--info); white-space: nowrap; }
-.order-status-delivered, .exception-status-resolved, .exception-status-refunded, .ach-status-verified, .store-status-connected { background: oklch(78% 0.13 160 / .14); color: var(--ok); border: none; }
-.order-status-exception, .exception-status-open, .exception-status-retrying, .ach-status-rejected, .store-status-error { background: oklch(70% 0.16 25 / .14); color: var(--bad); border: none; }
-.order-status-cancelled, .order-status-pending_payment, .ach-status-pending, .support-status-closed, .store-status-pending, .store-status-disconnected { background: var(--bg-3); color: var(--text-2); border: none; }
+.order-status, .ach-status, .support-status { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; border: none; background: oklch(78% 0.08 230 / .14); color: var(--info); white-space: nowrap; }
+.order-status-delivered, .ach-status-verified { background: oklch(78% 0.13 160 / .14); color: var(--ok); border: none; }
+.order-status-exception, .ach-status-rejected { background: oklch(70% 0.16 25 / .14); color: var(--bad); border: none; }
+.order-status-cancelled, .order-status-pending_payment, .ach-status-pending, .support-status-closed { background: var(--bg-3); color: var(--text-2); border: none; }
 .support-status-answered { background: oklch(78% 0.13 160 / .14); color: var(--ok); border: none; }
 .order-track-step.done::before, .order-track-step.done .order-track-dot { background: var(--ok); border-color: var(--ok); }
 .order-track-step.done .order-track-label { color: var(--ok); }
 .order-track-label { font-size: 13px; color: var(--text-3); }
 .wallet-banner-warn { border-color: oklch(76% 0.14 60 / .4); background: oklch(76% 0.14 60 / .12); color: var(--warn); }
 .wallet-amount-pos { color: var(--ok); }
-.wallet-amount-neg, .auth-error, .margin-row-breach td, .admin-warn { color: var(--bad); }
+.wallet-amount-neg, .auth-error, .admin-warn { color: var(--bad); }
 .danger-zone { border-color: oklch(70% 0.16 25 / .35); background: oklch(70% 0.16 25 / .06); }
 .danger-title { color: var(--bad); }
 .portal .danger-btn { border-color: oklch(70% 0.16 25 / .5); color: var(--bad); }
@@ -892,3 +846,11 @@ button.pw-step-card:focus-visible { outline: 2px solid var(--gold-strong); outli
 .portal-native .portal-nav { display: none; }
 .portal-native .bottom-tab-bar { display: flex; }
 .portal-native .portal-page { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+
+/* Count-up numbers: gold shimmer while loading, a short glow when the count lands */
+.count-up { display: inline-block; }
+.count-up.is-loading { width: 3.2em; height: .78em; border-radius: var(--r-sm); vertical-align: middle; background: linear-gradient(90deg, var(--bg-3) 0%, oklch(79% 0.14 84 / .28) 50%, var(--bg-3) 100%); background-size: 200% 100%; animation: count-shimmer 1.2s linear infinite; }
+.count-up.is-landed { animation: count-land .9s ease-out; }
+.dash-stat-hero { color: var(--gold); }
+@keyframes count-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@keyframes count-land { 0% { text-shadow: 0 0 0 transparent; transform: scale(1); } 30% { text-shadow: 0 0 22px oklch(79% 0.14 84 / .75); transform: scale(1.06); } 100% { text-shadow: 0 0 0 transparent; transform: scale(1); } }

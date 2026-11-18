@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Top-up packs</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85)}
+body{margin:0}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.pack{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;transition:border-color .2s, background .2s}
+.pack:focus-visible{outline:2px solid var(--p-gold-bright);outline-offset:2px}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion: reduce){.shine::after{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 60%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--p-line);">
+    <a href="Main.dc.html" aria-label="Back to rewards" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-muted);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <span style="font-size: 12px; color: var(--p-muted);">Balance <strong style="color: var(--p-gold); font-weight: 600;">$248.00 AUD</strong></span>
+  </header>
+
+  <div style="padding: 16px 20px 10px;">
+    <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1.05;">Top up and earn XP</h1>
+    <p style="margin: 6px 0 0; font-size: 12.5px; color: var(--p-muted); line-height: 1.5;">10 XP for every $1. Bigger packs add bonus XP.</p>
+  </div>
+
+  <div role="radiogroup" aria-label="Top-up amount" style="padding: 0 20px; display: flex; flex-direction: column; gap: 8px;">
+    <sc-for list="{{packs}}" as="p" hint-placeholder-count="5">
+      <button class="pack" role="radio" aria-checked="{{p.checked}}" onClick="{{p.pick}}" style="{{p.style}}">
+        <span style="width: 64px; flex-shrink: 0; font-family: var(--font-display); font-size: 26px; font-weight: 700; color: var(--p-gold); font-variant-numeric: tabular-nums;">{{p.label}}</span>
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+          <span style="font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums;">{{p.xpText}}</span>
+          <span style="font-size: 11.5px; color: var(--p-muted);">{{p.outcome}}</span>
+        </span>
+        <sc-if value="{{p.hasBonus}}" hint-placeholder-val="{{true}}">
+          <span style="flex-shrink: 0; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 4px 8px; border-radius: 100px; color: var(--p-gold-bright); border: 1px solid var(--p-line-gold); background: oklch(78% 0.13 86 / .08);">{{p.bonusText}}</span>
+        </sc-if>
+        <sc-if value="{{p.hasTag}}" hint-placeholder-val="{{false}}">
+          <span style="position: absolute; top: -9px; right: 14px; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; border-radius: 100px; color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));">{{p.tag}}</span>
+        </sc-if>
+      </button>
+    </sc-for>
+  </div>
+
+  <section class="dash-card dash-progress" style="margin: 14px 20px 0; padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+    <span style="font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-deep);">After this top-up</span>
+    <div style="display: flex; align-items: center; gap: 10px; font-variant-numeric: tabular-nums;">
+      <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--p-muted);">Lvl 12</span>
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="color: var(--p-gold-bright);"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <span style="font-family: var(--font-display); font-size: 34px; font-weight: 700; color: var(--p-gold);">Lvl {{sel.level}}</span>
+      <span style="margin-left: auto; font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; {{sel.rankStyle}}">{{sel.rank}}</span>
+    </div>
+    <sc-if value="{{sel.rankUp}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: var(--p-radius-sm); background: oklch(78% 0.13 86 / .12); border: 1px solid var(--p-line-gold);">
+        <span class="tier-badge tier-vip">VIP</span>
+        <span style="font-size: 12.5px; font-weight: 600;">Unlocks VIP Inner Circle course</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{sel.noRankUp}}" hint-placeholder-val="{{false}}">
+      <span style="font-size: 12px; color: var(--p-muted); line-height: 1.45;">{{sel.gap}}</span>
+    </sc-if>
+  </section>
+
+  <div style="margin-top: auto; padding: 12px 20px 22px; display: flex; flex-direction: column; gap: 8px;">
+    <button class="btn-gold shine" style="justify-content: center; padding: 16px 20px; font-size: 12.5px; cursor: pointer;">Pay {{sel.label}}.00 AUD</button>
+    <span style="text-align: center; font-size: 11px; color: var(--p-muted);">XP is added as soon as your payment clears.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { picked: 500 }; }
+  renderVals() {
+    var XP_NOW = 11640, GOLD_XP = 15000;
+    var defs = [
+      { amt: 50, bonus: 0, tag: '' },
+      { amt: 100, bonus: 5, tag: '' },
+      { amt: 250, bonus: 10, tag: 'Most popular' },
+      { amt: 500, bonus: 15, tag: 'Best value' },
+      { amt: 1000, bonus: 20, tag: '' }
+    ];
+    var self = this;
+    var fmt = function (n) { return n.toLocaleString('en-AU'); };
+    var packs = defs.map(function (d) {
+      var xp = Math.round(d.amt * 10 * (1 + d.bonus / 100));
+      var total = XP_NOW + xp;
+      var level = Math.floor(total / 1000) + 1;
+      var gold = total >= GOLD_XP;
+      var on = self.state.picked === d.amt;
+      return {
+        label: '$' + fmt(d.amt),
+        xpText: '+' + fmt(xp) + ' XP',
+        bonusText: '+' + d.bonus + '%',
+        hasBonus: d.bonus > 0,
+        tag: d.tag,
+        hasTag: !!d.tag,
+        level: level,
+        rank: gold ? 'Gold' : 'Silver',
+        rankUp: gold,
+        noRankUp: !gold,
+        gap: 'Gold is another $' + fmt(Math.ceil((GOLD_XP - total) / 10)) + ' after this.',
+        rankStyle: gold ? 'color: var(--p-ink); background: var(--p-gold-bright);' : 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35);',
+        outcome: gold ? 'Gets you to Gold · Level ' + level : 'Gets you to Level ' + level,
+        checked: on ? 'true' : 'false',
+        style: 'position: relative; ' + (on
+          ? 'border: 1.5px solid var(--p-gold-bright); background: linear-gradient(135deg, oklch(26% 0.04 85), oklch(19% 0.02 85)); box-shadow: 0 10px 26px -14px oklch(78% 0.13 86 / .5);'
+          : 'border: 1px solid var(--p-line-soft); background: linear-gradient(165deg, var(--p-card-hi), var(--p-card-lo));'),
+        pick: function () { self.setState({ picked: d.amt }); }
+      };
+    });
+    var sel = packs.filter(function (p, i) { return defs[i].amt === self.state.picked; })[0];
+    return { packs: packs, sel: sel, true: true, false: false };
+  }
+}
+</script>
+</body>
+</html>

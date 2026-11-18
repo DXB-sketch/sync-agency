@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate odds</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+<link rel="stylesheet" href="crate.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 60%); color: var(--p-text); font-family: var(--font-portal);">
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px; border-bottom: 1px solid var(--p-line);">
+    <a href="CrateOpen.dc.html" aria-label="Back to crate" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-muted);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg></a>
+    <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--p-muted);">Mystery crates</span>
+  </header>
+
+  <div style="padding: 16px 20px 4px;">
+    <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1.05;">Crate odds</h1>
+    <p style="margin: 6px 0 0; font-size: 12.5px; color: var(--p-muted); line-height: 1.5;">Every crate pays out one reward. These are the exact chances. Crates come from levelling up and can't be bought.</p>
+  </div>
+
+  <div style="flex: 1; padding: 12px 20px 22px; display: flex; flex-direction: column; gap: 14px;">
+    <sc-for list="{{crates}}" as="cr" hint-placeholder-count="2">
+      <section class="dash-card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; {{cr.cardStyle}}">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+          <span style="display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; {{cr.pillStyle}}"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>{{cr.name}} crate</span>
+          <span style="font-size: 11px; color: var(--p-muted);">{{cr.when}}</span>
+        </div>
+        <sc-for list="{{cr.rows}}" as="row" hint-placeholder-count="7">
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 96px 36px; align-items: center; gap: 10px;">
+            <span style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: {{row.color}}; box-shadow: 0 0 8px {{row.color}};"></span>
+              <span style="font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{row.textStyle}}">{{row.label}}</span>
+            </span>
+            <span style="height: 6px; border-radius: 100px; background: var(--p-card-lo); overflow: hidden;"><span style="display: block; height: 100%; width: {{row.bar}}%; border-radius: 100px; background: {{row.color}};"></span></span>
+            <span style="font-size: 12.5px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; {{row.textStyle}}">{{row.pct}}%</span>
+          </div>
+        </sc-for>
+      </section>
+    </sc-for>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 10px 14px; font-size: 11px; color: var(--p-muted);">
+      <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--r-legendary);"></span>Legendary</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--r-epic);"></span>Epic</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--r-rare);"></span>Rare</span>
+      <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: var(--r-common);"></span>Common</span>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var col = { legendary: 'var(--r-legendary)', epic: 'var(--r-epic)', rare: 'var(--r-rare)', common: 'var(--r-common)' };
+    var mk = function (rows) {
+      return rows.map(function (r) {
+        return { label: r[0], pct: r[1], bar: Math.round(r[1] / 20 * 100), color: col[r[2]], textStyle: r[2] === 'legendary' ? 'color: var(--r-legendary); font-weight: 700;' : '' };
+      });
+    };
+    return {
+      crates: [
+        { name: 'Silver', when: 'Every level at Silver', pillStyle: 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35); background: oklch(86% 0.012 85 / .07);', cardStyle: '',
+          rows: mk([['$30 wallet credit', 3, 'legendary'], ['$10 wallet credit', 12, 'epic'], ['$5 wallet credit', 20, 'rare'], ['5% off next stock order', 15, 'rare'], ['+1 product slot, 30 days', 10, 'rare'], ['$2 wallet credit', 20, 'common'], ['+200 bonus XP', 20, 'common']]) },
+        { name: 'Gold', when: 'Every level at Gold and above', pillStyle: 'color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));', cardStyle: 'border-color: var(--p-line-gold);',
+          rows: mk([['$50 wallet credit', 3, 'legendary'], ['$20 wallet credit', 10, 'epic'], ['$10 wallet credit', 20, 'rare'], ['10% off next stock order', 18, 'rare'], ['+1 product slot, 30 days', 12, 'rare'], ['$5 wallet credit', 17, 'common'], ['+500 bonus XP', 20, 'common']]) }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

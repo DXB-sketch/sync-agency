@@ -7,6 +7,7 @@ import { walletEnabled } from "../lib/walletFlag";
 import { productLimit } from "../lib/plus";
 import { LEVEL_XP, activeSlots, courseTier, dollars, levelOf, nextRank, num, rankByKey } from "../lib/rewards";
 import Icon from "../components/portal/Icon";
+import CountUp from "../components/portal/CountUp";
 
 const BANNER_KEY = "sync_sale_banner_dismissed";
 
@@ -247,7 +248,9 @@ export default function DashboardPage() {
           <span className="icon-well">
             <Icon name="profit" />
           </span>
-          <span className="t-num dash-stat-num">${totalSales.toFixed(totalSales % 1 ? 2 : 0)}</span>
+          <span className="t-num dash-stat-num dash-stat-hero">
+            <CountUp value={loaded ? totalSales : null} format={(n) => `$${n.toFixed(totalSales % 1 ? 2 : 0)}`} duration={1800} />
+          </span>
           <span className="t-label">Total sales</span>
           <span className="t-small t-muted">{placed.length ? `${placed.length} order${placed.length === 1 ? "" : "s"} placed` : "Your first sale shows here."}</span>
         </div>
@@ -255,7 +258,9 @@ export default function DashboardPage() {
           <span className="icon-well">
             <Icon name="truck" />
           </span>
-          <span className="t-num dash-stat-num">{shippedCount}</span>
+          <span className="t-num dash-stat-num">
+            <CountUp value={loaded ? shippedCount : null} delay={150} />
+          </span>
           <span className="t-label">Orders shipped</span>
           <span className="t-small t-muted">We ship straight to your buyer.</span>
         </div>
@@ -263,7 +268,10 @@ export default function DashboardPage() {
           <span className="icon-well">
             <Icon name="box" />
           </span>
-          <span className="t-num dash-stat-num">{tier?.unlimited ? productCount : `${Math.min(productCount, slotLimit)} of ${slotLimit}`}</span>
+          <span className="t-num dash-stat-num">
+            <CountUp value={loaded ? (tier?.unlimited ? productCount : Math.min(productCount, slotLimit)) : null} delay={300} />
+            {loaded && !tier?.unlimited && ` of ${slotLimit}`}
+          </span>
           <span className="t-label">{tier?.unlimited ? "Products" : "Product slots used"}</span>
           <span className="t-small t-muted">{tier?.unlimited ? "Full catalogue access." : "New products drop weekly."}</span>
         </Link>
@@ -271,7 +279,9 @@ export default function DashboardPage() {
           <span className="icon-well">
             <Icon name="achieve" />
           </span>
-          <span className="t-num dash-stat-num">{earned}</span>
+          <span className="t-num dash-stat-num">
+            <CountUp value={loaded ? earned : null} delay={450} />
+          </span>
           <span className="t-label">Achievements</span>
           <span className="t-small t-muted">{nextAch ? `Next: ${nextAch}.` : "Every achievement earned."}</span>
         </Link>

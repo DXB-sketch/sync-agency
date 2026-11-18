@@ -5,7 +5,6 @@ import { useAuth } from "../lib/useAuth";
 import { isNativeApp } from "../lib/nativeApp";
 import Icon from "../components/portal/Icon";
 import { walletEnabled } from "../lib/walletFlag";
-import { useChronosMode } from "../lib/useChronosMode";
 
 function Row({ to, icon, label }) {
   return (
@@ -21,7 +20,6 @@ function Row({ to, icon, label }) {
 
 export default function MorePage() {
   const { profile } = useAuth();
-  const { chronosMode } = useChronosMode();
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState(null);
 
@@ -60,10 +58,6 @@ export default function MorePage() {
         <Row to="/portal/support" icon="support" label="Support" />
         {!isNativeApp() && <Row to="/portal/upgrade" icon="upgrade" label="Upgrade plan" />}
         <Row to="/portal/plus" icon="star" label="Sync Plus" />
-        {/* Chronos preview: admin-only, and only when Chronos Mode is on — the route
-            itself is also wrapped in RequireChronos (App.jsx), so this is
-            belt-and-suspenders, not the only gate. */}
-        {profile?.role === "admin" && chronosMode && <Row to="/portal/store" icon="store" label="Shopify store (Chronos preview)" />}
         {profile?.role === "admin" && <Row to="/admin" icon="user" label="Admin" />}
         <Row to="/terms" icon="info" label="Terms of Service" />
         <Row to="/privacy" icon="lock" label="Privacy Policy" />

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rewards hub</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85);--bronze:oklch(66% 0.10 55)}
+body{margin:0}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 oklch(78% 0.13 86 / .5)}50%{box-shadow:0 0 0 9px oklch(78% 0.13 86 / 0)}}
+.pulse{animation:pulse 2s ease-out infinite}
+@media (prefers-reduced-motion: reduce){.shine::after,.pulse{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% -10%, oklch(22% 0.03 85) 0%, var(--p-bg-deep) 62%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--p-line);">
+    <span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span>
+    <a href="TopUp.dc.html" style="display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px; border: 1px solid var(--p-line-gold); border-radius: var(--p-radius-pill); background: var(--p-card-hi); text-decoration: none; color: var(--p-gold); font-size: 13px; font-weight: 600;">
+      <span>$248.00</span>
+      <span style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+    </a>
+  </header>
+
+  <main style="flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 16px 20px 0;">
+    <div>
+      <div style="font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--p-gold-deep); font-weight: 600;">Sync Rewards</div>
+      <h1 style="margin: 4px 0 0; font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.05;">Level up your store</h1>
+    </div>
+
+    <section class="dash-card dash-progress" style="padding: 18px; position: relative; overflow: hidden;">
+      <div aria-hidden="true" style="position: absolute; top: -70px; left: -40px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, oklch(78% 0.13 86 / 0.28), transparent 70%); pointer-events: none;"></div>
+      <div style="position: relative; display: flex; align-items: center; gap: 16px;">
+        <div style="position: relative; width: 104px; height: 104px; flex-shrink: 0;">
+          <svg role="img" aria-label="Level 12, 64 percent to level 13" width="104" height="104" viewBox="0 0 104 104">
+            <defs><linearGradient id="ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--p-gold)"></stop><stop offset=".55" style="stop-color: var(--p-gold-bright)"></stop><stop offset="1" style="stop-color: var(--p-gold-deep)"></stop></linearGradient></defs>
+            <circle cx="52" cy="52" r="44" fill="none" style="stroke: var(--p-line)" stroke-width="8"></circle>
+            <circle cx="52" cy="52" r="44" fill="none" stroke="url(#ring)" stroke-width="8" stroke-linecap="round" stroke-dasharray="176.9 276.5" transform="rotate(-90 52 52)"></circle>
+          </svg>
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-family: var(--font-display); font-size: 42px; font-weight: 700; line-height: 0.9; color: var(--p-gold);">12</span>
+            <span style="font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--p-muted); font-weight: 600;">Level</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+          <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: var(--p-radius-pill); color: var(--silver); border: 1px solid oklch(86% 0.012 85 / 0.35); background: oklch(86% 0.012 85 / 0.07);">
+            <svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>Silver rank
+          </span>
+          <span style="font-family: var(--font-display); font-size: 30px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums;">11,640 <span style="font-family: var(--font-portal); font-size: 12px; font-weight: 600; letter-spacing: 0.1em; color: var(--p-gold);">XP</span></span>
+          <span style="font-size: 12.5px; color: var(--p-muted); line-height: 1.4;">Only <strong style="color: var(--p-text); font-weight: 600;">360 XP</strong> to Level 13</span>
+        </div>
+      </div>
+
+      <div style="position: relative; margin-top: 16px;">
+        <div style="height: 12px; border-radius: var(--p-radius-pill); background: var(--p-card-lo); border: 1px solid var(--p-line); overflow: hidden;">
+          <div class="shine" style="width: 64%; height: 100%; border-radius: var(--p-radius-pill); background: linear-gradient(90deg, var(--p-gold-deep), var(--p-gold-bright) 70%, var(--p-gold));"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; letter-spacing: 0.08em; color: var(--p-muted); font-weight: 600;"><span>LVL 12</span><span>$36 of credit to go</span><span>LVL 13</span></div>
+      </div>
+
+      <div style="position: relative; margin-top: 14px; padding-top: 14px; border-top: 1px solid oklch(60% 0.09 80 / .25); display: flex; align-items: center; gap: 12px;">
+        <span class="pulse" style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+          <div style="display: flex; justify-content: space-between; gap: 8px; font-size: 13.5px; font-weight: 600;"><span>Gold rank in $336</span><span style="color: var(--p-gold);">66%</span></div>
+          <div style="height: 5px; border-radius: var(--p-radius-pill); background: var(--p-card-lo); overflow: hidden;"><div style="width: 66%; height: 100%; background: var(--p-gold-bright);"></div></div>
+          <span style="font-size: 11.5px; color: var(--p-muted);">Unlocks the <span style="color: var(--p-gold);">VIP Inner Circle</span> course</span>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+      <div class="dash-card" style="padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+        <span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>
+        <span><span class="dash-stat-num" style="font-size: 18px;">4 weeks</span><span class="dash-stat-label">Streak · +5% XP</span></span>
+      </div>
+      <div class="dash-card" style="padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+        <span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+        <span><span class="dash-stat-num" style="font-size: 18px;">Crate</span><span class="dash-stat-label">Opens at Lvl 13</span></span>
+      </div>
+    </div>
+
+    <section style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <h2 style="margin: 0; font-family: var(--font-display); font-size: 20px; font-weight: 600;">Next rewards</h2>
+        <a href="Ranks.dc.html" style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; text-decoration: none;">All ranks</a>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+        <div aria-hidden="true" style="position: absolute; top: 22px; left: 12%; right: 12%; height: 2px; background: linear-gradient(90deg, var(--p-gold-bright), var(--p-line-gold));"></div>
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;">
+          <span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-bg); border: 2.5px solid var(--p-gold-bright); color: var(--p-gold); box-shadow: 0 0 0 6px oklch(78% 0.13 86 / .14), 0 0 20px oklch(78% 0.13 86 / .35);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+          <span style="font-size: 9.5px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-gold);">LVL 13</span>
+          <span style="font-size: 11.5px; line-height: 1.25;">Mystery crate</span>
+        </div>
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;">
+          <span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-hi); border: 1.5px solid var(--p-line-gold); color: var(--p-gold);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/></svg></span>
+          <span style="font-size: 9.5px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-muted);">LVL 14</span>
+          <span style="font-size: 11.5px; line-height: 1.25;">$5 credit</span>
+        </div>
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;">
+          <span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-hi); border: 1.5px solid var(--p-line-gold); color: var(--p-gold);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+          <span style="font-size: 9.5px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-muted);">LVL 15</span>
+          <span style="font-size: 11.5px; line-height: 1.25;">+1 product slot</span>
+        </div>
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center;">
+          <span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink); box-shadow: 0 8px 20px oklch(70% 0.12 82 / .4);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+          <span style="font-size: 9.5px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-gold);">LVL 16</span>
+          <span style="font-size: 11.5px; line-height: 1.25; color: var(--p-gold);">Gold · VIP course</span>
+        </div>
+      </div>
+    </section>
+
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 2px;">
+      <a href="TopUp.dc.html" class="btn-gold shine" style="justify-content: center; padding: 16px 20px; font-size: 12.5px; text-decoration: none;">Top up &amp; earn XP</a>
+      <span style="text-align: center; font-size: 11.5px; color: var(--p-muted);">A $500 top-up takes you straight to Gold.</span>
+    </div>
+  </main>
+
+  <nav aria-label="Portal" style="flex-shrink: 0; display: flex; gap: 6px; padding: 10px 10px 18px; background: linear-gradient(180deg, oklch(24% 0.02 85) 0%, oklch(18% 0.016 85) 100%); border-top: 1px solid oklch(60% 0.09 80 / .35);">
+    <a href="#" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: var(--p-radius-md); color: var(--p-dim); text-decoration: none;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span style="font-size: 9px; letter-spacing: 0.03em; text-transform: uppercase; font-weight: 600;">Dashboard</span></a>
+    <a href="#" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: var(--p-radius-md); color: var(--p-dim); text-decoration: none;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M8.5 15.5l7-7"/></svg><span style="font-size: 9px; letter-spacing: 0.03em; text-transform: uppercase; font-weight: 600;">Pathway</span></a>
+    <a href="#" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: var(--p-radius-md); color: var(--p-ink); text-decoration: none; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); box-shadow: 0 6px 14px -6px oklch(78% 0.13 86 / .4);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg><span style="font-size: 9px; letter-spacing: 0.03em; text-transform: uppercase; font-weight: 600;">Rewards</span></a>
+    <a href="#" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: var(--p-radius-md); color: var(--p-dim); text-decoration: none;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span style="font-size: 9px; letter-spacing: 0.03em; text-transform: uppercase; font-weight: 600;">Products</span></a>
+    <a href="#" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 4px; border-radius: var(--p-radius-md); color: var(--p-dim); text-decoration: none;"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg><span style="font-size: 9px; letter-spacing: 0.03em; text-transform: uppercase; font-weight: 600;">More</span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

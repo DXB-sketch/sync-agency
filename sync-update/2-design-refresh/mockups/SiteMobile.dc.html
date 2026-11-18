@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sync Agency website on mobile, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+html,body{overflow-x:hidden;scrollbar-width:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}
+.px{padding-left:20px;padding-right:20px}
+.em{font-style:italic;color:var(--gold)}
+.feat{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.45;color:var(--text-2)}
+.feat .icon{width:18px;height:18px;color:var(--gold);margin-top:2px}
+.dash{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.5;color:var(--text-2)}
+.dash::before{content:"";flex-shrink:0;width:6px;height:6px;margin-top:9px;border-radius:50%;background:var(--gold-deep)}
+.faq-q{all:unset;box-sizing:border-box;cursor:pointer;width:100%;min-height:56px;display:flex;align-items:center;gap:12px;padding:16px 0;font-family:var(--font-ui);font-size:16px;font-weight:600;color:var(--text)}
+.faq-q:focus-visible{outline:2px solid var(--gold-strong);outline-offset:2px}
+.foot{color:var(--text-2);text-decoration:none;font-size:15px}
+</style>
+</helmet>
+<div class="rf" style="width: 390px;">
+  <header class="px" style="height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); background: var(--bg-0);">
+    <span class="logo" style="font-size: 22px;">Sync Agency</span>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <a class="btn btn-primary btn-sm" href="#pricing">Join now</a>
+      <button class="btn btn-quiet" aria-label="Open menu" style="width: 44px; padding: 0; color: var(--text);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 24px; height: 24px;"><path d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+    </div>
+  </header>
+
+  <section class="px" style="padding-top: 40px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 20px; background: radial-gradient(ellipse at 80% 0%, oklch(24% 0.05 85), var(--bg-0) 65%);">
+    <div class="t-eyebrow">The Depop coaching system</div>
+    <h1 class="t-display" style="font-size: 50px;">Start your ecommerce <span class="em">journey.</span></h1>
+    <p class="t-body" style="font-size: 17px;">A step-by-step pathway, product slots stocked by our team, and hands-on coaching. Everything you need to launch your first dropshipping store. Choose your level and start today.</p>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <a class="btn btn-primary btn-lg" href="#pricing" style="width: 100%;">Choose your plan</a>
+      <a class="btn btn-secondary btn-lg" href="#how" style="width: 100%;">See how it works</a>
+    </div>
+    <div class="card-feature" style="padding: 18px; display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-label">How one sale works</span><span class="chip chip-plain" style="height: 24px; font-size: 12px;">Example</span></div>
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 15px;"><span class="icon-well" style="width: 40px; height: 40px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.tag}}"></path></svg></span>Product listed at $85</div>
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 15px;"><span class="icon-well" style="width: 40px; height: 40px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg></span>Buyer pays $85, Depop deducts its fees</div>
+      <div style="display: flex; align-items: center; gap: 12px; font-size: 15px;"><span class="icon-well" style="width: 40px; height: 40px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.truck}}"></path></svg></span>You pay $38, they ship direct</div>
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 14px; background: oklch(79% 0.14 84 / .1); border: 1px solid oklch(79% 0.14 84 / .4);"><span style="font-weight: 600; font-size: 15px;">Example margin, before fees</span><span class="t-num t-gold" style="font-size: 34px; line-height: 1;">$47</span></div>
+      <p class="t-small t-muted" style="font-size: 13px;">Illustrative example only. Not a typical or expected result. Fees, returns and other costs reduce your actual margin, and many listings never sell.</p>
+    </div>
+  </section>
+
+  <section id="pricing" class="px" style="padding-top: 56px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 22px; border-top: 1px solid var(--line);">
+    <div><div class="t-eyebrow">Pricing</div><h2 class="t-h1" style="margin-top: 10px; font-size: 38px;">Choose your level. Start <span class="em">today.</span></h2><p class="t-body" style="margin-top: 8px;">Three levels of hands-on coaching, plus the Executive Partner flagship. One-time payment in AUD via Stripe.</p></div>
+    <sc-for list="{{plans}}" as="pl" hint-placeholder-count="3">
+      <article style="position: relative; padding: 26px 20px 22px; border-radius: 22px; display: flex; flex-direction: column; gap: 14px; {{pl.box}}">
+        <sc-if value="{{pl.featured}}" hint-placeholder-val="{{false}}"><span class="chip" style="position: absolute; top: -14px; left: 20px; background: var(--grad-gold); color: var(--on-gold);">Most popular</span></sc-if>
+        <div><div class="t-eyebrow" style="color: var(--text-3);">{{pl.tier}}</div><h3 class="t-h2" style="font-size: 28px; margin-top: 6px;">{{pl.name}}</h3><p class="t-small" style="margin-top: 4px;">{{pl.tagline}}</p></div>
+        <div style="display: flex; align-items: baseline; gap: 8px;"><span class="t-num t-gold" style="font-size: 52px; line-height: 1;">${{pl.price}}</span><span class="t-small">AUD, one-time</span></div>
+        <div style="font-size: 14px; padding: 10px 12px; border-radius: 12px; background: var(--bg-3);"><strong style="font-weight: 600; color: var(--gold);">What you get:</strong> <span style="color: var(--text-2);">{{pl.outcome}}</span></div>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px;">
+          <sc-if value="{{pl.hasBase}}" hint-placeholder-val="{{false}}"><li class="feat" style="color: var(--text); font-weight: 600;">{{pl.base}}</li></sc-if>
+          <sc-for list="{{pl.features}}" as="f" hint-placeholder-count="5"><li class="feat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li></sc-for>
+          <li class="t-small t-muted" style="padding-left: 28px;">+ {{pl.more}} more in the comparison</li>
+        </ul>
+        <a class="btn {{pl.btn}}" href="#" style="width: 100%;">Choose {{pl.name}}</a>
+      </article>
+    </sc-for>
+    <article style="position: relative; padding: 28px 20px 22px; border-radius: 24px; display: flex; flex-direction: column; gap: 14px; background: radial-gradient(ellipse at 15% 0%, oklch(28% 0.06 85), oklch(14% 0.014 85) 75%); border: 1.5px solid var(--gold-strong);">
+      <span class="chip" style="position: absolute; top: -14px; left: 20px; background: var(--grad-gold); color: var(--on-gold);">The ultimate tier</span>
+      <div><div class="t-eyebrow">Tier 04 · Flagship</div><h3 class="t-h2" style="font-size: 30px; margin-top: 6px;">Executive Partner</h3><p class="t-small" style="margin-top: 4px;">The final level. You stop being a client and start operating like one of the team.</p></div>
+      <div style="display: flex; align-items: baseline; gap: 8px;"><span class="t-num t-gold" style="font-size: 52px; line-height: 1;">$3,799</span><span class="t-small">AUD, one-time</span></div>
+      <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 9px;">
+        <sc-for list="{{execShort}}" as="f" hint-placeholder-count="5"><li class="feat"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>{{f}}</li></sc-for>
+        <li class="t-small t-muted" style="padding-left: 28px;">+ 5 more in the comparison</li>
+      </ul>
+      <a class="btn btn-primary" href="#" style="width: 100%;">Become an Executive Partner</a>
+      <p class="t-small" style="font-size: 13px;">Not ready for the full partnership? VIP Inner Circle gets you a fully run store for under a fifth of the price.</p>
+    </article>
+    <a class="btn btn-secondary" href="#" style="width: 100%;">Compare all tiers</a>
+  </section>
+
+  <section id="how" class="px" style="padding-top: 56px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 22px; background: var(--bg-1); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+    <div><div class="t-eyebrow">What is dropshipping?</div><h2 class="t-h1" style="margin-top: 10px; font-size: 38px;">Sell products. Never hold <span class="em">stock.</span></h2><p class="t-body" style="margin-top: 10px;">You list products, take orders, buy from a supplier and keep whatever margin is left after costs. No warehouse and no upfront bulk inventory. Like any business, it takes work, and results vary from person to person.</p></div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px;">
+      <sc-for list="{{perks}}" as="p" hint-placeholder-count="4">
+        <div style="display: flex; flex-direction: column; gap: 6px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 22px; height: 22px; color: var(--gold);"><path d="{{p.icon}}"></path></svg><div style="font-size: 15px; font-weight: 600;">{{p.title}}</div><div class="t-small" style="font-size: 13px;">{{p.body}}</div></div>
+      </sc-for>
+    </div>
+    <h3 class="t-h2" style="font-size: 28px; margin-top: 10px;">How it works, step by <span class="em">step.</span></h3>
+    <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+      <sc-for list="{{steps}}" as="s" hint-placeholder-count="5">
+        <li class="card" style="padding: 16px; display: flex; gap: 14px; align-items: flex-start;">
+          <span class="icon-well" style="flex-shrink: 0;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{s.icon}}"></path></svg></span>
+          <div><div style="display: flex; align-items: baseline; gap: 8px;"><span class="t-label" style="color: var(--gold);">{{s.num}}</span><h4 class="t-h3" style="font-size: 16px;">{{s.title}}</h4></div><p class="t-small" style="margin-top: 4px;">{{s.body}}</p></div>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+
+  <section class="px" style="padding-top: 56px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 18px;">
+    <div class="t-eyebrow">About Sync Agency</div>
+    <h2 class="t-h1" style="font-size: 38px;">Built by a practitioner, not a <span class="em">guru.</span></h2>
+    <blockquote style="margin: 0; padding-left: 16px; border-left: 2px solid var(--gold-deep); font-family: var(--font-display); font-style: italic; font-size: 22px; line-height: 1.35;">“We didn't learn this from a YouTube video. We built it, tested it and refined it on Depop ourselves, and now we teach it.”</blockquote>
+    <sc-for list="{{values}}" as="v" hint-placeholder-count="4">
+      <div style="display: flex; gap: 14px; align-items: flex-start;"><span class="icon-well" style="flex-shrink: 0;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{v.icon}}"></path></svg></span><div><div style="font-size: 16px; font-weight: 600;">{{v.title}}</div><div class="t-small" style="margin-top: 2px;">{{v.body}}</div></div></div>
+    </sc-for>
+  </section>
+
+  <section id="expectations" class="px" style="padding-top: 56px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 16px; background: var(--bg-1); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);">
+    <div class="t-eyebrow">Honest expectations</div>
+    <h2 class="t-h1" style="font-size: 38px;">Education and tools. <span class="em">Not a guarantee.</span></h2>
+    <p class="t-body">Sync Agency is a coaching and education service. Most new online businesses make little or no profit, and you could lose money. Please only join if you're comfortable with that. Full details are in our <a href="#" style="color: var(--gold);">Terms of Service</a>.</p>
+    <sc-for list="{{expect}}" as="e" hint-placeholder-count="3">
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;"><span class="icon-well" style="{{e.well}}"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{e.icon}}"></path></svg></span><h3 class="t-h3" style="font-size: 17px;">{{e.title}}</h3></div>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px;"><sc-for list="{{e.items}}" as="i" hint-placeholder-count="4"><li class="dash">{{i}}</li></sc-for></ul>
+      </div>
+    </sc-for>
+  </section>
+
+  <section id="faq" class="px" style="padding-top: 56px; padding-bottom: 48px; display: flex; flex-direction: column; gap: 10px;">
+    <div class="t-eyebrow">FAQ</div>
+    <h2 class="t-h1" style="font-size: 38px; margin-bottom: 8px;">Got questions? <span class="em">Good.</span></h2>
+    <div>
+      <sc-for list="{{faqs}}" as="f" hint-placeholder-count="7">
+        <div style="border-bottom: 1px solid var(--line);">
+          <button class="faq-q" aria-expanded="{{f.open}}" onClick="{{f.toggle}}"><span style="flex: 1;">{{f.q}}</span><span style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-3); color: var(--gold); {{f.rot}}"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 16px; height: 16px;"><path d="M6 9l6 6 6-6"></path></svg></span></button>
+          <sc-if value="{{f.isOpen}}" hint-placeholder-val="{{false}}"><p class="t-small" style="font-size: 15px; padding: 0 8px 18px 0;">{{f.a}}</p></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 10px; margin-top: 18px;">
+      <span class="t-h3">Ask us directly</span>
+      <p class="t-small">Email us anything before you commit. No sales pressure, no scripts. Typical response time is under 2 hours.</p>
+      <span style="font-size: 16px; font-weight: 600; color: var(--gold); user-select: all;">founder@syncagency.org</span>
+      <a class="btn btn-secondary" href="mailto:founder@syncagency.org" style="width: 100%;">Email us</a>
+    </div>
+  </section>
+
+  <section class="px" style="padding-top: 56px; padding-bottom: 56px; display: flex; flex-direction: column; gap: 16px; text-align: center; background: radial-gradient(ellipse at 50% 0%, oklch(24% 0.05 85), var(--bg-1) 70%); border-top: 1px solid var(--line);">
+    <h2 class="t-display" style="font-size: 42px;">Your journey starts with <span class="em">one decision.</span></h2>
+    <p class="t-small" style="font-size: 15px;">Results depend on you and aren't guaranteed, so ask us anything before you commit.</p>
+    <a class="btn btn-primary btn-lg" href="#pricing" style="width: 100%;">Choose your plan</a>
+  </section>
+
+  <footer class="px" style="padding-top: 32px; padding-bottom: 40px; display: flex; flex-direction: column; gap: 18px; background: var(--bg-1); border-top: 1px solid var(--line);">
+    <span class="logo" style="font-size: 22px;">Sync Agency</span>
+    <nav style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;" aria-label="Footer"><a class="foot" href="#how">How it works</a><a class="foot" href="#pricing">Pricing</a><a class="foot" href="#expectations">Expectations</a><a class="foot" href="#faq">FAQ</a><a class="foot" href="#">Enrol</a><a class="foot" href="#">Contact</a><a class="foot" href="#">Terms of Service</a><a class="foot" href="#">Privacy Policy</a></nav>
+    <span class="t-small t-muted" style="font-size: 13px;">© {{year}} Sync Agency · All prices AUD · Education and coaching only. Results are not guaranteed and vary between individuals.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":8400}}'>
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: 2 }; }
+  renderVals() {
+    var self = this;
+    var ic = {
+      tag: 'M3 12V4h8l10 10-8 8zM7.5 8h.01',
+      checkout: 'M3 4h2.5l2 11h10.5l2-8H6.5M9 20h.01M17 20h.01',
+      truck: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+      target: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM12 12h.01',
+      box: 'M3 7.5 12 3l9 4.5v9L12 21l-9-4.5zM3 7.5 12 12l9-4.5M12 12v9',
+      phone: 'M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM11 18h2',
+      profit: 'M3 17l6-6 4 4 8-8M15 7h6v6',
+      store: 'M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9h16M9 20v-6h6v6',
+      refresh: 'M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9M18 3v4h-4M6 21v-4h4',
+      tools: 'M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17v3h3l5.3-5.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z',
+      scale: 'M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0zM8 21h8',
+      handshake: 'M3 12l4-4 3 1 3-2 4 1 4 4M7 14l3 3a1.5 1.5 0 0 0 2-2M12 15l2 2a1.5 1.5 0 0 0 2-2l-3-3',
+      link: 'M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      x: 'M6 6l12 12M18 6 6 18',
+      info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01'
+    };
+    var plans = [
+      { tier: 'Tier 02', name: 'Elite Scale', tagline: 'Your store is actively run and optimised.', price: 247, outcome: 'A professionally managed store with consistency.', hasBase: true, base: 'Everything in Pro Accelerator, plus:', features: ['Scaling & optimisation strategy', 'Advanced product testing', 'Supplier margin optimisation', 'Listings created & optimised', 'Priority message access'], more: 5, featured: true, btn: 'btn-primary', box: 'background: linear-gradient(165deg, oklch(25% 0.04 85), oklch(17% 0.016 85) 70%); border: 1.5px solid var(--gold-strong);' },
+      { tier: 'Tier 01', name: 'Pro Accelerator', tagline: 'Execution-focused. Built to launch correctly.', price: 97, outcome: 'A fully launched, optimised Depop store.', hasBase: false, base: '', features: ['1-on-1 execution calls (unlimited)', 'Live store build from scratch', 'Custom niche & positioning analysis', 'Private supplier access', 'Daily product drops'], more: 6, featured: false, btn: 'btn-secondary', box: 'background: var(--bg-2); border: 1px solid var(--line);' },
+      { tier: 'Tier 03', name: 'VIP Inner Circle', tagline: 'Maximum access. Full store management.', price: 689, outcome: 'A fully managed Depop store with oversight.', hasBase: true, base: 'Everything in Elite Scale, plus:', features: ['Unlimited 1-on-1 calls', 'Fully custom strategy', 'Private VIP product list', 'Store fully run for you', 'Top-priority responses'], more: 8, featured: false, btn: 'btn-secondary', box: 'background: var(--bg-2); border: 1px solid var(--line);' }
+    ];
+    var execShort = ['Everything in VIP Inner Circle, and then some', 'Unlimited access to sales specialists', 'The entire product catalogue, no slot limits', 'Every pathway step and portal feature from day one', 'A direct line to the Sync team'];
+    var perks = [
+      { icon: ic.box, title: 'No inventory needed', body: 'Products ship direct from supplier to buyer.' },
+      { icon: ic.phone, title: 'Phone-based business', body: 'Run your store entirely from your phone.' },
+      { icon: ic.profit, title: 'Keep the difference', body: 'The margin left after fees, shipping and other costs.' },
+      { icon: ic.store, title: 'Why Depop?', body: 'An established marketplace with a large built-in audience.' }
+    ];
+    var steps = [
+      { num: '01', icon: ic.target, title: 'Choose a product', body: 'We look at Depop demand and supplier cost to help you choose products to test.' },
+      { num: '02', icon: ic.tag, title: 'List on your store', body: 'Use our frameworks for titles, photos, pricing and descriptions.' },
+      { num: '03', icon: ic.checkout, title: 'Customer buys from you', body: 'Depop processes the payment and pays you out after its fees.' },
+      { num: '04', icon: ic.truck, title: 'Order from supplier', body: 'It ships directly to your buyer. What remains after all costs is your margin.' },
+      { num: '05', icon: ic.refresh, title: 'Review & improve', body: 'Adjust your listings, niches and pricing, and keep learning with our support.' }
+    ];
+    var values = [
+      { icon: ic.tools, title: 'Practical, not theoretical', body: 'You learn by doing, with us alongside you.' },
+      { icon: ic.scale, title: 'Honest expectations', body: "We don't promise income or results, and we'll tell you that up front." },
+      { icon: ic.handshake, title: "We're in it with you", body: 'Direct access to us on every tier, for the full length of your access.' },
+      { icon: ic.link, title: 'Supplier network', body: 'Product slots stocked by our team, orders fulfilled through your dashboard.' }
+    ];
+    var expect = [
+      { title: 'What we do', icon: ic.check, well: 'color: var(--ok);', items: ['Teach you how to set up and run a Depop dropshipping store', 'Give you the Sync dashboard, pathway and product slots for your tier', 'Fulfil the orders you place through your dashboard', 'Answer your questions and support you for the length of your access'] },
+      { title: "What we don't promise", icon: ic.x, well: 'color: var(--bad);', items: ['Any level of sales, income or profit', "That you'll make your money back, or make money at all", 'That any product will sell, or keep selling', 'How Depop, suppliers or the market will behave'] },
+      { title: 'What it depends on', icon: ic.info, well: 'color: var(--info);', items: ['The time and effort you put in', 'Your product, pricing and listing decisions', 'Fees, shipping costs, returns and competition', "Depop's rules and your account standing"] }
+    ];
+    var QA = [
+      ['What do I get when I join?', 'Every plan includes the Sync dashboard: a step-by-step pathway, product slots stocked by our team, achievements, order fulfilment and support, plus the hands-on coaching for your tier.'],
+      ['Do I need any experience to start?', "No experience is needed to start. The pathway walks you through each step, and we're there whenever questions come up."],
+      ['Will I make money?', "We can't promise that, and nobody honestly can. Sync Agency provides education, coaching and tools, not a business opportunity or an income. Many people who try dropshipping make little or no profit, and you could lose money. Please only join if you're comfortable with that."],
+      ["What's the difference between the tiers?", 'Pro Accelerator is coaching and guidance. Elite Scale adds done-for-you store management. VIP Inner Circle is maximum access and a fully operated store.'],
+      ['Do I need capital to run the business?', 'You only pay the supplier after a buyer pays you. A buffer of $100–$200 AUD is recommended.'],
+      ['Can I get a refund?', "Plans are generally non-refundable. If you believe something has genuinely gone wrong, email founder@syncagency.org with evidence. Nothing in our policy limits your rights under the Australian Consumer Law."],
+      ['How much time does it take per week?', 'Pro Accelerator: 1–3 hours a day to start. Elite Scale reduces this a lot. VIP Inner Circle can be 20–30 minutes a day.']
+    ];
+    var faqs = QA.map(function (x, i) {
+      var open = self.state.open === i;
+      return { q: x[0], a: x[1], isOpen: open, open: open ? 'true' : 'false', rot: open ? 'transform: rotate(180deg);' : '', toggle: function () { self.setState({ open: open ? -1 : i }); } };
+    });
+    return { ic: ic, plans: plans, execShort: execShort, perks: perks, steps: steps, values: values, expect: expect, faqs: faqs, year: new Date().getFullYear() };
+  }
+}
+</script>
+</body>
+</html>

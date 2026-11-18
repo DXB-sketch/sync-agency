@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile pathway, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}html,body{overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}</style>
+</helmet>
+<div class="rf" style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column;">
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 4px; padding: 0 8px; border-bottom: 1px solid var(--line); background: var(--bg-1);">
+    <a class="btn btn-quiet" href="#" aria-label="Back to More" style="width: 44px; padding: 0; color: var(--text-2);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></a>
+    <span style="font-size: 17px; font-weight: 600;">Pathway</span>
+    <span style="flex: 1;"></span>
+    <span class="t-small" style="padding-right: 10px;">2 of 8 done</span>
+  </header>
+
+  <main style="flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 14px; padding-top: 14px;">
+    <div style="display: flex; gap: 8px; padding: 0 16px; overflow: hidden;">
+      <span class="chip" style="height: 40px; padding: 0 14px; background: var(--grad-gold); color: var(--on-gold);">1 · Launch</span>
+      <span class="chip chip-plain" style="height: 40px; padding: 0 14px;">2 · List</span>
+      <span class="chip chip-plain" style="height: 40px; padding: 0 14px;">3 · Traffic</span>
+      <span class="chip chip-plain" style="height: 40px; padding: 0 14px; color: var(--text-3);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 14px; height: 14px;"><path d="{{ic.lock}}"></path></svg>4 · Sell</span>
+    </div>
+
+    <div style="padding: 0 16px; display: flex; flex-direction: column; gap: 14px;">
+      <div class="card-feature" style="padding: 18px; display: flex; align-items: center; gap: 14px;">
+        <span class="icon-well" style="width: 52px; height: 52px; border-radius: 16px; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 26px; height: 26px;"><path d="{{ic.store}}"></path></svg></span>
+        <div style="flex: 1;"><div class="t-eyebrow">Stage 1 of 6</div><div class="t-h2" style="font-size: 26px; margin-top: 4px;">Launch your store</div></div>
+      </div>
+
+      <ol style="list-style: none; margin: 0; padding: 0; position: relative; display: flex; flex-direction: column; gap: 12px;">
+        <li aria-hidden="true" style="position: absolute; left: 19px; top: 22px; bottom: 30px; width: 2px; background: linear-gradient(180deg, var(--gold-strong) 0%, var(--gold-strong) 55%, var(--line) 55%);"></li>
+        <li style="position: relative; display: flex; gap: 14px; align-items: center;">
+          <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.5;"><path d="{{ic.check}}"></path></svg></span>
+          <div class="card" style="flex: 1; padding: 14px 16px; background: var(--bg-1);"><span style="font-size: 15px; font-weight: 600; color: var(--text-2);">Set up your Depop account</span></div>
+        </li>
+        <li style="position: relative; display: flex; gap: 14px; align-items: center;">
+          <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.5;"><path d="{{ic.check}}"></path></svg></span>
+          <div class="card" style="flex: 1; padding: 14px 16px; background: var(--bg-1);"><span style="font-size: 15px; font-weight: 600; color: var(--text-2);">Write your shop bio</span></div>
+        </li>
+        <li style="position: relative; display: flex; gap: 14px; align-items: flex-start;">
+          <span style="width: 40px; height: 40px; flex-shrink: 0; margin-top: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-0); border: 2.5px solid var(--gold-strong); box-shadow: 0 0 0 5px oklch(79% 0.14 84 / .15); color: var(--gold); font-family: var(--font-display); font-size: 19px; font-weight: 700;">3</span>
+          <div class="card" style="flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; border-color: oklch(79% 0.14 84 / .5);">
+            <div style="display: flex; align-items: center; gap: 8px;"><span style="flex: 1; font-size: 17px; font-weight: 600;">Pick your shop photo</span><span class="chip chip-gold" style="height: 24px; font-size: 12px;">Up next</span></div>
+            <p class="t-small">The first thing buyers see. About 10 minutes.</p>
+            <a class="btn btn-primary" href="#" style="width: 100%;">Open step</a>
+          </div>
+        </li>
+      </ol>
+      <div class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 12px; background: var(--bg-1);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="color: var(--text-3);"><path d="{{ic.lock}}"></path></svg><span class="t-small">Next stage: List your products</span></div>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="Portal">
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achieve<span class="tab-dot"></span></a>
+    <a class="tab tab-on" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.6;"><path d="{{ic.more}}"></path></svg>More<span class="tab-dot"></span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { ic: {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      more: 'M5 12h.01M12 12h.01M19 12h.01',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+      store: 'M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9h16M9 20v-6h6v6'
+    } };
+  }
+}
+</script>
+</body>
+</html>

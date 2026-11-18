@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design refresh audit</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.shot{display:block;width:100%;border-radius:12px;border:1px solid var(--line);background:var(--bg-1)}
+.find{display:flex;gap:12px;align-items:flex-start}
+.find-t{font-size:15px;font-weight:600;color:var(--text);line-height:1.35}
+.find-d{font-size:14px;color:var(--text-2);line-height:1.5;margin-top:2px}
+.fix{font-size:14px;color:var(--gold);line-height:1.5;margin-top:4px}
+</style>
+</helmet>
+<div class="rf" style="width: 1440px; min-height: 2360px; padding: 64px 72px; display: flex; flex-direction: column; gap: 40px;">
+  <header style="display: flex; justify-content: space-between; align-items: flex-end; gap: 40px;">
+    <div style="max-width: 720px;">
+      <div class="t-eyebrow">Audit · screenshots of the code in the repo, 12 Nov 2026 · each issue checked against syncagency.org</div>
+      <h1 class="t-display" style="margin-top: 14px;">What's changing, and why</h1>
+      <p class="t-body" style="margin-top: 16px; font-size: 18px;">Each screenshot below is the site or portal as it renders today. Every numbered problem has a fix on the boards that follow. Anything not listed stays as it is.</p>
+    </div>
+    <div class="card" style="padding: 20px 24px; display: flex; gap: 28px;">
+      <div><div class="t-num t-gold" style="font-size: 40px;">14</div><div class="t-label">Problems fixed</div></div>
+      <div><div class="t-num t-gold" style="font-size: 40px;">2</div><div class="t-label">Apps covered</div></div>
+      <div><div class="t-num t-gold" style="font-size: 40px;">0</div><div class="t-label">Brand colours changed</div></div>
+    </div>
+  </header>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px;">
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Website · hero (light mode)</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/site-hero.jpg" alt="Current website hero in light mode: cream background, purple body text, a black sticky bar across the bottom of the hero">
+      <div class="find"><span class="note-num">1</span><div><div class="find-t">Light mode turns the brand cream and purple</div><div class="find-d">Most visitors browse in light mode, so they never see gold on black, and signing up drops them into a portal that looks like a different company.</div><div class="fix">Fix: one dark theme for the site, matching the portal.</div></div></div>
+      <div class="find"><span class="note-num">2</span><div><div class="find-t">Sticky "Spots are limited" bar covers the hero</div><div class="find-d">Its text is dark grey on black and can't be read, and it hides the stats.</div><div class="fix">Fix: removed. One clear "Choose your plan" in the nav does the job.</div></div></div>
+      <div class="find"><span class="note-num">3</span><div><div class="find-t">Buttons wrap onto two lines</div><div class="find-d">"CHOOSE YOUR / PLAN": tiny tracked capitals in a box that's too narrow.</div><div class="fix">Fix: 15px sentence-case buttons that never wrap, 48px tall.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Website · pricing</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/site-pricing.jpg" alt="Current pricing: three cards of different heights with 11 to 16 bullet points each and buttons at different heights">
+      <div class="find"><span class="note-num">4</span><div><div class="find-t">Three walls of bullets, buttons at different heights</div><div class="find-d">11–16 items per plan with no grouping, so the difference between plans is hard to see.</div><div class="fix">Fix: equal-height cards, the 5 things that matter, "Everything in Pro, plus", and buttons on one line. Full list in a compare table.</div></div></div>
+      <div class="find"><span class="note-num">5</span><div><div class="find-t">Everything sits in a narrow boxed column</div><div class="find-d">Vertical rules and wide empty margins on desktop make the page feel cramped and dated.</div><div class="fix">Fix: full-width sections on a 1200px grid.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Website · "What is dropshipping"</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/site-features.jpg" alt="Current feature cards using emoji icons, with centred paragraphs">
+      <div class="find"><span class="note-num">6</span><div><div class="find-t">Emoji used as icons</div><div class="find-d">Emoji look different on every phone and clash with the gold line art used elsewhere.</div><div class="fix">Fix: one custom line-icon set across site and portal (Foundations board).</div></div></div>
+      <div class="find"><span class="note-num">7</span><div><div class="find-t">Long paragraphs are centred</div><div class="find-d">Centred text over 2 lines is slow to read, because each line starts in a different place.</div><div class="fix">Fix: body text left-aligned; only short headings centre.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Website · FAQ</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/site-faq.jpg" alt="Current FAQ with a half-cut line of each answer showing under every question">
+      <div class="find"><span class="note-num">8</span><div><div class="find-t">Every answer shows half a sentence</div><div class="find-d">The accordion leaves one cut-off line under every question, so it looks broken.</div><div class="fix">Fix: a real accordion with clear open and closed states and a chevron.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Portal · Dashboard</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/d-dashboard.jpg" alt="Current portal dashboard with a sale popup covering the page title and a large tutorial card">
+      <div class="find"><span class="note-num">9</span><div><div class="find-t">The "Got a sale on Depop?" popup covers every page</div><div class="find-d">It appears on every login, on every page, over the page title, and takes up a third of a phone screen.</div><div class="fix">Fix: a slim banner on the Dashboard that doesn't block anything.</div></div></div>
+      <div class="find"><span class="note-num">10</span><div><div class="find-t">The tutorial owns the best spot; Today's focus is secondary</div><div class="find-d">Members come back to do their next step, but the biggest card is the tour.</div><div class="fix">Fix: Today's focus leads with one primary button. Replay the tour from the help menu.</div></div></div>
+      <div class="find"><span class="note-num">11</span><div><div class="find-t">Tiny uppercase everywhere, and social icons in the app header</div><div class="find-d">Nav labels are 11px tracked capitals; Discord, Instagram and TikTok sit beside the logo in a work tool.</div><div class="fix">Fix: 15px sentence-case nav with icons. Socials move to More and the website.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Portal · Products</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/d-products.jpg" alt="Current product cards with small wrapping uppercase labels and profit in a small pill">
+      <div class="find"><span class="note-num">12</span><div><div class="find-t">Profit, the number members care about, is the smallest thing on the card</div><div class="find-d">"1. LIST ITEM FOR" and "2. THEN DISCOUNT TO" wrap at 10px; profit sits in a small pill.</div><div class="fix">Fix: profit leads, list → discount reads as one line, "You pay" underneath.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Portal · Pathway</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/d-pathway.jpg" alt="Current pathway tree with group labels crossed by connector lines">
+      <div class="find"><span class="note-num">13</span><div><div class="find-t">Labels collide with the lines, and it scrolls a long way</div><div class="find-d">"Launch Your Store" is crossed by two curves; three steps take a full screen.</div><div class="fix">Fix: same trail idea, steps to the side of one line, with stages in a side rail.</div></div></div>
+    </section>
+
+    <section class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;"><span class="t-h3">Portal · mobile</span><span class="chip chip-plain">Before</span></div>
+      <img class="shot" src="../before-screenshots/m-row.jpg" alt="Four current mobile portal screens with the sale popup covering the lower third and 9px tab labels">
+      <div class="find"><span class="note-num">14</span><div><div class="find-t">9px tab labels and a squeezed product grid</div><div class="find-d">The bottom bar's labels are 9px capitals (minimum readable is about 11px), and two product columns on a phone cut prices off.</div><div class="fix">Fix: 11px sentence-case tabs with clear active state; one product per row with profit first.</div></div></div>
+    </section>
+  </div>
+
+  <section class="card" style="padding: 24px 28px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+    <div><div class="t-h3">Also fixed everywhere</div><p class="t-small" style="margin-top: 8px;">Faint grey text measured 2.7–3.4:1 against its background (the standard minimum is 4.5:1). Raised to 5.3:1 or better.</p></div>
+    <div><div class="t-h3">&#160;</div><p class="t-small" style="margin-top: 8px;">The custom gold cursor hides the system cursor (bad for accessibility and trackpads). The real cursor comes back. Visible focus rings on every control.</p></div>
+    <div><div class="t-h3">&#160;</div><p class="t-small" style="margin-top: 8px;">Vite's starter stylesheet (src/index.css) is still loaded on every page. Removed. Footer year is hard-coded to 2025, so it now updates itself.</p></div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2360}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

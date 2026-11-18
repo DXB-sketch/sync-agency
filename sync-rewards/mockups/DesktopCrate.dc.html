@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Crate opening, desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+<link rel="stylesheet" href="crate.css">
+<script src="crate-fx.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:var(--p-bg-deep)}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.q-item{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;transition:border-color .2s, background .2s}
+.q-item:focus-visible{outline:2px solid var(--p-gold-bright);outline-offset:2px}
+</style>
+</helmet>
+<div class="{{rootClass}}" style="min-height: 100vh; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 55%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: linear-gradient(180deg, oklch(17% 0.016 85) 0%, var(--p-bg) 100%);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span>
+      <span class="tier-badge">Pro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="display: flex; align-items: center; gap: 10px; padding: 7px 14px; border: 1px solid var(--p-line-gold); border-radius: var(--p-radius-pill); background: var(--p-card-hi); color: var(--p-gold); font-size: 13px; font-weight: 600;"><span style="font-size: 10px; letter-spacing: 0.1em; color: var(--p-muted);">WALLET</span>{{wallet}} AUD</span>
+      <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-muted);">Sign out</span>
+    </div>
+  </header>
+  <nav class="portal-nav" aria-label="Portal">
+    <a class="portal-nav-link" href="#">Dashboard</a>
+    <a class="portal-nav-link" href="#">Pathway</a>
+    <a class="portal-nav-link" href="#">Products</a>
+    <a class="portal-nav-link" href="#">Checkout</a>
+    <a class="portal-nav-link" href="#">Achievements</a>
+    <a class="portal-nav-link active" href="DesktopHub.dc.html">Rewards</a>
+    <a class="portal-nav-link" href="#">Wallet</a>
+  </nav>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 28px clamp(16px, 4vw, 48px) 64px; display: flex; flex-direction: column; gap: 20px;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px;">
+      <div>
+        <a href="DesktopHub.dc.html" style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--p-muted); text-decoration: none;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>Rewards</a>
+        <h1 style="margin: 8px 0 0; font-family: var(--font-display); font-size: clamp(34px, 4vw, 48px); font-weight: 600; line-height: 1.02;">Mystery crates</h1>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button class="btn-ghost" onClick="{{toggleSound}}" aria-pressed="{{soundOn}}" style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+          <sc-if value="{{soundOn}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>Sound on</sc-if>
+          <sc-if value="{{soundOff}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>Sound off</sc-if>
+        </button>
+        <a href="CrateOdds.dc.html" class="btn-ghost" style="text-decoration: none;">Full odds</a>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;">
+
+      <section style="flex: 999 1 640px; min-width: 0; position: relative; height: 700px; border-radius: 26px; overflow: hidden; border: 1px solid oklch(60% 0.09 80 / .35); background: radial-gradient(ellipse at 50% 42%, oklch(24% 0.04 85) 0%, oklch(12% 0.016 85) 55%, oklch(8% 0.01 85) 85%); box-shadow: var(--p-shadow-glow);">
+        <div aria-hidden="true" style="position: absolute; left: 0; right: 0; bottom: 0; height: 180px; background: linear-gradient(180deg, transparent, oklch(6% 0.01 85 / .7));"></div>
+
+        <div style="position: absolute; top: 22px; left: 0; right: 0; z-index: 4; display: flex; justify-content: center;">
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 7px 16px; border-radius: 100px; {{c.pillStyle}}"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>{{c.name}} crate · {{c.topLine}}</span>
+        </div>
+
+        <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 24px;">
+            <span style="font-family: var(--font-display); font-size: 40px; font-weight: 700; color: var(--p-gold);">All crates opened</span>
+            <span style="font-size: 14px; color: var(--p-muted); max-width: 380px; line-height: 1.6;">Your next Gold crate drops at Level 19. Every $100 of credit is a level.</span>
+            <a href="DesktopTopUp.dc.html" class="btn-gold shine" style="margin-top: 8px; text-decoration: none;">Top up &amp; earn XP</a>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{showCrate}}" hint-placeholder-val="{{true}}">
+          <div aria-hidden="true" class="{{auraClass}}" style="position: absolute; left: 50%; top: 300px; width: 520px; height: 520px; margin: -260px 0 0 -260px; border-radius: 50%; background: radial-gradient(circle, {{c.aura}} 0%, transparent 65%);"></div>
+          <div aria-hidden="true" class="rays-spin" style="position: absolute; left: 50%; top: 300px; width: 1000px; height: 1000px; margin: -500px 0 0 -500px; border-radius: 50%; opacity: .55; background: repeating-conic-gradient(from 0deg, {{c.ray}} 0deg 4deg, transparent 4deg 15deg); -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 52%); mask-image: radial-gradient(circle, #000 10%, transparent 52%);"></div>
+          <div aria-hidden="true" class="shadow-idle" style="position: absolute; left: 50%; top: 498px; width: 260px; height: 34px; margin-left: -130px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0,0,0,.8), transparent 70%);"></div>
+          <div style="position: absolute; left: 50%; top: 90px; width: 400px; height: 400px; margin-left: -200px;">
+            <button class="crate-btn" aria-label="Open the crate" onClick="{{open}}" style="width: 400px; height: 400px;">
+              <div class="{{crateClass}}" style="width: 400px; height: 400px;">
+                <svg aria-hidden="true" width="400" height="400" viewBox="0 0 240 240" style="overflow: visible; filter: drop-shadow(0 26px 40px rgba(0,0,0,.6));">
+                  <defs>
+                    <linearGradient id="dinside" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: oklch(97% 0.04 90)"></stop><stop offset="1" style="stop-color: var(--p-gold-bright)"></stop></linearGradient>
+                    <linearGradient id="dbeam" x1="0" y1="1" x2="0" y2="0"><stop offset="0" style="stop-color: oklch(96% 0.05 90)" stop-opacity=".95"></stop><stop offset="1" style="stop-color: var(--p-gold-bright)" stop-opacity="0"></stop></linearGradient>
+                  </defs>
+                  <g class="{{bodyClass}}">
+                    <polygon points="40,114 120,72 200,114 120,156" fill="url(#dinside)"></polygon>
+                    <polygon points="40,114 120,156 120,226 40,184" style="fill: {{c.front}}"></polygon>
+                    <polygon points="120,156 200,114 200,184 120,226" style="fill: {{c.right}}"></polygon>
+                    <polygon points="56,122.4 64,126.6 64,196.6 56,192.4" style="fill: {{c.band}}"></polygon>
+                    <polygon points="96,143.4 104,147.6 104,217.6 96,213.4" style="fill: {{c.band}}"></polygon>
+                    <polygon points="136,147.6 144,143.4 144,213.4 136,217.6" style="fill: {{c.band}}"></polygon>
+                    <polygon points="176,126.6 184,122.4 184,192.4 176,196.6" style="fill: {{c.band}}"></polygon>
+                    <polyline points="40,184 120,226 200,184" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="2"></polyline>
+                    <line x1="120" y1="156" x2="120" y2="226" stroke="#fff" stroke-opacity=".25" stroke-width="1.5"></line>
+                    <polygon points="120,160 132,172 120,184 108,172" style="fill: {{c.band}}"></polygon>
+                    <circle class="gem-pulse" cx="120" cy="172" r="6" style="fill: {{c.gem}}; filter: drop-shadow(0 0 6px {{c.gem}});"></circle>
+                  </g>
+                  <sc-if value="{{isShake}}" hint-placeholder-val="{{false}}">
+                    <polygon class="leak" points="50,112 120,146 190,112 236,-60 4,-60" fill="url(#dbeam)"></polygon>
+                  </sc-if>
+                  <g class="{{lidClass}}">
+                    <polygon points="36,96 120,138 120,154 36,112" style="fill: {{c.lidFront}}"></polygon>
+                    <polygon points="120,138 204,96 204,112 120,154" style="fill: {{c.lidRight}}"></polygon>
+                    <polygon points="36,96 120,54 204,96 120,138" style="fill: {{c.top}}"></polygon>
+                    <polygon points="56,106 64,110 64,126 56,122" style="fill: {{c.band}}"></polygon>
+                    <polygon points="176,110 184,106 184,122 176,126" style="fill: {{c.band}}"></polygon>
+                    <polygon points="56,86 64,82 148,124 140,128" style="fill: {{c.band}}"></polygon>
+                    <polygon points="176,86 184,90 100,132 92,128" style="fill: {{c.band}}"></polygon>
+                    <polyline points="36,96 120,54 204,96" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"></polyline>
+                    <polyline points="36,112 120,154 204,112" fill="none" style="stroke: var(--p-gold-bright)" class="{{seamClass}}" stroke-opacity="{{seamOpacity}}" stroke-width="2"></polyline>
+                  </g>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{isBurst}}" hint-placeholder-val="{{false}}">
+          <div aria-hidden="true" class="ring-wave" style="position: absolute; left: 50%; top: 300px; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%; border: 5px solid {{r.color}}; box-shadow: 0 0 60px {{r.color}};"></div>
+          <sc-for list="{{particles}}" as="pt" hint-placeholder-count="0">
+            <span aria-hidden="true" class="particle" style="{{pt.style}}"></span>
+          </sc-for>
+          <div aria-hidden="true" class="flash" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 42%, oklch(99% 0.02 90) 0%, {{r.color}} 35%, transparent 75%);"></div>
+        </sc-if>
+
+        <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+          <div aria-hidden="true" class="{{r.raysClass}}" style="position: absolute; left: 50%; top: 290px; width: 1200px; height: 1200px; margin: -600px 0 0 -600px; border-radius: 50%; opacity: {{r.rayOpacity}}; background: repeating-conic-gradient(from 0deg, {{r.color}} 0deg 6deg, transparent 6deg 18deg); -webkit-mask-image: radial-gradient(circle, #000 8%, transparent 50%); mask-image: radial-gradient(circle, #000 8%, transparent 50%);"></div>
+          <div aria-hidden="true" style="position: absolute; left: 50%; top: 290px; width: 640px; height: 640px; margin: -320px 0 0 -320px; border-radius: 50%; background: radial-gradient(circle, {{r.glow}} 0%, transparent 62%);"></div>
+          <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;">
+            <sc-for list="{{confetti}}" as="cf" hint-placeholder-count="0">
+              <span class="confetti" style="{{cf.style}}"></span>
+            </sc-for>
+          </div>
+          <sc-for list="{{stars}}" as="s" hint-placeholder-count="0">
+            <svg aria-hidden="true" class="twinkle" width="{{s.size}}" height="{{s.size}}" viewBox="0 0 24 24" style="{{s.style}}"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/></svg>
+          </sc-for>
+
+          <div class="card-pop" style="position: absolute; left: 50%; top: 76px; width: 400px; max-width: calc(100% - 40px); transform-origin: center; margin-left: -200px; padding: 30px 28px 28px; box-sizing: border-box; border-radius: 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px; background: linear-gradient(165deg, oklch(25% 0.03 85 / .96), oklch(15% 0.016 85 / .96)); border: 1.5px solid {{r.color}}; box-shadow: 0 0 0 7px {{r.ring}}, 0 40px 80px -24px rgba(0,0,0,.85), 0 0 90px -10px {{r.color}};">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; color: var(--p-ink); background: {{r.color}};">{{r.rarity}} · {{r.chance}}</span>
+            <span class="rise" style="width: 92px; height: 92px; border-radius: 26px; display: flex; align-items: center; justify-content: center; color: var(--p-ink); background: linear-gradient(135deg, oklch(97% 0.03 90), {{r.color}} 60%, var(--p-gold-deep)); box-shadow: 0 16px 34px -10px {{r.color}};">
+              <sc-if value="{{r.isCredit}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/><path d="M3 10h18"/></svg></sc-if>
+              <sc-if value="{{r.isXp}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></sc-if>
+              <sc-if value="{{r.isDiscount}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.5" fill="currentColor"/></svg></sc-if>
+              <sc-if value="{{r.isSlot}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/><path d="M12 11v5M9.5 13.5h5"/></svg></sc-if>
+            </span>
+            <div class="value-pop" style="display: flex; align-items: baseline; justify-content: center; gap: 8px; line-height: 0.9;">
+              <span class="shimmer-text" style="--rc: {{r.color}}; font-family: var(--font-display); font-size: 112px; font-weight: 700; font-variant-numeric: tabular-nums;">{{r.valueText}}</span>
+              <span style="font-size: 18px; font-weight: 700; letter-spacing: 0.12em; color: {{r.color}};">{{r.unit}}</span>
+            </div>
+            <span class="rise" style="font-family: var(--font-display); font-size: 28px; font-weight: 600; line-height: 1.1;">{{r.name}}</span>
+            <span class="rise" style="font-size: 13.5px; color: var(--p-muted); line-height: 1.55; max-width: 300px;">{{r.sub}}</span>
+          </div>
+        </sc-if>
+
+        <div style="position: absolute; left: 0; right: 0; bottom: 26px; z-index: 5; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 0 24px;">
+          <sc-if value="{{isIdleWithCrate}}" hint-placeholder-val="{{true}}">
+            <span class="tap-hint" style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--p-gold);">Click the crate to open</span>
+            <button class="btn-gold shine" onClick="{{open}}" style="min-width: 300px; justify-content: center; padding: 17px 28px; font-size: 13px; cursor: pointer;">Open {{c.name}} crate</button>
+          </sc-if>
+          <sc-if value="{{isOpening}}" hint-placeholder-val="{{false}}">
+            <span style="font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: 0.04em; color: var(--p-gold-bright); padding-bottom: 40px;">Opening…</span>
+          </sc-if>
+          <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+            <div class="rise" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
+              <button class="btn-gold shine" onClick="{{collect}}" style="min-width: 240px; justify-content: center; padding: 17px 28px; font-size: 13px; cursor: pointer;">{{r.collect}}</button>
+              <sc-if value="{{hasNext}}" hint-placeholder-val="{{true}}">
+                <button class="btn-ghost" onClick="{{collect}}" style="min-width: 200px; padding: 16px 24px; cursor: pointer;">Collect &amp; open next</button>
+              </sc-if>
+            </div>
+          </sc-if>
+        </div>
+      </section>
+
+      <aside style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 14px;">
+        <section class="dash-card" style="padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline;">
+            <h2 style="margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 600;">Your crates</h2>
+            <span style="font-size: 12px; color: var(--p-muted);">{{queueCount}} to open</span>
+          </div>
+          <sc-for list="{{queue}}" as="q" hint-placeholder-count="3">
+            <button class="q-item" onClick="{{q.pick}}" aria-pressed="{{q.selected}}" style="{{q.style}}">
+              <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; {{q.iconStyle}}"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+              <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;">
+                <span style="font-size: 14px; font-weight: 600;">{{q.name}} crate</span>
+                <span style="font-size: 11.5px; color: var(--p-muted);">{{q.from}}</span>
+              </span>
+              <span style="font-size: 11px; font-weight: 600; color: var(--p-gold);">{{q.top}}</span>
+            </button>
+          </sc-for>
+          <sc-if value="{{isEmpty}}" hint-placeholder-val="{{false}}">
+            <span style="font-size: 12.5px; color: var(--p-muted); padding: 10px 0;">No crates waiting. Level up to earn more.</span>
+          </sc-if>
+        </section>
+
+        <section class="dash-card" style="padding: 18px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;">
+            <h2 style="margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 600;">{{c.name}} crate odds</h2>
+            <a href="CrateOdds.dc.html" style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; text-decoration: none;">All</a>
+          </div>
+          <sc-for list="{{odds}}" as="o" hint-placeholder-count="7">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 70px 34px; align-items: center; gap: 10px;">
+              <span style="display: flex; align-items: center; gap: 8px; min-width: 0;"><span style="width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: {{o.color}};"></span><span style="font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; {{o.textStyle}}">{{o.label}}</span></span>
+              <span style="height: 5px; border-radius: 100px; background: var(--p-card-lo); overflow: hidden;"><span style="display: block; height: 100%; width: {{o.bar}}%; background: {{o.color}};"></span></span>
+              <span style="font-size: 12px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; {{o.textStyle}}">{{o.pct}}%</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section class="dash-card" style="padding: 18px; display: flex; flex-direction: column; gap: 10px;">
+          <h2 style="margin: 0; font-family: var(--font-display); font-size: 22px; font-weight: 600;">Recent pulls</h2>
+          <sc-for list="{{history}}" as="h" hint-placeholder-count="3">
+            <div style="display: flex; align-items: center; gap: 10px; font-size: 13px;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: {{h.color}}; box-shadow: 0 0 8px {{h.color}};"></span>
+              <span style="flex: 1; min-width: 0;">{{h.label}}</span>
+              <span style="font-size: 11.5px; color: var(--p-muted);">{{h.when}}</span>
+            </div>
+          </sc-for>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      phase: 'idle', pick: 0, shown: 0, sel: 0, muted: false, wallet: 248,
+      queue: [{ id: 1, type: 'silver', from: 'Earned at Level 13' }, { id: 2, type: 'silver', from: 'Earned at Level 14' }, { id: 3, type: 'gold', from: 'Earned at Level 16 · Gold rank' }],
+      history: [{ label: '$5 wallet credit', rarity: 'rare', when: 'Yesterday' }, { label: '+200 bonus XP', rarity: 'common', when: '3 days ago' }, { label: '$10 wallet credit', rarity: 'epic', when: 'Last week' }]
+    };
+    this.timers = [];
+  }
+  fx() { return (typeof window !== 'undefined' && window.CrateFX) || null; }
+  pools() {
+    return {
+      silver: [
+        { kind: 'credit', num: 30, w: 3, rarity: 'legendary', label: '$30 wallet credit' },
+        { kind: 'credit', num: 10, w: 12, rarity: 'epic', label: '$10 wallet credit' },
+        { kind: 'credit', num: 5, w: 20, rarity: 'rare', label: '$5 wallet credit' },
+        { kind: 'credit', num: 2, w: 20, rarity: 'common', label: '$2 wallet credit' },
+        { kind: 'xp', num: 200, w: 20, rarity: 'common', label: '+200 bonus XP' },
+        { kind: 'discount', num: 5, w: 15, rarity: 'rare', label: '5% off next stock order' },
+        { kind: 'slot', num: 1, w: 10, rarity: 'rare', label: '+1 product slot, 30 days' }
+      ],
+      gold: [
+        { kind: 'credit', num: 50, w: 3, rarity: 'legendary', label: '$50 wallet credit' },
+        { kind: 'credit', num: 20, w: 10, rarity: 'epic', label: '$20 wallet credit' },
+        { kind: 'credit', num: 10, w: 20, rarity: 'rare', label: '$10 wallet credit' },
+        { kind: 'credit', num: 5, w: 17, rarity: 'common', label: '$5 wallet credit' },
+        { kind: 'xp', num: 500, w: 20, rarity: 'common', label: '+500 bonus XP' },
+        { kind: 'discount', num: 10, w: 18, rarity: 'rare', label: '10% off next stock order' },
+        { kind: 'slot', num: 1, w: 12, rarity: 'rare', label: '+1 product slot, 30 days' }
+      ]
+    };
+  }
+  crateKey() { var q = this.state.queue[this.state.sel]; return q && q.type === 'gold' ? 'gold' : 'silver'; }
+  roll() {
+    var pool = this.pools()[this.crateKey()], r = Math.random() * 100, acc = 0;
+    for (var i = 0; i < pool.length; i++) { acc += pool[i].w; if (r < acc) return i; }
+    return pool.length - 1;
+  }
+  clear() { this.timers.forEach(function (t) { clearTimeout(t); clearInterval(t); }); this.timers = []; }
+  countUp(target) {
+    var self = this, step = 0, steps = 26, fx = this.fx();
+    if (target <= 1) { this.setState({ shown: target }); return; }
+    this.setState({ shown: 0 });
+    var t = setInterval(function () {
+      step++;
+      if (fx && step % 2 === 0) fx.tick(step / steps);
+      var eased = 1 - Math.pow(1 - step / steps, 3);
+      self.setState({ shown: step >= steps ? target : Math.max(1, Math.round(target * eased)) });
+      if (step >= steps) clearInterval(t);
+    }, 38);
+    this.timers.push(t);
+  }
+  componentWillUnmount() { this.clear(); var fx = this.fx(); if (fx) fx.cancel(); }
+  open() {
+    if (this.state.phase !== 'idle' || !this.state.queue.length) return;
+    var self = this, pick = this.roll(), res = this.pools()[this.crateKey()][pick], fx = this.fx();
+    var reduced = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.clear();
+    if (fx) fx.tap();
+    if (reduced) { this.setState({ phase: 'reveal', pick: pick, shown: res.num }); if (fx) fx.reveal(res.rarity); return; }
+    this.setState({ phase: 'shake', pick: pick });
+    if (fx) fx.shake(1.4);
+    this.timers.push(setTimeout(function () { self.setState({ phase: 'burst' }); if (fx) fx.burst(); }, 1400));
+    this.timers.push(setTimeout(function () { self.setState({ phase: 'reveal' }); if (fx) fx.reveal(res.rarity); self.countUp(res.num); }, 2050));
+  }
+  collect() {
+    this.clear();
+    var fx = this.fx(); if (fx) fx.coin();
+    var res = this.pools()[this.crateKey()][this.state.pick];
+    var queue = this.state.queue.filter(function (q, i) { return i !== this.state.sel; }, this);
+    var history = [{ label: res.label, rarity: res.rarity, when: 'Just now' }].concat(this.state.history).slice(0, 4);
+    this.setState({ phase: 'idle', shown: 0, sel: 0, queue: queue, history: history, wallet: this.state.wallet + (res.kind === 'credit' ? res.num : 0) });
+  }
+  select(i) { if (this.state.phase === 'idle') this.setState({ sel: i }); }
+  toggleSound() { var m = !this.state.muted, fx = this.fx(); if (fx) fx.setMuted(m); this.setState({ muted: m }); }
+  renderVals() {
+    var self = this, key = this.crateKey(), phase = this.state.phase, empty = !this.state.queue.length;
+    var pool = this.pools()[key], res = pool[this.state.pick] || pool[0];
+    var C = {
+      silver: { name: 'Silver', top: 'oklch(84% 0.01 85)', lidFront: 'oklch(68% 0.012 85)', lidRight: 'oklch(54% 0.012 85)', front: 'oklch(60% 0.012 85)', right: 'oklch(44% 0.012 85)', band: 'oklch(52% 0.09 70)', gem: 'oklch(82% 0.14 86)', aura: 'oklch(86% 0.012 85 / .3)', ray: 'oklch(86% 0.012 85 / .18)', pillStyle: 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35); background: oklch(10% 0.01 85 / .6);', topLine: 'up to $30 credit' },
+      gold: { name: 'Gold', top: 'oklch(90% 0.08 88)', lidFront: 'oklch(76% 0.13 84)', lidRight: 'oklch(63% 0.12 76)', front: 'oklch(70% 0.13 80)', right: 'oklch(54% 0.11 72)', band: 'oklch(24% 0.02 85)', gem: 'oklch(97% 0.03 90)', aura: 'oklch(78% 0.13 86 / .42)', ray: 'oklch(78% 0.13 86 / .22)', pillStyle: 'color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));', topLine: 'up to $50 credit' }
+    }[key];
+    var RC = { legendary: 'oklch(80% 0.14 86)', epic: 'oklch(74% 0.15 52)', rare: 'oklch(80% 0.08 225)', common: 'oklch(86% 0.012 85)' };
+    var R = {
+      legendary: { name: 'Legendary', glow: 'oklch(80% 0.14 86 / .45)', ring: 'oklch(80% 0.14 86 / .16)', rays: 'rays-fast', op: .95 },
+      epic: { name: 'Epic', glow: 'oklch(74% 0.15 52 / .38)', ring: 'oklch(74% 0.15 52 / .14)', rays: 'rays-spin', op: .8 },
+      rare: { name: 'Rare', glow: 'oklch(80% 0.08 225 / .3)', ring: 'oklch(80% 0.08 225 / .12)', rays: 'rays-spin', op: .6 },
+      common: { name: 'Common', glow: 'oklch(86% 0.012 85 / .22)', ring: 'oklch(86% 0.012 85 / .1)', rays: 'rays-spin', op: .45 }
+    }[res.rarity];
+    var color = RC[res.rarity], n = this.state.shown;
+    var copy = {
+      credit: { valueText: '$' + n, unit: '', name: 'Wallet credit', sub: 'Added to your wallet. Spend it on your next stock order.', collect: 'Collect $' + res.num },
+      xp: { valueText: '+' + n, unit: 'XP', name: 'Bonus XP', sub: 'Added to your level progress straight away.', collect: 'Collect XP' },
+      discount: { valueText: n + '%', unit: 'OFF', name: 'Next stock order', sub: 'Applied automatically at your next checkout.', collect: 'Save discount' },
+      slot: { valueText: '+' + n, unit: 'SLOT', name: 'Extra product slot', sub: 'One more product in your store for 30 days.', collect: 'Activate slot' }
+    }[res.kind];
+    var r = {
+      color: color, glow: R.glow, ring: R.ring, raysClass: R.rays, rayOpacity: R.op, rarity: R.name, chance: res.w + '% chance',
+      isCredit: res.kind === 'credit', isXp: res.kind === 'xp', isDiscount: res.kind === 'discount', isSlot: res.kind === 'slot',
+      valueText: copy.valueText, unit: copy.unit, name: copy.name, sub: copy.sub, collect: copy.collect
+    };
+    var particles = [], confetti = [], stars = [];
+    var pc = ['var(--p-gold-bright)', 'var(--p-gold)', color, 'oklch(97% 0.03 90)'];
+    for (var i = 0; i < 44; i++) {
+      var a = (i * 360 / 44 + (i % 3) * 6) * Math.PI / 180, d = 220 + (i * 53 % 170), s = 6 + (i * 7 % 11);
+      particles.push({ style: 'left: 50%; top: 300px; width: ' + s + 'px; height: ' + s + 'px; margin: -' + (s / 2) + 'px 0 0 -' + (s / 2) + 'px; background: ' + pc[i % 4] + '; box-shadow: 0 0 12px ' + pc[i % 4] + '; ' + (i % 2 ? 'border-radius: 50%;' : 'clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);') + ' --dx: ' + Math.round(Math.cos(a) * d) + 'px; --dy: ' + Math.round(Math.sin(a) * d * 0.8) + 'px; animation-delay: ' + ((i % 4) * 0.03) + 's;' });
+    }
+    var cc = ['var(--p-gold-bright)', 'var(--p-gold)', color, 'var(--silver)', 'var(--p-gold-deep)'];
+    for (var j = 0; j < 60; j++) {
+      var w = 7 + (j * 5 % 7), h = j % 3 === 0 ? w : 11 + (j * 3 % 9);
+      confetti.push({ style: 'left: ' + (j * 17 % 100) + '%; width: ' + w + 'px; height: ' + h + 'px; background: ' + cc[j % 5] + '; border-radius: ' + (j % 3 === 0 ? '50%' : '2px') + '; --dur: ' + (3 + (j % 5) * 0.4) + 's; --delay: -' + ((j * 0.31) % 3.4).toFixed(2) + 's; --sway: ' + ((j % 2 ? 1 : -1) * (20 + j % 50)) + 'px; --spin: ' + (360 + (j % 4) * 180) + 'deg;' });
+    }
+    [['12%', 90, 22], ['84%', 70, 26], ['8%', 380, 16], ['90%', 360, 20], ['20%', 560, 14], ['78%', 580, 22], ['30%', 40, 12], ['68%', 130, 14]].forEach(function (p, k) {
+      stars.push({ size: p[2], style: 'position: absolute; left: ' + p[0] + '; top: ' + p[1] + 'px; fill: ' + color + '; animation-delay: ' + (k * 0.25) + 's;' });
+    });
+    var queue = this.state.queue.map(function (q, i) {
+      var on = i === self.state.sel, gold = q.type === 'gold';
+      return {
+        name: gold ? 'Gold' : 'Silver', from: q.from, top: gold ? 'Up to $50' : 'Up to $30', selected: on ? 'true' : 'false',
+        iconStyle: gold ? 'color: var(--p-ink); background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep));' : 'color: var(--silver); background: var(--p-elev); border: 1px solid oklch(86% 0.012 85 / .3);',
+        style: on ? 'border: 1.5px solid var(--p-gold-bright); background: oklch(78% 0.13 86 / .08);' : 'border: 1px solid var(--p-line-soft); background: oklch(19% 0.016 85 / .6);',
+        pick: function () { self.select(i); }
+      };
+    });
+    var odds = pool.map(function (p) { return { label: p.label, pct: p.w, bar: Math.round(p.w / 20 * 100), color: RC[p.rarity], textStyle: p.rarity === 'legendary' ? 'color: ' + RC.legendary + '; font-weight: 700;' : '' }; });
+    var history = this.state.history.map(function (h) { return { label: h.label, when: h.when, color: RC[h.rarity] }; });
+    return {
+      c: C, r: r, particles: particles, confetti: confetti, stars: stars, queue: queue, odds: odds, history: history,
+      queueCount: this.state.queue.length, isEmpty: empty, hasNext: this.state.queue.length > 1,
+      wallet: '$' + this.state.wallet.toFixed(2),
+      isShake: phase === 'shake', isBurst: phase === 'burst', isReveal: phase === 'reveal',
+      isOpening: phase === 'shake' || phase === 'burst', showCrate: phase !== 'reveal' && !empty, isIdleWithCrate: phase === 'idle' && !empty,
+      rootClass: phase === 'burst' ? 'jolt' : '',
+      crateClass: phase === 'idle' ? 'crate-idle' : (phase === 'shake' ? 'crate-shake' : ''),
+      auraClass: phase === 'shake' ? 'aura-shake' : 'gem-pulse',
+      lidClass: phase === 'burst' ? 'lid-fly' : '',
+      bodyClass: phase === 'burst' ? 'body-out' : '',
+      seamClass: phase === 'shake' ? 'seam-glow' : '',
+      seamOpacity: phase === 'idle' ? '.25' : '1',
+      soundOn: !this.state.muted, soundOff: this.state.muted,
+      toggleSound: function () { self.toggleSound(); },
+      open: function () { self.open(); },
+      collect: function () { self.collect(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

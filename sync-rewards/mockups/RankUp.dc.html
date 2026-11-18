@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rank-up moment</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--plat:oklch(84% 0.035 220)}
+body{margin:0}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.rays{animation:spin 40s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes pop{from{transform:scale(.6);opacity:.4}to{transform:scale(1);opacity:1}}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@media (prefers-reduced-motion: reduce){.rays,.pop,.shine::after{animation:none}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; background: radial-gradient(circle at 50% 28%, oklch(30% 0.06 85) 0%, oklch(14% 0.02 85) 45%, var(--p-bg-deep) 75%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <div aria-hidden="true" class="rays" style="position: absolute; top: -110px; left: 50%; margin-left: -330px; width: 660px; height: 660px; border-radius: 50%; background: repeating-conic-gradient(from 0deg, oklch(78% 0.13 86 / .13) 0deg 7deg, transparent 7deg 22deg); -webkit-mask-image: radial-gradient(circle, #000 18%, transparent 62%); mask-image: radial-gradient(circle, #000 18%, transparent 62%);"></div>
+  <div aria-hidden="true" style="position: absolute; top: 90px; left: 58px; width: 6px; height: 6px; border-radius: 50%; background: var(--p-gold-bright); box-shadow: 0 0 12px var(--p-gold-bright);"></div>
+  <div aria-hidden="true" style="position: absolute; top: 150px; right: 50px; width: 8px; height: 8px; transform: rotate(45deg); background: var(--p-gold);"></div>
+  <div aria-hidden="true" style="position: absolute; top: 300px; left: 40px; width: 5px; height: 5px; transform: rotate(45deg); background: var(--p-gold-deep);"></div>
+  <div aria-hidden="true" style="position: absolute; top: 260px; right: 70px; width: 5px; height: 5px; border-radius: 50%; background: var(--p-gold-bright); box-shadow: 0 0 10px var(--p-gold-bright);"></div>
+
+  <a href="Main.dc.html" aria-label="Close" style="position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--p-muted);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></a>
+
+  <div style="position: relative; margin-top: 72px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
+    <div style="font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-bright);">Rank up</div>
+    <div class="pop" style="position: relative; margin-top: 10px; width: 150px; height: 170px; display: flex; align-items: center; justify-content: center;">
+      <svg role="img" aria-label="Gold rank shield" width="150" height="170" viewBox="0 0 150 170" style="filter: drop-shadow(0 18px 30px oklch(70% 0.12 82 / .45));">
+        <defs>
+          <linearGradient id="shield" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--p-gold)"></stop><stop offset=".55" style="stop-color: var(--p-gold-bright)"></stop><stop offset="1" style="stop-color: var(--p-gold-deep)"></stop></linearGradient>
+        </defs>
+        <path d="M75 6l62 22v46c0 40-27 74-62 90C40 148 13 114 13 74V28z" fill="url(#shield)"></path>
+        <path d="M75 22l47 17v35c0 31-20 57-47 70-27-13-47-39-47-70V39z" fill="none" style="stroke: var(--p-ink)" stroke-opacity=".35" stroke-width="2"></path>
+      </svg>
+      <span style="position: absolute; top: 58px; font-family: var(--font-display); font-size: 46px; font-weight: 700; line-height: 1; color: var(--p-ink);">18</span>
+    </div>
+    <h1 style="margin: 14px 0 0; font-family: var(--font-display); font-size: 48px; font-weight: 700; line-height: 1; color: var(--p-gold);">You're Gold</h1>
+    <p style="margin: 6px 0 0; font-size: 13.5px; color: var(--p-muted);">Level 12 → Level 18 in one top-up</p>
+  </div>
+
+  <section class="dash-card dash-progress shine" style="position: relative; width: calc(100% - 40px); box-sizing: border-box; margin-top: 22px; padding: 16px; display: flex; align-items: center; gap: 12px;">
+    <span class="tier-badge tier-vip" style="padding: 6px 12px;">VIP</span>
+    <div style="flex: 1; min-width: 0;">
+      <div style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-deep);">Course unlocked</div>
+      <div style="font-family: var(--font-display); font-size: 22px; font-weight: 600; line-height: 1.15;">VIP Inner Circle</div>
+    </div>
+    <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--p-gold-bright); flex-shrink: 0;"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>
+  </section>
+
+  <section style="width: calc(100% - 40px); margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+    <span style="font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; color: var(--p-muted);">Also collected on the way</span>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;">
+      <div class="dash-card" style="padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+        <span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+        <span style="font-size: 12px; font-weight: 600;">3 crates</span>
+      </div>
+      <div class="dash-card" style="padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+        <span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/></svg></span>
+        <span style="font-size: 12px; font-weight: 600;">$5 credit</span>
+      </div>
+      <div class="dash-card" style="padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;">
+        <span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+        <span style="font-size: 12px; font-weight: 600;">+1 slot</span>
+      </div>
+    </div>
+  </section>
+
+  <div style="width: calc(100% - 40px); margin-top: 14px; display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--p-muted);">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="color: var(--plat); flex-shrink: 0;"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>
+    <span style="flex: 1;">Next: <strong style="color: var(--plat); font-weight: 600;">Platinum</strong> in $2,336</span>
+    <div style="width: 90px; height: 5px; border-radius: 100px; background: var(--p-card-lo); overflow: hidden;"><div style="width: 6%; height: 100%; background: var(--plat);"></div></div>
+  </div>
+
+  <div style="margin-top: auto; width: calc(100% - 40px); padding-bottom: 22px; display: flex; flex-direction: column; gap: 8px;">
+    <a href="#" class="btn-gold" style="justify-content: center; padding: 16px 20px; font-size: 12.5px; text-decoration: none;">Start the VIP course</a>
+    <a href="Main.dc.html" class="btn-ghost" style="text-align: center; padding: 14px 20px; text-decoration: none;">Open my crates</a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

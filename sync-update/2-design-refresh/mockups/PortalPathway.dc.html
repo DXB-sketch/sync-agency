@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portal pathway, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}
+.stage{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;font-family:var(--font-ui)}
+.stage:hover{background:var(--bg-2)}
+</style>
+</helmet>
+<div class="rf" style="min-height: 100vh;">
+  <header class="topbar">
+    <div style="display: flex; align-items: baseline; gap: 10px;"><span class="logo">SYNC</span><span class="t-label" style="color: var(--text-3);">Portal</span></div>
+    <button class="btn btn-secondary btn-sm" style="padding: 0 12px 0 6px; gap: 10px;"><span style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-2); color: var(--gold); font-size: 13px; font-weight: 700;">DM</span>Demo</button>
+  </header>
+  <nav class="navbar" aria-label="Portal">
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard</a>
+    <a class="navlink navlink-on" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.pathway}}"></path></svg>Pathway</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg>Checkout</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achievements</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.wallet}}"></path></svg>Wallet</a>
+    <a class="navlink" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.support}}"></path></svg>Support</a>
+  </nav>
+
+  <main style="max-width: 1240px; margin: 0 auto; padding: 36px 40px 64px; display: flex; gap: 32px; flex-wrap: wrap; align-items: flex-start;">
+    <aside style="flex: 1 1 280px; max-width: 320px; display: flex; flex-direction: column; gap: 14px;">
+      <div>
+        <h1 class="t-h1">Pathway</h1>
+        <p class="t-small" style="margin-top: 6px;">Depop · 2 of 8 steps done</p>
+        <div class="bar" style="margin-top: 12px;"><span style="width: 25%;"></span></div>
+      </div>
+      <div class="card" style="padding: 8px; display: flex; flex-direction: column; gap: 2px;">
+        <sc-for list="{{stages}}" as="s" hint-placeholder-count="6">
+          <button class="stage" aria-current="{{s.current}}" style="{{s.style}}">
+            <span style="width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; {{s.ring}}"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px;"><path d="{{s.icon}}"></path></svg></span>
+            <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 15px; font-weight: 600; {{s.nameStyle}}">{{s.name}}</span><span style="font-size: 13px; color: var(--text-3);">{{s.meta}}</span></span>
+            <sc-if value="{{s.locked}}" hint-placeholder-val="{{false}}"><span class="chip chip-plain" style="height: 24px; font-size: 12px;">{{s.tier}}</span></sc-if>
+          </button>
+        </sc-for>
+      </div>
+    </aside>
+
+    <section style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 22px;">
+      <div class="card-feature" style="padding: 26px 28px; display: flex; align-items: center; gap: 20px;">
+        <span class="icon-well" style="width: 64px; height: 64px; border-radius: 18px; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width: 30px; height: 30px;"><path d="{{ic.store}}"></path></svg></span>
+        <div style="flex: 1;">
+          <div class="t-eyebrow">Stage 1 of 6</div>
+          <h2 class="t-h2" style="margin-top: 6px;">Launch your store</h2>
+        </div>
+        <div style="width: 220px; display: flex; flex-direction: column; gap: 6px;"><span class="t-label" style="color: var(--text); text-align: right;">2 of 3 done</span><div class="bar"><span style="width: 66%;"></span></div></div>
+      </div>
+
+      <ol style="list-style: none; margin: 0; padding: 0; position: relative; display: flex; flex-direction: column; gap: 14px;">
+        <li aria-hidden="true" style="position: absolute; left: 21px; top: 24px; bottom: 24px; width: 2px; background: linear-gradient(180deg, var(--gold-strong) 0%, var(--gold-strong) 62%, var(--line) 62%);"></li>
+        <li style="position: relative; display: flex; gap: 18px; align-items: center;">
+          <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.5;"><path d="{{ic.check}}"></path></svg></span>
+          <div class="card" style="flex: 1; padding: 16px 20px; display: flex; align-items: center; gap: 14px; background: var(--bg-1);"><span style="flex: 1; font-size: 16px; font-weight: 600; color: var(--text-2);">Set up your Depop account</span><span class="chip chip-ok">Done</span></div>
+        </li>
+        <li style="position: relative; display: flex; gap: 18px; align-items: center;">
+          <span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad-gold); color: var(--on-gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.5;"><path d="{{ic.check}}"></path></svg></span>
+          <div class="card" style="flex: 1; padding: 16px 20px; display: flex; align-items: center; gap: 14px; background: var(--bg-1);"><span style="flex: 1; font-size: 16px; font-weight: 600; color: var(--text-2);">Write your shop bio</span><span class="chip chip-ok">Done</span></div>
+        </li>
+        <li style="position: relative; display: flex; gap: 18px; align-items: flex-start;">
+          <span style="width: 44px; height: 44px; flex-shrink: 0; margin-top: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bg-0); border: 2.5px solid var(--gold-strong); box-shadow: 0 0 0 6px oklch(79% 0.14 84 / .15); color: var(--gold); font-family: var(--font-display); font-size: 20px; font-weight: 700;">3</span>
+          <div class="card" style="flex: 1; padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; border-color: oklch(79% 0.14 84 / .5);">
+            <div style="display: flex; align-items: center; gap: 12px;"><span class="t-h3" style="flex: 1; font-size: 20px;">Pick your shop photo</span><span class="chip chip-gold">Up next</span></div>
+            <p class="t-body">A clear, friendly shop photo is the first thing buyers see. This step shows you what works on Depop and how to set it.</p>
+            <div style="display: flex; gap: 10px; align-items: center;"><a class="btn btn-primary" href="#">Open step</a><span class="t-small t-muted">About 10 minutes</span></div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="card" style="padding: 18px 22px; display: flex; align-items: center; gap: 16px; background: var(--bg-1);">
+        <span class="icon-well"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.lock}}"></path></svg></span>
+        <span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 15px; font-weight: 600;">Next: List your products</span><span class="t-small">3 steps. Unlocks when you finish this stage.</span></span>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":980}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var ic = {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      pathway: 'M6 21a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM18 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM6 17v-1a3 3 0 0 1 3-3h6a3 3 0 0 0 3-3V7',
+      checkout: 'M3 4h2.5l2 11h10.5l2-8H6.5M9 20h.01M17 20h.01',
+      wallet: 'M4 7a2 2 0 0 1 2-2h12v4M4 7v11a2 2 0 0 0 2 2h14V9H6a2 2 0 0 1-2-2zM16 14.5h.01',
+      support: 'M5 5h14a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1h-8l-4 3v-3H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM8 10h8M8 13h5',
+      check: 'M5 12.5l4.5 4.5L19 7.5',
+      lock: 'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+      store: 'M4 9l1.5-5h13L20 9M4 9v11h16V9M4 9h16M9 20v-6h6v6',
+      list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+      megaphone: 'M3 10v4h4l7 5V5L7 10zM17 9a4 4 0 0 1 0 6',
+      truck: 'M3 6h11v10H3zM14 9h4l3 3v4h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4z',
+      profit: 'M3 17l6-6 4 4 8-8M15 7h6v6',
+      star: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z'
+    };
+    var S = [
+      ['Launch your store', ic.store, '2 of 3 done', 'now'],
+      ['List your products', ic.list, '3 steps', 'open'],
+      ['Drive traffic', ic.megaphone, '2 steps', 'open'],
+      ['Sell & fulfil', ic.truck, '1 step', 'tier', 'Elite'],
+      ['Scale', ic.profit, '4 steps', 'tier', 'Elite'],
+      ['VIP Inner Circle', ic.star, '3 steps', 'tier', 'VIP']
+    ];
+    var stages = S.map(function (s) {
+      var now = s[3] === 'now', tier = s[3] === 'tier';
+      return {
+        name: s[0], icon: s[1], meta: s[2], locked: tier, tier: s[4] || '', current: now ? 'step' : 'false',
+        style: now ? 'background: var(--bg-3); box-shadow: inset 3px 0 0 var(--gold-strong);' : '',
+        ring: now ? 'background: var(--grad-gold); color: var(--on-gold);' : tier ? 'border: 1.5px dashed var(--line-strong); color: var(--text-3);' : 'border: 1.5px solid var(--line-strong); color: var(--gold);',
+        nameStyle: tier ? 'color: var(--text-3);' : ''
+      };
+    });
+    return { ic: ic, stages: stages };
+  }
+}
+</script>
+</body>
+</html>

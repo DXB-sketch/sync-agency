@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rewards hub, desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+:root{--p-bg-deep:oklch(8% 0.01 85);--p-bg:oklch(15% 0.014 85);--p-card-lo:oklch(19% 0.016 85);--p-card-hi:oklch(23.5% 0.018 85);--p-elev:oklch(28% 0.02 85);--p-ink:oklch(18% 0.02 85);--p-text:oklch(93% 0.012 85);--p-muted:oklch(64% 0.02 85);--p-dim:oklch(50% 0.018 85);--p-gold:oklch(86% 0.05 88);--p-gold-bright:oklch(78% 0.13 86);--p-gold-deep:oklch(58% 0.10 68);--p-line:oklch(32% 0.02 85 / 0.55);--p-line-soft:oklch(38% 0.02 85 / 0.18);--p-line-gold:oklch(58% 0.10 68 / 0.5);--p-radius-sm:10px;--p-radius-btn:12px;--p-radius-md:14px;--p-radius-lg:18px;--p-radius-pill:100px;--p-shadow-card:0 1px 0 oklch(100% 0 0 / .03) inset, 0 14px 30px -18px rgba(0,0,0,.65);--p-shadow-glow:0 18px 40px -20px oklch(60% 0.1 80 / .35), 0 1px 0 oklch(100% 0 0 / .04) inset;--p-shadow-btn:0 10px 26px -10px oklch(78% 0.13 86 / .5);--font-display:'Cormorant Garamond', Georgia, serif;--font-portal:'Jost', sans-serif;--silver:oklch(86% 0.012 85);--bronze:oklch(66% 0.10 55);--plat:oklch(84% 0.035 220)}
+body{margin:0;background:var(--p-bg-deep)}
+a{color:var(--p-gold)}a:hover{color:var(--p-gold-bright)}
+.shine{position:relative;overflow:hidden}
+.shine::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,oklch(100% 0 0 / .45) 50%,transparent 70%);transform:translateX(-100%);animation:sweep 2.8s ease-in-out infinite}
+@keyframes sweep{to{transform:translateX(100%)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 oklch(78% 0.13 86 / .5)}50%{box-shadow:0 0 0 12px oklch(78% 0.13 86 / 0)}}
+.pulse{animation:pulse 2s ease-out infinite}
+.rank-card{transition:transform .25s, border-color .25s}
+.rank-card:hover{transform:translateY(-3px)}
+@media (prefers-reduced-motion: reduce){.shine::after,.pulse{animation:none}.rank-card:hover{transform:none}}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 55%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: linear-gradient(180deg, oklch(17% 0.016 85) 0%, var(--p-bg) 100%);">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span>
+      <span class="tier-badge">Pro</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="DesktopTopUp.dc.html" style="display: flex; align-items: center; gap: 10px; padding: 5px 5px 5px 14px; border: 1px solid var(--p-line-gold); border-radius: var(--p-radius-pill); background: var(--p-card-hi); text-decoration: none; color: var(--p-gold); font-size: 13px; font-weight: 600;">
+        <span style="font-size: 10px; letter-spacing: 0.1em; color: var(--p-muted); font-weight: 600;">WALLET</span><span>$248.00 AUD</span>
+        <span style="width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
+      </a>
+      <span style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--p-muted);">Sign out</span>
+    </div>
+  </header>
+  <nav class="portal-nav" aria-label="Portal">
+    <a class="portal-nav-link" href="#">Dashboard</a>
+    <a class="portal-nav-link" href="#">Pathway</a>
+    <a class="portal-nav-link" href="#">Products</a>
+    <a class="portal-nav-link" href="#">Checkout</a>
+    <a class="portal-nav-link" href="#">Achievements</a>
+    <a class="portal-nav-link active" href="#">Rewards</a>
+    <a class="portal-nav-link" href="#">Wallet</a>
+  </nav>
+
+  <main style="max-width: 1280px; margin: 0 auto; padding: 40px clamp(16px, 4vw, 48px) 80px; display: flex; flex-direction: column; gap: 22px;">
+
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px;">
+      <div style="min-width: 0;">
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 40px; height: 1px; background: var(--p-gold-bright);"></span><span style="font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--p-gold-bright); font-weight: 600;">Sync Rewards</span></div>
+        <h1 style="margin: 12px 0 0; font-family: var(--font-display); font-size: clamp(34px, 4vw, 52px); font-weight: 600; line-height: 1.02;">Level up your store</h1>
+        <p style="margin: 10px 0 0; font-size: 14px; color: var(--p-muted); line-height: 1.7; max-width: 560px;">Every $1 of wallet credit earns 10 XP. Climb levels for crates and credit, and climb ranks to unlock the next course.</p>
+      </div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <a href="#ranks" class="btn-ghost" style="text-decoration: none;">How ranks work</a>
+        <a href="DesktopTopUp.dc.html" class="btn-gold shine" style="text-decoration: none;">Top up &amp; earn XP</a>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 18px;">
+
+      <section class="dash-card dash-progress" style="grid-column: span 1; position: relative; overflow: hidden; padding: 30px;">
+        <div aria-hidden="true" style="position: absolute; top: -120px; left: -60px; width: 380px; height: 380px; border-radius: 50%; background: radial-gradient(circle, oklch(78% 0.13 86 / 0.26), transparent 70%); pointer-events: none;"></div>
+        <div aria-hidden="true" style="position: absolute; right: -40px; bottom: -60px; width: 260px; height: 260px; border-radius: 50%; border: 1px solid oklch(78% 0.13 86 / .12); box-shadow: 0 0 0 30px oklch(78% 0.13 86 / .03), 0 0 0 60px oklch(78% 0.13 86 / .02);"></div>
+        <div style="position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 28px;">
+          <div style="position: relative; width: 176px; height: 176px; flex-shrink: 0;">
+            <svg role="img" aria-label="Level 12, 64 percent to level 13" width="176" height="176" viewBox="0 0 176 176">
+              <defs><linearGradient id="dring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--p-gold)"></stop><stop offset=".55" style="stop-color: var(--p-gold-bright)"></stop><stop offset="1" style="stop-color: var(--p-gold-deep)"></stop></linearGradient></defs>
+              <circle cx="88" cy="88" r="76" fill="none" style="stroke: var(--p-line)" stroke-width="12"></circle>
+              <circle cx="88" cy="88" r="76" fill="none" stroke="url(#dring)" stroke-width="12" stroke-linecap="round" stroke-dasharray="305.6 477.5" transform="rotate(-90 88 88)"></circle>
+              <circle cx="88" cy="88" r="60" fill="none" style="stroke: var(--p-line-soft)" stroke-width="1" stroke-dasharray="2 5"></circle>
+            </svg>
+            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <span style="font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--p-muted); font-weight: 600;">Level</span>
+              <span style="font-family: var(--font-display); font-size: 72px; font-weight: 700; line-height: 0.9; color: var(--p-gold);">12</span>
+            </div>
+          </div>
+          <div style="flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 10px;">
+            <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 7px; font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; padding: 5px 12px; border-radius: var(--p-radius-pill); color: var(--silver); border: 1px solid oklch(86% 0.012 85 / 0.35); background: oklch(86% 0.012 85 / 0.07);"><svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg>Silver rank</span>
+            <span style="font-family: var(--font-display); font-size: 58px; font-weight: 600; line-height: 0.95; font-variant-numeric: tabular-nums;">11,640 <span style="font-family: var(--font-portal); font-size: 15px; font-weight: 600; letter-spacing: 0.12em; color: var(--p-gold);">XP</span></span>
+            <span style="font-size: 14px; color: var(--p-muted);">Only <strong style="color: var(--p-text); font-weight: 600;">360 XP</strong> ($36 of credit) to Level 13 and your next mystery crate</span>
+          </div>
+        </div>
+        <div style="position: relative; margin-top: 26px;">
+          <div style="height: 16px; border-radius: var(--p-radius-pill); background: var(--p-card-lo); border: 1px solid var(--p-line); overflow: hidden;">
+            <div class="shine" style="width: 64%; height: 100%; border-radius: var(--p-radius-pill); background: linear-gradient(90deg, var(--p-gold-deep), var(--p-gold-bright) 70%, var(--p-gold));"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 10.5px; letter-spacing: 0.1em; color: var(--p-muted); font-weight: 600; font-variant-numeric: tabular-nums;"><span>LVL 12 · 11,000</span><span style="color: var(--p-gold);">640 / 1,000 XP</span><span>LVL 13 · 12,000</span></div>
+        </div>
+      </section>
+
+      <section class="dash-card" style="position: relative; overflow: hidden; padding: 28px; display: flex; flex-direction: column; gap: 16px; border-color: var(--p-line-gold); background: linear-gradient(160deg, oklch(26% 0.04 85), oklch(17% 0.018 85) 70%);">
+        <div aria-hidden="true" style="position: absolute; top: -40px; right: -40px; width: 240px; height: 240px; background: repeating-conic-gradient(from 0deg, oklch(78% 0.13 86 / .12) 0deg 6deg, transparent 6deg 20deg); -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 65%); mask-image: radial-gradient(circle, #000 10%, transparent 65%);"></div>
+        <div style="position: relative; display: flex; align-items: center; gap: 14px;">
+          <span class="pulse" style="width: 56px; height: 56px; flex-shrink: 0; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+          <div>
+            <div style="font-size: 10.5px; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-deep);">Next rank</div>
+            <div style="font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; color: var(--p-gold);">Gold in $336</div>
+          </div>
+        </div>
+        <div style="position: relative; display: flex; flex-direction: column; gap: 6px;">
+          <div style="height: 8px; border-radius: var(--p-radius-pill); background: var(--p-card-lo); overflow: hidden;"><div style="width: 66%; height: 100%; background: linear-gradient(90deg, var(--silver), var(--p-gold-bright));"></div></div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--p-muted); font-variant-numeric: tabular-nums;"><span>$1,164 bought</span><span>$1,500</span></div>
+        </div>
+        <div style="position: relative; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--p-radius-md); background: oklch(78% 0.13 86 / .1); border: 1px solid var(--p-line-gold);">
+            <span class="tier-badge tier-vip">VIP</span>
+            <span style="font-size: 14px; font-weight: 600;">VIP Inner Circle course</span>
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-left: auto; color: var(--p-gold-bright);"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 10px 14px; font-size: 13px; color: var(--p-muted);"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--p-gold);"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Priority access to new stock drops</div>
+        </div>
+        <a href="DesktopTopUp.dc.html" class="btn-gold shine" style="position: relative; margin-top: auto; justify-content: center; padding: 15px 20px; text-decoration: none;">Reach Gold now</a>
+        <span style="position: relative; text-align: center; font-size: 11.5px; color: var(--p-muted); margin-top: -6px;">A $500 pack gets you there with 2,390 XP to spare.</span>
+      </section>
+    </div>
+
+    <div class="dash-card" style="padding: 6px 8px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4px;">
+        <div class="dash-stat-tile"><span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span><span><span class="dash-stat-num">4 weeks</span><span class="dash-stat-label">Streak · +5% bonus XP</span></span></div>
+        <div class="dash-stat-tile"><span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span><span><span class="dash-stat-num">Lvl 13</span><span class="dash-stat-label">Next mystery crate</span></span></div>
+        <div class="dash-stat-tile"><span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/></svg></span><span><span class="dash-stat-num">$1,164</span><span class="dash-stat-label">Lifetime credit bought</span></span></div>
+        <div class="dash-stat-tile"><span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19h16M6 15l4-5 4 3 5-7"/></svg></span><span><span class="dash-stat-num">Top 18%</span><span class="dash-stat-label">Of members this month</span></span></div>
+      </div>
+    </div>
+
+    <section class="dash-card" style="padding: 26px 28px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-family: var(--font-display); font-size: 26px; font-weight: 600;">Reward track</h2>
+        <span style="font-size: 12px; color: var(--p-muted);">Something to claim at every level</span>
+      </div>
+      <div style="overflow-x: auto; margin-top: 22px; padding-bottom: 4px;">
+        <div style="position: relative; min-width: 960px; display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 8px;">
+          <div aria-hidden="true" style="position: absolute; top: 30px; left: 6%; right: 6%; height: 3px; border-radius: 3px; background: var(--p-line);"></div>
+          <div aria-hidden="true" style="position: absolute; top: 30px; left: 6%; width: 16%; height: 3px; border-radius: 3px; background: linear-gradient(90deg, var(--p-gold-deep), var(--p-gold-bright));"></div>
+
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-gold-deep); color: var(--p-ink);"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-muted);">LVL 11</span>
+            <span style="font-size: 13px; color: var(--p-muted);">Crate claimed</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-bg); border: 3px solid var(--p-gold-bright); color: var(--p-gold); box-shadow: 0 0 0 8px oklch(78% 0.13 86 / .14), 0 0 26px oklch(78% 0.13 86 / .4); font-family: var(--font-display); font-size: 26px; font-weight: 700;">12</span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-gold);">YOU ARE HERE</span>
+            <span style="font-size: 13px;">64% to next</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span class="pulse" style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-hi); border: 1.5px solid var(--p-gold-bright); color: var(--p-gold);"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-gold);">LVL 13</span>
+            <span style="font-size: 13px;">Mystery crate</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-hi); border: 1.5px solid var(--p-line-gold); color: var(--p-gold);"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-muted);">LVL 14</span>
+            <span style="font-size: 13px;">$5 wallet credit</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-hi); border: 1.5px solid var(--p-line-gold); color: var(--p-gold);"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-muted);">LVL 15</span>
+            <span style="font-size: 13px;">+1 product slot</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 18px; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink); box-shadow: 0 10px 26px oklch(70% 0.12 82 / .45);"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(-45deg);"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-gold-bright);">LVL 16 · GOLD</span>
+            <span style="font-size: 13px; color: var(--p-gold); font-weight: 600;">VIP Inner Circle</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-lo); border: 1.5px dashed oklch(50% 0.018 85 / .6); color: var(--p-muted);"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-muted);">LVL 17</span>
+            <span style="font-size: 13px; color: var(--p-muted);">Gold crate</span>
+          </div>
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;">
+            <span style="width: 62px; height: 62px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--p-card-lo); border: 1.5px dashed oklch(50% 0.018 85 / .6); color: var(--p-muted); font-family: var(--font-display); font-size: 28px; font-weight: 700;">?</span>
+            <span style="font-size: 10px; letter-spacing: 0.14em; font-weight: 600; color: var(--p-muted);">LVL 20</span>
+            <span style="font-size: 13px; color: var(--p-muted);">Revealed at Gold</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ranks" style="display: flex; flex-direction: column; gap: 14px;">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px;">
+        <h2 style="margin: 0; font-family: var(--font-display); font-size: 26px; font-weight: 600;">Five ranks. Every one unlocks more.</h2>
+        <span style="font-size: 12px; color: var(--p-muted);">Set by the credit you've bought in total. It never drops.</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; align-items: stretch;">
+
+        <div class="rank-card" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: var(--p-radius-lg); background: oklch(19% 0.016 85 / .6); border: 1px solid var(--p-line-soft);">
+          <div style="display: flex; justify-content: space-between; align-items: center;"><span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--bronze); color: var(--p-ink);"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span style="font-size: 10px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-muted);">COMPLETE</span></div>
+          <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--bronze);">Bronze</span>
+          <span style="font-size: 11.5px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$0 · Level 1</span>
+          <span style="font-size: 13px; color: var(--p-muted); line-height: 1.5;">Rewards access and the weekly streak bonus.</span>
+        </div>
+
+        <div class="rank-card dash-card" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-color: oklch(86% 0.012 85 / .35);">
+          <div style="display: flex; justify-content: space-between; align-items: center;"><span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2.5px solid var(--silver); color: var(--silver);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span><span style="font-size: 10px; letter-spacing: 0.12em; font-weight: 600; color: var(--silver);">YOU'RE HERE</span></div>
+          <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--silver);">Silver</span>
+          <span style="font-size: 11.5px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$500 · Level 6</span>
+          <span style="font-size: 13px; color: var(--p-muted); line-height: 1.5;"><span class="tier-badge tier-elite" style="padding: 2px 8px; font-size: 9px; margin-right: 4px;">Elite</span>Elite Scale course and a crate at every level.</span>
+        </div>
+
+        <div class="rank-card dash-card dash-progress" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; transform: translateY(-6px);">
+          <div style="display: flex; justify-content: space-between; align-items: center;"><span class="pulse" style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span><span style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; padding: 3px 9px; border-radius: var(--p-radius-pill); color: var(--p-ink); background: var(--p-gold-bright);">NEXT · $336</span></div>
+          <span style="font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--p-gold);">Gold</span>
+          <span style="font-size: 11.5px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$1,500 · Level 16</span>
+          <span style="font-size: 13px; line-height: 1.5;"><span class="tier-badge tier-vip" style="padding: 2px 8px; font-size: 9px; margin-right: 4px;">VIP</span>VIP Inner Circle course and priority stock drops.</span>
+        </div>
+
+        <div class="rank-card" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: var(--p-radius-lg); border: 1px dashed oklch(50% 0.018 85 / .5);">
+          <div style="display: flex; justify-content: space-between; align-items: center;"><span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid oklch(84% 0.035 220 / .5); color: var(--plat);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span><span style="font-size: 10px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-muted);">$2,836 TO GO</span></div>
+          <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--plat);">Platinum</span>
+          <span style="font-size: 11.5px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$4,000 · Level 41</span>
+          <span style="font-size: 13px; color: var(--p-muted); line-height: 1.5;">Quarterly 1:1 strategy call and 3% back as credit.</span>
+        </div>
+
+        <div class="rank-card" style="display: flex; flex-direction: column; gap: 10px; padding: 20px; border-radius: var(--p-radius-lg); background: oklch(10% 0.01 85); border: 1px solid var(--p-line-gold);">
+          <div style="display: flex; justify-content: space-between; align-items: center;"><span style="width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: oklch(11% 0.01 85); border: 1.5px solid var(--p-gold-deep); color: var(--p-gold-deep);"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span><span style="font-size: 10px; letter-spacing: 0.12em; font-weight: 600; color: var(--p-muted);">$8,836 TO GO</span></div>
+          <span style="font-family: var(--font-display); font-size: 26px; font-weight: 600; color: var(--p-gold);">Black</span>
+          <span style="font-size: 11.5px; color: var(--p-muted); font-variant-numeric: tabular-nums;">$10,000 · Level 101</span>
+          <span style="font-size: 13px; color: var(--p-muted); line-height: 1.5;">Founders' mastermind, 5% back as credit, free express shipping.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

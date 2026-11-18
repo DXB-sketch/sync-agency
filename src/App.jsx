@@ -4,9 +4,9 @@ import "./styles/global.css";
 import "./styles/portal.css";
 import "./styles/rewards.css";
 import "./styles/tour.css";
+import "./styles/analytics.css";
 import { captureAffiliate, trackReferral } from "./utils/affiliate.js";
 import { AuthProvider } from "./lib/AuthContext";
-import { ChronosModeProvider } from "./lib/ChronosModeContext";
 import Nav from "./components/Nav";
 import Footer from "./sections/Footer";
 import UTMIndicator from "./components/UTMIndicator";
@@ -16,7 +16,7 @@ import PrivacyPage from "./pages/PrivacyPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import AuthConfirmedPage from "./pages/AuthConfirmedPage";
-import { RequireMember, RequireAdmin, RequireChronos } from "./components/portal/Guards";
+import { RequireMember, RequireAdmin } from "./components/portal/Guards";
 import PortalLayout from "./portal/PortalLayout";
 import DashboardPage from "./portal/DashboardPage";
 import PathwayPage from "./portal/PathwayPage";
@@ -27,8 +27,6 @@ import SupportPage from "./portal/SupportPage";
 import UpgradePage from "./portal/UpgradePage";
 import MorePage from "./portal/MorePage";
 import ReactivatePage from "./portal/ReactivatePage";
-import ConnectStorePage from "./portal/ConnectStorePage";
-import ProductLinkingPage from "./portal/ProductLinkingPage";
 import WalletPage from "./portal/WalletPage";
 import RewardsPage from "./portal/RewardsPage";
 import RewardsTopUpPage from "./portal/RewardsTopUpPage";
@@ -37,6 +35,7 @@ import CrateOddsPage from "./portal/CrateOddsPage";
 import PlusPage from "./portal/PlusPage";
 import AdminLayout from "./admin/AdminLayout";
 import ClientsPage from "./admin/ClientsPage";
+import AnalyticsPage from "./admin/AnalyticsPage";
 import ClientDetailPage from "./admin/ClientDetailPage";
 import ProductsAdminPage from "./admin/ProductsAdminPage";
 import OrdersQueuePage from "./admin/OrdersQueuePage";
@@ -45,9 +44,6 @@ import SupportQueuePage from "./admin/SupportQueuePage";
 import PromosAdminPage from "./admin/PromosAdminPage";
 import PlusAdminPage from "./admin/PlusAdminPage";
 import CreatorsAdminPage from "./admin/CreatorsAdminPage";
-import ExceptionQueuePage from "./admin/ExceptionQueuePage";
-import MarginAlertsPage from "./admin/MarginAlertsPage";
-import ChronosPreviewPage from "./admin/ChronosPreviewPage";
 
 // Creator referral link (/r/jake): remember the code, then show the home page
 function ReferralRedirect() {
@@ -110,25 +106,6 @@ function Shell() {
           <Route path="achievements" element={<AchievementsPage />} />
           <Route path="support" element={<SupportPage />} />
           <Route path="upgrade" element={<UpgradePage />} />
-          <Route
-            path="store"
-            element={
-              <RequireChronos redirectTo="/portal">
-                <ConnectStorePage />
-              </RequireChronos>
-            }
-          />
-          <Route
-            path="store/products"
-            element={
-              <RequireChronos redirectTo="/portal">
-                <ProductLinkingPage />
-              </RequireChronos>
-            }
-          />
-          {/* Wallet is a live member feature, promoted out of Chronos — gated by normal
-              member auth only (RequireMember on the parent /portal route), never by
-              Chronos Mode or admin role. */}
           <Route path="wallet" element={<WalletPage />} />
           <Route path="rewards" element={<RewardsPage />} />
           <Route path="rewards/top-up" element={<RewardsTopUpPage />} />
@@ -146,7 +123,8 @@ function Shell() {
             </RequireAdmin>
           }
         >
-          <Route index element={<ClientsPage />} />
+          <Route index element={<AnalyticsPage />} />
+          <Route path="clients" element={<ClientsPage />} />
           <Route path="clients/:id" element={<ClientDetailPage />} />
           <Route path="products" element={<ProductsAdminPage />} />
           <Route path="pool" element={<Navigate to="/admin/products" replace />} />
@@ -155,30 +133,6 @@ function Shell() {
           <Route path="promos" element={<PromosAdminPage />} />
           <Route path="plus" element={<PlusAdminPage />} />
           <Route path="creators" element={<CreatorsAdminPage />} />
-          <Route
-            path="exceptions"
-            element={
-              <RequireChronos>
-                <ExceptionQueuePage />
-              </RequireChronos>
-            }
-          />
-          <Route
-            path="margins"
-            element={
-              <RequireChronos>
-                <MarginAlertsPage />
-              </RequireChronos>
-            }
-          />
-          <Route
-            path="chronos"
-            element={
-              <RequireChronos>
-                <ChronosPreviewPage />
-              </RequireChronos>
-            }
-          />
           <Route path="achievements" element={<AchievementsReviewPage />} />
           <Route path="support" element={<SupportQueuePage />} />
         </Route>
@@ -196,11 +150,9 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <ChronosModeProvider>
-        <BrowserRouter>
-          <Shell />
-        </BrowserRouter>
-      </ChronosModeProvider>
+      <BrowserRouter>
+        <Shell />
+      </BrowserRouter>
     </AuthProvider>
   );
 }

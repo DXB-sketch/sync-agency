@@ -1,0 +1,79 @@
+/* Sync first-run tutorial — coach-mark components. Load after crate.css (which carries the tokens). */
+
+/* The spotlight: wrap the real target. When active, the wrapper lifts above the page,
+   rings itself in gold and dims everything else with one giant shadow. */
+.tut-anchor{position:relative;display:block;border-radius:16px}
+.tut-on{z-index:50;animation:tut-glow 1.6s ease-in-out infinite}
+@keyframes tut-glow{
+  0%,100%{box-shadow:0 0 0 3px var(--p-gold-bright),0 0 22px 4px oklch(78% 0.13 86 / .5),0 0 0 9999px oklch(6% 0.01 85 / .8)}
+  50%{box-shadow:0 0 0 6px var(--p-gold-bright),0 0 40px 12px oklch(78% 0.13 86 / .7),0 0 0 9999px oklch(6% 0.01 85 / .8)}
+}
+.tut-ping{position:absolute;inset:-4px;border-radius:inherit;border:3px solid var(--p-gold-bright);pointer-events:none;animation:tut-ping 1.6s ease-out infinite}
+@keyframes tut-ping{from{transform:scale(1);opacity:.9}to{transform:scale(1.18);opacity:0}}
+
+/* The hand: points at the target and taps */
+.tut-hand{position:absolute;width:62px;height:62px;pointer-events:none;z-index:2;filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))}
+.tut-hand svg{display:block;width:62px;height:62px;animation:tut-tap 1.1s ease-in-out infinite;transform-origin:30% 10%}
+.hand-br{right:-18px;bottom:-50px}
+.hand-bl{left:-18px;bottom:-50px}
+.hand-br svg,.hand-bl svg{--rot:-20deg}
+.hand-tr{right:-12px;top:-56px}
+.hand-tr svg{--rot:200deg}
+@keyframes tut-tap{0%,100%{transform:rotate(var(--rot,-20deg)) translate(10px,12px) scale(1)}45%{transform:rotate(var(--rot,-20deg)) translate(0,0) scale(.88)}60%{transform:rotate(var(--rot,-20deg)) translate(0,0) scale(.92)}}
+
+/* The instruction card: one line, big and plain */
+.tut-card{position:absolute;z-index:60;left:12px;right:12px;display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:22px;background:linear-gradient(160deg,oklch(27% 0.04 85),oklch(17% 0.018 85));border:1.5px solid var(--p-gold-bright);box-shadow:0 24px 50px -16px rgba(0,0,0,.85),0 0 40px -12px oklch(78% 0.13 86 / .6);animation:tut-cardin .5s cubic-bezier(.2,1.5,.4,1) both}
+.tut-card.top{top:64px}
+.tut-card.bottom{bottom:104px}
+.tut-card.desk{left:50%;right:auto;width:560px;margin-left:-280px;padding:20px 24px;gap:18px}
+.tut-card.desk.top{top:126px}
+.tut-card.desk.bottom{bottom:48px}
+@keyframes tut-cardin{from{transform:translateY(16px) scale(.92);opacity:0}to{transform:none;opacity:1}}
+.tut-icon{width:54px;height:54px;flex-shrink:0;border-radius:16px;display:flex;align-items:center;justify-content:center;color:var(--p-ink);background:linear-gradient(135deg,var(--p-gold),var(--p-gold-bright) 55%,var(--p-gold-deep));box-shadow:0 10px 22px -8px oklch(78% 0.13 86 / .7)}
+.tut-copy{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.tut-big{font-family:var(--font-portal);font-size:21px;font-weight:700;line-height:1.2;color:var(--p-text)}
+.desk .tut-big{font-size:24px}
+.tut-small{font-size:14px;line-height:1.35;color:var(--p-muted)}
+.tut-steps{display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.tut-dot{width:8px;height:8px;border-radius:100px;background:var(--p-line)}
+.tut-dot.done{background:var(--p-gold-deep)}
+.tut-dot.now{width:22px;background:var(--p-gold-bright)}
+
+/* Skip: always available */
+.tut-skip{all:unset;cursor:pointer;position:absolute;z-index:61;top:12px;right:12px;height:36px;padding:0 14px;display:flex;align-items:center;border-radius:100px;font-family:var(--font-portal);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--p-muted);background:oklch(10% 0.01 85 / .8);border:1px solid var(--p-line)}
+.tut-skip:focus-visible{outline:2px solid var(--p-gold-bright);outline-offset:2px}
+
+/* "Nice!" after each step */
+.tut-cheer{position:absolute;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;pointer-events:none}
+.tut-cheer-badge{width:110px;height:110px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--p-ink);background:linear-gradient(135deg,var(--p-gold),var(--p-gold-bright) 55%,var(--p-gold-deep));box-shadow:0 0 0 10px oklch(78% 0.13 86 / .2),0 0 60px oklch(78% 0.13 86 / .7);animation:tut-pop .55s cubic-bezier(.2,1.7,.4,1) both}
+.tut-cheer-word{font-family:var(--font-display);font-size:48px;font-weight:700;color:var(--p-gold);text-shadow:0 4px 20px rgba(0,0,0,.7);animation:tut-pop .55s .08s cubic-bezier(.2,1.7,.4,1) both}
+.tut-cheer-sub{font-size:18px;font-weight:700;color:var(--p-gold-bright);animation:tut-pop .55s .14s cubic-bezier(.2,1.7,.4,1) both}
+@keyframes tut-pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* Intro and finish: a centred card over a dimmed screen */
+.tut-modal{position:absolute;inset:0;z-index:65;display:flex;align-items:center;justify-content:center;padding:20px;background:oklch(6% 0.01 85 / .82)}
+.tut-modal-card{width:100%;max-width:440px;box-sizing:border-box;padding:30px 24px 24px;border-radius:28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;background:linear-gradient(160deg,oklch(27% 0.04 85),oklch(16% 0.018 85));border:1.5px solid var(--p-gold-bright);box-shadow:0 30px 70px -20px rgba(0,0,0,.9),0 0 80px -20px oklch(78% 0.13 86 / .6);animation:tut-pop .6s cubic-bezier(.2,1.5,.4,1) both}
+.tut-modal-title{margin:0;font-family:var(--font-display);font-size:38px;font-weight:700;line-height:1.02;color:var(--p-gold)}
+.tut-modal-sub{margin:0;font-size:16px;line-height:1.45;color:var(--p-muted)}
+.tut-recap{display:flex;align-items:flex-start;justify-content:center;gap:6px;width:100%}
+.tut-recap-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--p-text)}
+.tut-recap-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:var(--p-gold);background:var(--p-elev);border:1px solid var(--p-line-gold)}
+.tut-recap-arrow{margin-top:16px;color:var(--p-gold-deep)}
+.tut-go{width:100%;justify-content:center;padding:17px 20px !important;font-size:14px !important;cursor:pointer}
+
+/* Practice-mode chip and the level-up flash */
+.tut-practice{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:5px 11px;border-radius:100px;color:var(--p-gold-bright);border:1px dashed var(--p-line-gold);background:oklch(10% 0.01 85 / .7)}
+.tut-level{position:absolute;inset:0;z-index:70;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:radial-gradient(circle at 50% 45%,oklch(30% 0.07 85 / .95),oklch(8% 0.01 85 / .95) 70%)}
+.tut-level-xp{font-size:22px;font-weight:700;color:var(--p-gold-bright);animation:tut-xp 1.6s ease-out both}
+@keyframes tut-xp{0%{transform:translateY(40px) scale(.6);opacity:0}25%{transform:translateY(0) scale(1.15);opacity:1}100%{transform:translateY(-10px) scale(1);opacity:1}}
+.tut-level-num{font-family:var(--font-display);font-size:120px;font-weight:700;line-height:.9;color:var(--p-gold);animation:tut-pop .6s .35s cubic-bezier(.2,1.7,.4,1) both;text-shadow:0 0 50px oklch(78% 0.13 86 / .6)}
+.tut-level-rank{animation:tut-pop .6s .7s cubic-bezier(.2,1.7,.4,1) both}
+.tut-rays{position:absolute;left:50%;top:45%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:repeating-conic-gradient(from 0deg,oklch(78% 0.13 86 / .14) 0deg 6deg,transparent 6deg 20deg);-webkit-mask-image:radial-gradient(circle,#000 10%,transparent 55%);mask-image:radial-gradient(circle,#000 10%,transparent 55%);animation:spin 12s linear infinite;pointer-events:none}
+
+.tut-replay{all:unset;cursor:pointer;position:absolute;z-index:61;top:12px;right:12px;height:36px;padding:0 14px;display:flex;align-items:center;gap:6px;border-radius:100px;font-family:var(--font-portal);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--p-ink);background:var(--p-gold-bright)}
+
+@media (prefers-reduced-motion: reduce){
+  .tut-on{animation:none;box-shadow:0 0 0 4px var(--p-gold-bright),0 0 0 9999px oklch(6% 0.01 85 / .8)}
+  .tut-ping,.tut-hand svg,.tut-rays{animation:none}
+  .tut-card,.tut-cheer-badge,.tut-cheer-word,.tut-cheer-sub,.tut-modal-card,.tut-level-xp,.tut-level-num,.tut-level-rank{animation-duration:.01s}
+}

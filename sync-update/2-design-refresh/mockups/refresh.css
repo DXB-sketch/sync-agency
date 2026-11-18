@@ -1,0 +1,89 @@
+/* Sync design refresh — v2 tokens and components (portal + website share these). */
+:root{
+  /* Surfaces: warm near-black, four steps */
+  --bg-0:oklch(10% 0.01 85);      /* page */
+  --bg-1:oklch(14% 0.014 85);     /* bars, sections */
+  --bg-2:oklch(18.5% 0.016 85);   /* cards */
+  --bg-3:oklch(24% 0.018 85);     /* inputs, secondary buttons, hover */
+  --line:oklch(30% 0.02 85);
+  --line-strong:oklch(42% 0.04 80);
+  /* Text: three steps, all pass 4.5:1 on --bg-2 */
+  --text:oklch(95% 0.01 85);
+  --text-2:oklch(78% 0.02 85);
+  --text-3:oklch(66% 0.02 85);
+  /* Gold */
+  --gold:oklch(85% 0.09 86);       /* gold text and icons */
+  --gold-strong:oklch(79% 0.14 84);/* fills, rings, active marks */
+  --gold-deep:oklch(60% 0.11 70);
+  --on-gold:oklch(17% 0.02 85);
+  --grad-gold:linear-gradient(135deg,oklch(88% 0.07 88),oklch(79% 0.14 84) 55%,oklch(64% 0.12 72));
+  /* Status (never gold) */
+  --ok:oklch(78% 0.13 160);
+  --warn:oklch(76% 0.14 60);
+  --bad:oklch(70% 0.16 25);
+  --info:oklch(78% 0.08 230);
+  /* Type */
+  --font-display:'Cormorant Garamond',Georgia,serif;
+  --font-ui:'Jost',system-ui,sans-serif;
+  /* Shape */
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-pill:999px;
+  --shadow-card:0 1px 0 oklch(100% 0 0 / .04) inset,0 18px 40px -24px rgba(0,0,0,.7);
+  --shadow-pop:0 24px 60px -20px rgba(0,0,0,.85);
+}
+.rf{font-family:var(--font-ui);color:var(--text);background:var(--bg-0);-webkit-font-smoothing:antialiased}
+.rf *{box-sizing:border-box}
+
+/* Type scale (sentence case everywhere; uppercase only for .t-eyebrow) */
+.t-display{font-family:var(--font-display);font-size:64px;line-height:.98;font-weight:600;letter-spacing:-.01em;margin:0;text-wrap:balance}
+.t-h1{font-family:var(--font-display);font-size:44px;line-height:1.04;font-weight:600;margin:0;text-wrap:balance}
+.t-h2{font-family:var(--font-display);font-size:32px;line-height:1.1;font-weight:600;margin:0;text-wrap:balance}
+.t-h3{font-size:19px;line-height:1.3;font-weight:600;margin:0}
+.t-body{font-size:16px;line-height:1.6;color:var(--text-2);margin:0}
+.t-small{font-size:14px;line-height:1.5;color:var(--text-2);margin:0}
+.t-label{font-size:13px;line-height:1.3;font-weight:600;color:var(--text-2)}
+.t-eyebrow{font-size:12px;line-height:1.2;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.t-num{font-family:var(--font-display);font-weight:600;font-variant-numeric:lining-nums tabular-nums}
+.t-gold{color:var(--gold)}
+.t-muted{color:var(--text-3)}
+
+/* Buttons: 48px tall, sentence case, never wrap */
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 22px;border-radius:var(--r-md);font-family:var(--font-ui);font-size:15px;font-weight:600;white-space:nowrap;transition:transform .15s,box-shadow .15s,background .15s}
+.btn svg{width:18px;height:18px}
+.btn-primary{background:var(--grad-gold);color:var(--on-gold);box-shadow:0 10px 24px -12px oklch(79% 0.14 84 / .6)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-secondary{background:var(--bg-3);color:var(--text);border:1px solid var(--line)}
+.btn-secondary:hover{border-color:var(--line-strong)}
+.btn-quiet{height:40px;padding:0 10px;color:var(--gold)}
+.btn-sm{height:40px;padding:0 16px;font-size:14px}
+.btn-lg{height:56px;padding:0 28px;font-size:16px}
+.btn:focus-visible,.rf a:focus-visible,.rf button:focus-visible{outline:2px solid var(--gold-strong);outline-offset:2px}
+
+/* Surfaces */
+.card{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-card)}
+.card-feature{background:linear-gradient(160deg,oklch(24% 0.035 85),oklch(16% 0.016 85) 70%);border:1px solid oklch(60% 0.1 80 / .45);border-radius:var(--r-xl);box-shadow:0 30px 60px -30px oklch(60% 0.1 80 / .35)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:var(--r-pill);font-size:13px;font-weight:600;white-space:nowrap}
+.chip-gold{background:oklch(79% 0.14 84 / .14);color:var(--gold);border:1px solid oklch(79% 0.14 84 / .35)}
+.chip-ok{background:oklch(78% 0.13 160 / .14);color:var(--ok)}
+.chip-plain{background:var(--bg-3);color:var(--text-2)}
+.icon{width:20px;height:20px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.icon-well{width:44px;height:44px;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;background:var(--bg-3);color:var(--gold)}
+.bar{height:8px;border-radius:var(--r-pill);background:var(--bg-3);overflow:hidden}
+.bar>span{display:block;height:100%;border-radius:inherit;background:var(--grad-gold)}
+.divider{height:1px;background:var(--line)}
+
+/* Portal chrome */
+.topbar{height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 28px;background:var(--bg-1);border-bottom:1px solid var(--line)}
+.logo{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--gold);letter-spacing:.04em}
+.navbar{display:flex;align-items:center;gap:4px;padding:0 20px;height:56px;background:var(--bg-1);border-bottom:1px solid var(--line)}
+.navlink{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:var(--r-sm);font-size:15px;font-weight:500;color:var(--text-2);text-decoration:none;white-space:nowrap}
+.navlink .icon{width:18px;height:18px}
+.navlink-on{color:var(--text);background:var(--bg-3);box-shadow:inset 0 -2px 0 var(--gold-strong)}
+.tabbar{display:flex;gap:4px;padding:8px 8px 22px;background:var(--bg-1);border-top:1px solid var(--line)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:var(--r-md);color:var(--text-3);font-size:11px;font-weight:600;text-decoration:none}
+.tab .icon{width:22px;height:22px}
+.tab-on{color:var(--gold)}
+.tab-on .tab-dot{opacity:1}
+.tab-dot{width:4px;height:4px;border-radius:50%;background:var(--gold-strong);opacity:0}
+
+/* Annotation marker for the boards */
+.note-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:var(--grad-gold);color:var(--on-gold);font-size:13px;font-weight:700;flex-shrink:0}

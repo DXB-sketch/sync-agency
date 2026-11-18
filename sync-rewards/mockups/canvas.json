@@ -1,0 +1,34 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "DesktopHub.dc.html": { "expand": "fill", "h": 1480, "title": "Desktop · Rewards hub", "w": 1440, "x": 0, "y": 2000 },
+    "DesktopRankUp.dc.html": { "expand": "fill", "h": 900, "title": "Desktop · Rank-up moment", "w": 1440, "x": 3040, "y": 2000 },
+    "DesktopTopUp.dc.html": { "expand": "fill", "h": 1080, "is_interactive": true, "title": "Desktop · Top-up packs", "w": 1440, "x": 1520, "y": 2000 },
+    "Main.dc.html": { "h": 844, "title": "Rewards hub", "w": 390, "x": 0, "y": 0 },
+    "RankUp.dc.html": { "h": 844, "title": "Rank-up moment", "w": 390, "x": 1410, "y": 0 },
+    "Ranks.dc.html": { "h": 844, "title": "Rank ladder", "w": 390, "x": 470, "y": 0 },
+    "TopUp.dc.html": { "h": 844, "is_interactive": true, "title": "Top-up packs", "w": 390, "x": 940, "y": 0 },
+    "CrateOpen.dc.html": { "h": 844, "is_interactive": true, "title": "Crate opening (tap to play)", "w": 390, "x": 1880, "y": 0 },
+    "CrateJackpot.dc.html": { "h": 844, "title": "Crate reveal · 3% jackpot", "w": 390, "x": 2350, "y": 0 },
+    "CrateOdds.dc.html": { "h": 844, "title": "Crate odds", "w": 390, "x": 2820, "y": 0 },
+    "DesktopCrate.dc.html": { "expand": "fill", "h": 1040, "is_interactive": true, "title": "Desktop · Crate opening (click to play)", "w": 1440, "x": 4560, "y": 2000 }
+  },
+  "createdOnFiles": { "at": "2026-11-11T12:25:00Z", "v": 1 },
+  "designSystems": [
+    { "artifact": "https://claude.ai/artifact/A7WKKoFL3wDvZ7tx9hLqtQ", "copiedAt": "2026-11-11T12:25:00Z", "namespace": "syncagency", "title": "Sync Agency", "version": "1794399511-f7c5" }
+  ],
+  "launch": { "view": "canvas" },
+  "noteOrder": ["desktopTitle", "title", "rules", "loop", "crateTitle", "crateEconomics"],
+  "notes": {
+    "desktopTitle": { "kind": "title1", "maxW": 6000, "text": "Desktop", "w": 240, "x": 0, "y": 1740 },
+    "loop": { "fill": "teal", "size": 24, "text": "The loop\n\nTwo goals always on screen: a small one (next level, about $36 away) and a big one (next rank, the course unlock). Every top-up pack shows exactly what level and rank it gets you to, so the next purchase always has a visible payoff.", "w": 520, "x": 600, "y": 924 },
+    "rules": { "fill": "orange", "size": 24, "text": "Earning rules (proposal, tune before launch)\n\n• 10 XP per $1 AUD of wallet credit bought\n• Bigger packs add bonus XP: $100 +5%, $250 +10%, $500 +15%, $1,000 +20%\n• 1 level = 1,000 XP ($100)\n• Ranks by lifetime credit: Bronze $0 · Silver $500 · Gold $1,500 · Platinum $4,000 · Black $10,000\n• Silver unlocks Elite Scale, Gold unlocks VIP Inner Circle", "w": 520, "x": 0, "y": 924 },
+    "title": { "kind": "title1", "maxW": 1800, "text": "Sync Rewards: buy wallet credit, earn XP, rank up, unlock courses", "w": 240, "x": 0, "y": -260 },
+    "crateTitle": { "kind": "title1", "maxW": 1330, "text": "Mystery crates", "x": 1880, "y": -260 },
+    "crateEconomics": { "fill": "orange", "size": 24, "text": "Crate economics\n\n• Average wallet credit per crate: Silver $3.50, Gold $6.35\n• The rest of the odds pay out XP, a stock-order discount or a 30-day product slot\n• Top credit ($30 Silver, $50 Gold) is 3% in both\n• Crates are earned by levelling only, never sold\n• Odds must stay visible in the app (Apple requires it for paid random rewards)", "w": 520, "x": 1880, "y": 924 }
+  },
+  "order": ["Main.dc.html", "Ranks.dc.html", "TopUp.dc.html", "RankUp.dc.html", "CrateOpen.dc.html", "CrateJackpot.dc.html", "CrateOdds.dc.html", "DesktopHub.dc.html", "DesktopTopUp.dc.html", "DesktopRankUp.dc.html", "DesktopCrate.dc.html"],
+  "pages": [],
+  "title": "Sync Rewards"
+}

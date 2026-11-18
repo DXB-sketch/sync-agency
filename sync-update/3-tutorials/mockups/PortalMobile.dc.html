@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Portal tutorial, mobile</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+<link rel="stylesheet" href="crate.css">
+<link rel="stylesheet" href="tut.css">
+<script src="crate-fx.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.plain{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%}
+.tab{all:unset;cursor:pointer;flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 4px;border-radius:14px;color:var(--p-dim);font-family:var(--font-portal)}
+.tab-on{color:var(--p-ink);background:linear-gradient(135deg,var(--p-gold),var(--p-gold-bright) 55%,var(--p-gold-deep))}
+.tab-label{font-size:9px;text-transform:uppercase;font-weight:600;letter-spacing:.03em}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+@keyframes unlock{0%{transform:scale(.6)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.unlock{animation:unlock .6s cubic-bezier(.2,1.6,.4,1) both}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% -10%, oklch(22% 0.03 85) 0%, var(--p-bg-deep) 62%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--p-line);">
+    <span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span>
+    <span class="tier-badge">Pro</span>
+  </header>
+
+  <sc-if value="{{isDash}}" hint-placeholder-val="{{true}}">
+    <main style="flex: 1; display: flex; flex-direction: column; gap: 14px; padding: 18px 20px 0;">
+      <div>
+        <h1 style="margin: 0; font-family: var(--font-display); font-size: 32px; font-weight: 600; line-height: 1.05;">Welcome back</h1>
+        <p style="margin: 6px 0 0; font-size: 13px; color: var(--p-muted);">Here's where your store is at.</p>
+      </div>
+      <div class="dash-card dash-progress" style="padding: 18px; display: flex; align-items: center; gap: 16px;">
+        <div style="position: relative; width: 76px; height: 76px; flex-shrink: 0;"><svg aria-hidden="true" width="76" height="76" viewBox="0 0 104 104"><circle cx="52" cy="52" r="44" fill="none" style="stroke: var(--p-line)" stroke-width="9"></circle><circle cx="52" cy="52" r="44" fill="none" style="stroke: var(--p-gold-bright)" stroke-width="9" stroke-linecap="round" stroke-dasharray="{{ringDash}}" transform="rotate(-90 52 52)"></circle></svg><span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--p-gold);">{{doneCount}}/12</span></div>
+        <div><div class="dash-card-title" style="font-size: 20px;">Pathway progress</div><div class="dash-card-sub">{{doneCount}} of 12 steps done</div></div>
+      </div>
+      <div class="{{cls.focus}}" style="border-radius: 14px;">
+        <button class="plain" onClick="{{tapFocus}}" style="display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px; border: 1px solid oklch(60% 0.09 80 / .4); background: oklch(19% 0.016 85 / .8);">
+          <span class="dash-stat-icon" style="width: 44px; height: 44px; border-radius: 12px;"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></span>
+          <span style="flex: 1; display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--p-gold-deep); font-weight: 700;">Today's focus</span><span style="font-family: var(--font-display); font-size: 20px; font-weight: 600;">Write your shop bio</span></span>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="color: var(--p-gold);"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <sc-if value="{{on.focus}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+        <div class="dash-card" style="padding: 12px 14px;"><span class="dash-stat-num">0</span><span class="dash-stat-label">Sales</span></div>
+        <div class="dash-card" style="padding: 12px 14px;"><span class="dash-stat-num">0</span><span class="dash-stat-label">Stock orders</span></div>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isPath}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; display: flex; flex-direction: column; gap: 6px; padding: 18px 20px 0;">
+      <h1 style="margin: 0 0 8px; font-family: var(--font-display); font-size: 30px; font-weight: 600;">Pathway</h1>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 6px;"><span style="width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2.5px solid var(--p-gold-bright); box-shadow: 0 0 0 6px oklch(78% 0.13 86 / .14); color: var(--p-gold);"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.5 6H21l-5 4 2 7-6-4-6 4 2-7-5-4h6.5z"/></svg></span><span><span style="display: block; font-family: var(--font-display); font-size: 22px; font-weight: 600;">Launch your store</span><span style="font-size: 12px; color: var(--p-gold-deep);">Stage 1 · {{doneCount}} of 4 done</span></span></div>
+      <div style="position: relative; display: flex; flex-direction: column; gap: 8px; padding-left: 8px;">
+        <span aria-hidden="true" style="position: absolute; left: 33px; top: 24px; bottom: 24px; width: 2px; background: var(--p-line-gold);"></span>
+        <sc-for list="{{nodes}}" as="n" hint-placeholder-count="4">
+          <div class="{{n.cls}}" style="border-radius: 16px;">
+            <button class="plain" onClick="{{n.tap}}" style="display: flex; align-items: center; gap: 14px; padding: 8px 10px; border-radius: 16px;">
+              <span class="{{n.anim}}" style="width: 50px; height: 50px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; {{n.circle}}">
+                <sc-if value="{{n.done}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></sc-if>
+                <sc-if value="{{n.open}}" hint-placeholder-val="{{true}}"><span style="font-family: var(--font-display); font-size: 22px; font-weight: 700;">{{n.num}}</span></sc-if>
+                <sc-if value="{{n.locked}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></sc-if>
+              </span>
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 15px; font-weight: 600; {{n.textStyle}}">{{n.title}}</span><span style="font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; {{n.tagStyle}}">{{n.tag}}</span></span>
+            </button>
+            <sc-if value="{{n.on}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br" style="right: 60px;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isProducts}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; position: relative; display: flex; flex-direction: column; gap: 10px; padding: 18px 20px 0;">
+      <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600;">Products</h1>
+      <p style="margin: 0 0 4px; font-size: 13px; color: var(--p-muted);">Made a sale on Depop? Find the item here.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+        <div class="dash-card" style="padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <span aria-hidden="true" style="display: block; aspect-ratio: 1; border-radius: 12px; background: linear-gradient(135deg, oklch(34% 0.03 60), oklch(22% 0.02 60));"></span>
+          <span class="product-name" style="font-family: var(--font-display); font-size: 16px; font-weight: 600;">Vintage graphic tee</span>
+          <span style="font-size: 11px; color: var(--p-muted);">List at $45 · Profit $14</span>
+          <div class="{{cls.add}}" style="border-radius: 12px;">
+            <button class="btn-gold" onClick="{{tapAdd}}" style="width: 100%; justify-content: center; padding: 11px 8px; font-size: 10.5px; cursor: pointer;">{{addLabel}}</button>
+            <sc-if value="{{on.add}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </div>
+        <div class="dash-card" style="padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+          <span aria-hidden="true" style="display: block; aspect-ratio: 1; border-radius: 12px; background: linear-gradient(135deg, oklch(30% 0.03 230), oklch(20% 0.02 230));"></span>
+          <span style="font-family: var(--font-display); font-size: 16px; font-weight: 600;">Knit beanie</span>
+          <span style="font-size: 11px; color: var(--p-muted);">List at $28 · Profit $9</span>
+          <span class="btn-ghost" style="text-align: center; padding: 11px 8px; font-size: 10.5px;">Add to order</span>
+        </div>
+      </div>
+      <sc-if value="{{showCartBar}}" hint-placeholder-val="{{false}}">
+        <div style="position: absolute; left: 20px; right: 20px; bottom: 14px;">
+          <div class="{{cls.cart}}" style="border-radius: 16px;">
+            <button class="plain" onClick="{{tapCart}}" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-radius: 16px; background: linear-gradient(135deg, var(--p-gold), var(--p-gold-bright) 55%, var(--p-gold-deep)); color: var(--p-ink); font-weight: 700; font-size: 14px;"><span>1 item in your order</span><span>Checkout →</span></button>
+            <sc-if value="{{on.cart}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-tr"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isCheckout}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 0;">
+      <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600;">Checkout</h1>
+      <div class="dash-card" style="padding: 14px 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 600;"><span>Vintage graphic tee</span><span style="color: var(--p-gold);">$31.00</span></div>
+        <label style="display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--p-muted);">Ship to your buyer<span style="padding: 10px 12px; border-radius: 10px; border: 1px solid var(--p-line); background: var(--p-card-lo); font-size: 13px; color: var(--p-text);">Your buyer's name and address from Depop</span></label>
+      </div>
+      <sc-if value="{{notPaid}}" hint-placeholder-val="{{true}}">
+        <div class="{{cls.pay}}" style="border-radius: 12px;">
+          <button class="btn-gold" onClick="{{tapPay}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">Pay $31.00</button>
+          <sc-if value="{{on.pay}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+        </div>
+      </sc-if>
+      <sc-if value="{{paid}}" hint-placeholder-val="{{false}}">
+        <div class="dash-card dash-progress" style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <span style="font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--p-gold-deep);">Order tracking</span>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;">
+            <sc-for list="{{track}}" as="t" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;"><span style="width: 100%; height: 6px; border-radius: 100px; {{t.bar}}"></span><span style="font-size: 11.5px; font-weight: 600; {{t.text}}">{{t.label}}</span></div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isSupport}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding: 18px 20px 0;">
+      <h1 style="margin: 0; font-family: var(--font-display); font-size: 30px; font-weight: 600;">Support</h1>
+      <div class="dash-card" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;"><span style="font-size: 15px; font-weight: 600;">Stuck on anything?</span><span style="font-size: 13px; color: var(--p-muted);">Open a ticket and the Sync team replies here.</span><span class="btn-gold" style="justify-content: center; padding: 13px;">Open a ticket</span></div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{showSheet}}" hint-placeholder-val="{{false}}">
+    <div style="position: absolute; inset: 0; z-index: 20; background: oklch(6% 0.01 85 / .55);"></div>
+    <section style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; padding: 22px 20px 26px; border-radius: 26px 26px 0 0; background: var(--p-bg); border-top: 1px solid var(--p-line-gold); display: flex; flex-direction: column; gap: 12px; animation: sheet .4s cubic-bezier(.2,.9,.3,1) both;">
+      <span style="font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: var(--p-gold-deep);">Step 2 · Launch your store</span>
+      <h2 style="margin: 0; font-family: var(--font-display); font-size: 28px; font-weight: 600;">Write your shop bio</h2>
+      <p style="margin: 0; font-size: 14px; color: var(--p-muted); line-height: 1.6;">Each step tells you exactly what to do, with copy you can paste.</p>
+      <div class="{{cls.complete}}" style="border-radius: 12px; margin-top: 6px;">
+        <button class="btn-gold" onClick="{{tapComplete}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">Mark complete</button>
+        <sc-if value="{{on.complete}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-tr"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+      </div>
+    </section>
+  </sc-if>
+
+  <nav aria-label="Portal" style="flex-shrink: 0; display: flex; gap: 6px; padding: 10px 10px 18px; background: linear-gradient(180deg, oklch(24% 0.02 85) 0%, oklch(18% 0.016 85) 100%); border-top: 1px solid oklch(60% 0.09 80 / .35);">
+    <span class="tab {{tabs.dash}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="tab-label">Dashboard</span></span>
+    <span class="tab"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg><span class="tab-label">Rewards</span></span>
+    <div class="{{cls.tabProducts}}" style="flex: 1; border-radius: 14px; display: flex;">
+      <button class="tab {{tabs.products}}" onClick="{{tapProducts}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg><span class="tab-label">Products</span></button>
+      <sc-if value="{{on.tabProducts}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-tr" style="right: 0;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+    </div>
+    <span class="tab"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l2.5 6H21l-5 4 2 7-6-4-6 4 2-7-5-4h6.5z"/></svg><span class="tab-label">Achieve</span></span>
+    <div class="{{cls.tabMore}}" style="flex: 1; border-radius: 14px; display: flex;">
+      <button class="tab {{tabs.more}}" onClick="{{tapMore}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg><span class="tab-label">More</span></button>
+      <sc-if value="{{on.tabMore}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-tr" style="right: 4px;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+    </div>
+  </nav>
+
+  <sc-if value="{{showCard}}" hint-placeholder-val="{{false}}">
+    <div class="tut-card {{card.pos}}" role="status" aria-live="polite">
+      <span class="tut-icon"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{card.icon}}"></path></svg></span>
+      <span class="tut-copy">
+        <span class="tut-steps" aria-label="{{stepLabel}}"><sc-for list="{{dots}}" as="d" hint-placeholder-count="7"><span class="{{d.cls}}"></span></sc-for></span>
+        <span class="tut-big">{{card.big}}</span>
+        <span class="tut-small">{{card.small}}</span>
+      </span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showSkip}}" hint-placeholder-val="{{false}}"><button class="tut-skip" onClick="{{skip}}">Skip</button></sc-if>
+  <sc-if value="{{finished}}" hint-placeholder-val="{{false}}"><button class="tut-replay" onClick="{{replay}}" style="top: 66px;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg>Replay tutorial</button></sc-if>
+
+  <sc-if value="{{cheer}}" hint-placeholder-val="{{false}}">
+    <div class="tut-cheer" role="status">
+      <span class="tut-cheer-badge"><svg aria-hidden="true" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <span class="tut-cheer-word">{{cheerWord}}</span>
+      <span class="tut-cheer-sub">{{cheerSub}}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isIntro}}" hint-placeholder-val="{{true}}">
+    <div class="tut-modal">
+      <div class="tut-modal-card">
+        <span class="tut-icon" style="width: 76px; height: 76px; border-radius: 22px;"><span style="font-family: var(--font-display); font-size: 30px; font-weight: 700;">S</span></span>
+        <h2 class="tut-modal-title">Welcome to Sync</h2>
+        <p class="tut-modal-sub">Here's how your store works, in five taps.</p>
+        <button class="btn-gold tut-go" onClick="{{start}}">Show me</button>
+        <button class="tut-skip" onClick="{{skip}}" style="position: static;">Skip for now</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+    <div class="tut-modal">
+      <div class="tut-modal-card">
+        <h2 class="tut-modal-title">You've got it!</h2>
+        <p class="tut-modal-sub">Every day, it's this loop.</p>
+        <div class="tut-recap" style="flex-wrap: wrap;">
+          <span class="tut-recap-item"><span class="tut-recap-icon"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="6" r="3"/><path d="M8.5 15.5l7-7"/></svg></span>Do a step</span>
+          <svg class="tut-recap-arrow" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span class="tut-recap-item"><span class="tut-recap-icon"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16l-1.5 12h-13z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg></span>Made a sale?</span>
+          <svg class="tut-recap-arrow" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span class="tut-recap-item"><span class="tut-recap-icon"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/></svg></span>Pay &amp; ship</span>
+        </div>
+        <p class="tut-modal-sub" style="font-size: 13px;">Pathway and Support are both in More.</p>
+        <button class="btn-gold tut-go" onClick="{{finish}}">Start my next step</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, screen: 'dash', sheet: false, cheer: false, cheerWord: '', cheerSub: '', done2: false, added: false, paid: false, trackAt: -1 };
+    this.timers = [];
+  }
+  fx() { return (typeof window !== 'undefined' && window.CrateFX) || null; }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  componentWillUnmount() { this.timers.forEach(function (t) { clearTimeout(t); }); }
+  tap() { var fx = this.fx(); if (fx) fx.tap(); }
+  cheerThen(word, sub, next) {
+    var self = this, fx = this.fx();
+    if (fx) fx.reveal('common');
+    this.setState({ cheer: true, cheerWord: word, cheerSub: sub });
+    this.later(function () { self.setState(Object.assign({ cheer: false }, next)); }, 900);
+  }
+  start() { this.tap(); this.setState({ step: 1 }); }
+  tapFocus() { if (this.state.step !== 1) return; this.tap(); this.setState({ screen: 'path', step: 2 }); }
+  tapNode(i) { if (this.state.step !== 2 || i !== 1) return; this.tap(); this.setState({ sheet: true, step: 3 }); }
+  tapComplete() { if (this.state.step !== 3 || this.state.cheer) return; this.tap(); this.cheerThen('Nice!', 'Next step unlocked', { sheet: false, done2: true, step: 4 }); }
+  tapProducts() { if (this.state.step !== 4) return; this.tap(); this.setState({ screen: 'products', step: 5 }); }
+  tapAdd() { if (this.state.step !== 5) return; var fx = this.fx(); if (fx) fx.coin(); this.setState({ added: true, step: 6 }); }
+  tapCart() { if (this.state.step !== 6) return; this.tap(); this.setState({ screen: 'checkout', step: 7 }); }
+  tapPay() {
+    if (this.state.step !== 7) return;
+    var self = this, fx = this.fx();
+    if (fx) fx.coin();
+    this.setState({ paid: true, trackAt: 0 });
+    [1, 2, 3].forEach(function (k) { self.later(function () { if (fx) fx.tick(k / 3); self.setState({ trackAt: k }); }, k * 450); });
+    this.later(function () { self.cheerThen('Shipped!', 'We send it to your buyer', { step: 8 }); }, 1700);
+  }
+  tapMore() { if (this.state.step !== 8) return; this.tap(); this.cheerThen('Found it!', 'Support lives in More', { screen: 'support', step: 9 }); }
+  finish() { this.tap(); this.setState({ step: 10, screen: 'dash' }); }
+  skip() { this.timers.forEach(function (t) { clearTimeout(t); }); this.setState({ step: 10, screen: 'dash', sheet: false, cheer: false }); }
+  replay() { this.setState({ step: 0, screen: 'dash', done2: false, added: false, paid: false, trackAt: -1 }); }
+  renderVals() {
+    var self = this, s = this.state, step = s.step;
+    var I = { target: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z', path: 'M6 15a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM18 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM8.5 15.5l7-7', check: 'M5 12.5l4.5 4.5L19 7.5', bag: 'M4 7h16l-1.5 12h-13zM9 7a3 3 0 0 1 6 0', cart: 'M3 4h2l2.5 11h10L20 8H7M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z', card: 'M3 6h18v13H3zM3 10h18', help: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6M12 17h.01' };
+    var CARDS = {
+      1: { pos: 'bottom', icon: I.target, big: 'Start here every day.', small: "Today's focus is your next step. Tap it." },
+      2: { pos: 'bottom', icon: I.path, big: 'This is your Pathway. Tap your next step.', small: 'Find it any time in More.' },
+      3: { pos: 'top', icon: I.check, big: 'Done it? Tap Mark complete.', small: 'The next step unlocks.' },
+      4: { pos: 'top', icon: I.bag, big: 'Made a sale? Tap Products.', small: 'Your stock lives here.' },
+      5: { pos: 'bottom', icon: I.bag, big: 'Find what sold. Tap Add to order.', small: 'We source it for you.' },
+      6: { pos: 'top', icon: I.cart, big: 'Now tap Checkout.', small: 'Pay for what you sold.' },
+      7: { pos: 'top', icon: I.card, big: "Add your buyer's address. Tap Pay.", small: 'We ship it straight to them.' },
+      8: { pos: 'top', icon: I.help, big: 'Stuck? Tap More.', small: 'Support and your Pathway live here.' }
+    };
+    var c = CARDS[step] || CARDS[1];
+    var on = { focus: step === 1, complete: step === 3 && !s.cheer, tabProducts: step === 4, add: step === 5, cart: step === 6, pay: step === 7 && !s.paid, tabMore: step === 8 && !s.cheer };
+    var cls = {};
+    Object.keys(on).forEach(function (k) { cls[k] = 'tut-anchor' + (on[k] ? ' tut-on' : ''); });
+    var actionIdx = { 1: 1, 2: 2, 3: 2, 4: 3, 5: 3, 6: 4, 7: 4, 8: 5 }[step] || 1;
+    var dots = [1, 2, 3, 4, 5].map(function (i) { return { cls: 'tut-dot' + (i < actionIdx ? ' done' : i === actionIdx ? ' now' : '') }; });
+    var titles = ['Set up your Depop account', 'Write your shop bio', 'List your first product', 'Make your first sale'];
+    var nodes = titles.map(function (t, i) {
+      var done = i === 0 || (i === 1 && s.done2), open = !done && (i === 1 || (i === 2 && s.done2)), locked = !done && !open;
+      var isOn = step === 2 && i === 1;
+      return {
+        title: t, num: i + 1, done: done, open: open, locked: locked, on: isOn,
+        cls: 'tut-anchor' + (isOn ? ' tut-on' : ''),
+        anim: i === 2 && s.done2 ? 'unlock' : '',
+        tag: done ? 'Complete' : open ? 'Up next' : 'Locked',
+        circle: done ? 'color: var(--p-ink); background: linear-gradient(140deg, var(--p-gold), var(--p-gold-deep));' : open ? 'color: var(--p-gold); background: var(--p-bg); border: 2.5px solid var(--p-gold-bright); box-shadow: 0 0 0 6px oklch(78% 0.13 86 / .14);' : 'color: var(--p-dim); background: var(--p-bg); border: 2px dashed oklch(50% 0.018 85 / .6);',
+        textStyle: locked ? 'color: var(--p-dim);' : '',
+        tagStyle: done ? 'color: var(--p-gold);' : open ? 'color: var(--p-gold-bright);' : 'color: var(--p-dim);',
+        tap: function () { self.tapNode(i); }
+      };
+    });
+    var labels = ['Paid', 'Sourcing', 'Shipped', 'Delivered'];
+    var track = labels.map(function (l, i) { var hit = i <= s.trackAt; return { label: l, bar: hit ? 'background: var(--p-gold-bright); box-shadow: 0 0 10px oklch(78% 0.13 86 / .6);' : 'background: var(--p-card-lo);', text: hit ? 'color: var(--p-gold);' : 'color: var(--p-dim);' }; });
+    var doneCount = s.done2 ? 2 : 1;
+    var sc = s.screen;
+    return {
+      isDash: sc === 'dash', isPath: sc === 'path', isProducts: sc === 'products', isCheckout: sc === 'checkout', isSupport: sc === 'support',
+      tabs: { dash: sc === 'dash' ? 'tab-on' : '', products: sc === 'products' ? 'tab-on' : '', more: (sc === 'path' || sc === 'support' || sc === 'checkout') ? 'tab-on' : '' },
+      showSheet: s.sheet, nodes: nodes, doneCount: doneCount, ringDash: (doneCount / 12) * 276.5 + ' 276.5',
+      addLabel: s.added ? 'Added ✓' : 'Add to order', showCartBar: s.added,
+      notPaid: !s.paid, paid: s.paid, track: track,
+      isIntro: step === 0, isDone: step === 9, finished: step === 10,
+      showCard: step >= 1 && step <= 8 && !s.cheer && !(step === 7 && s.paid),
+      showSkip: step >= 1 && step <= 8,
+      card: c, dots: dots, stepLabel: 'Part ' + actionIdx + ' of 5',
+      on: on, cls: cls, cheer: s.cheer, cheerWord: s.cheerWord, cheerSub: s.cheerSub,
+      start: function () { self.start(); }, skip: function () { self.skip(); }, replay: function () { self.replay(); }, finish: function () { self.finish(); },
+      tapFocus: function () { self.tapFocus(); }, tapComplete: function () { self.tapComplete(); }, tapProducts: function () { self.tapProducts(); },
+      tapAdd: function () { self.tapAdd(); }, tapCart: function () { self.tapCart(); }, tapPay: function () { self.tapPay(); }, tapMore: function () { self.tapMore(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

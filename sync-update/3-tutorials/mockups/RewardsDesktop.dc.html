@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rewards tutorial, desktop</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="ds/syncagency/components/bundle.css">
+<link rel="stylesheet" href="crate.css">
+<link rel="stylesheet" href="tut.css">
+<script src="crate-fx.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+.plain{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%}
+.navl{padding:13px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--p-dim);font-weight:600;border-bottom:2px solid transparent;white-space:nowrap}
+.navl-on{color:var(--p-gold);border-bottom-color:var(--p-gold-bright)}
+</style>
+</helmet>
+<div style="width: 1440px; height: 900px; position: relative; overflow: hidden; display: flex; flex-direction: column; background: radial-gradient(ellipse at 50% -10%, oklch(21% 0.03 85) 0%, var(--p-bg-deep) 55%); color: var(--p-text); font-family: var(--font-portal);">
+
+  <header style="height: 60px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: linear-gradient(180deg, oklch(17% 0.016 85) 0%, var(--p-bg) 100%);">
+    <div style="display: flex; align-items: center; gap: 16px;"><span style="font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--p-gold); letter-spacing: 0.04em;">SYNC<span style="font-family: var(--font-portal); font-size: 11px; font-weight: 400; color: var(--p-muted); letter-spacing: 0.14em;">/PORTAL</span></span><span class="tier-badge">Pro</span></div>
+    <span style="display: flex; align-items: center; gap: 10px; padding: 7px 14px; border: 1px solid var(--p-line-gold); border-radius: 100px; background: var(--p-card-hi); color: var(--p-gold); font-size: 13px; font-weight: 600;"><span style="font-size: 10px; letter-spacing: .1em; color: var(--p-muted);">WALLET</span>$248.00 AUD</span>
+  </header>
+  <nav aria-label="Portal" style="flex-shrink: 0; display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--p-line); background: var(--p-bg);">
+    <span class="navl">Dashboard</span><span class="navl">Pathway</span><span class="navl">Products</span><span class="navl">Checkout</span><span class="navl">Achievements</span><span class="navl navl-on">Rewards</span><span class="navl">Wallet</span><span class="navl">Support</span>
+  </nav>
+
+  <sc-if value="{{isHub}}" hint-placeholder-val="{{true}}">
+    <main style="flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; box-sizing: border-box; padding: 36px 40px 0; display: flex; flex-direction: column; gap: 22px;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 12px;"><span style="width: 40px; height: 1px; background: var(--p-gold-bright);"></span><span style="font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--p-gold-bright); font-weight: 600;">Sync Rewards</span></div>
+        <h1 style="margin: 10px 0 0; font-family: var(--font-display); font-size: 48px; font-weight: 600; line-height: 1;">Level up your store</h1>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start;">
+        <section class="dash-card dash-progress" style="padding: 28px; display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; align-items: center; gap: 24px;">
+            <div style="position: relative; width: 150px; height: 150px; flex-shrink: 0;">
+              <svg aria-hidden="true" width="150" height="150" viewBox="0 0 104 104"><circle cx="52" cy="52" r="44" fill="none" style="stroke: var(--p-line)" stroke-width="8"></circle><circle cx="52" cy="52" r="44" fill="none" style="stroke: var(--p-gold-bright)" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{ringDash}}" transform="rotate(-90 52 52)"></circle></svg>
+              <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;"><span style="font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--p-muted); font-weight: 600;">Level</span><span style="font-family: var(--font-display); font-size: 62px; font-weight: 700; line-height: .9; color: var(--p-gold);">{{level}}</span></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <span style="align-self: flex-start; font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; {{rankStyle}}">{{rank}} rank</span>
+              <span style="font-family: var(--font-display); font-size: 52px; font-weight: 600; line-height: .95;">{{xpText}} <span style="font-family: var(--font-portal); font-size: 15px; font-weight: 600; letter-spacing: .12em; color: var(--p-gold);">XP</span></span>
+            </div>
+          </div>
+          <div class="{{cls.xp}}" style="border-radius: 16px;">
+            <button class="plain" onClick="{{tapXp}}" aria-label="Your XP bar" style="padding: 14px 16px; border-radius: 16px; background: oklch(10% 0.01 85 / .4);">
+              <span style="display: block; height: 18px; border-radius: 100px; background: var(--p-card-lo); border: 1px solid var(--p-line); overflow: hidden;"><span style="display: block; height: 100%; width: {{barPct}}%; border-radius: 100px; background: linear-gradient(90deg, var(--p-gold-deep), var(--p-gold-bright) 70%, var(--p-gold));"></span></span>
+              <span style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; letter-spacing: .1em; color: var(--p-muted); font-weight: 600;"><span>LVL {{level}}</span><span>{{barLabel}}</span><span>LVL {{nextLevel}}</span></span>
+            </button>
+            <sc-if value="{{on.xp}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br" style="right: 40px;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </section>
+        <section class="dash-card" style="padding: 28px; display: flex; flex-direction: column; gap: 16px; border-color: var(--p-line-gold); background: linear-gradient(160deg, oklch(26% 0.04 85), oklch(17% 0.018 85) 70%);">
+          <div style="font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; font-weight: 600; color: var(--p-gold-deep);">Next rank</div>
+          <div style="font-family: var(--font-display); font-size: 40px; font-weight: 700; line-height: 1; color: var(--p-gold);">{{nextRankLine}}</div>
+          <div style="display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: oklch(78% 0.13 86 / .1); border: 1px solid var(--p-line-gold);"><span class="tier-badge tier-vip">VIP</span><span style="font-size: 14px; font-weight: 600;">{{courseLine}}</span></div>
+          <div style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--p-muted);"><span class="dash-stat-icon"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>{{crateLine}}</div>
+          <div class="{{cls.topup}}" style="border-radius: 12px; margin-top: 6px;">
+            <button class="btn-gold" onClick="{{tapTopup}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">Top up &amp; earn XP</button>
+            <sc-if value="{{on.topup}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br" style="right: 60px;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </section>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isPacks}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; width: 100%; max-width: 1240px; margin: 0 auto; box-sizing: border-box; padding: 32px 40px 0; display: flex; flex-direction: column; gap: 14px;">
+      <span class="tut-practice" style="align-self: flex-start;">Practice mode · no payment</span>
+      <h1 style="margin: 0; font-family: var(--font-display); font-size: 46px; font-weight: 600; line-height: 1;">Top up and earn XP</h1>
+      <p style="margin: 0 0 18px; font-size: 14px; color: var(--p-muted);">10 XP for every $1 of credit. Bigger packs add bonus XP on top.</p>
+      <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; align-items: stretch;">
+        <div class="dash-card" style="padding: 26px 20px; display: flex; flex-direction: column; gap: 10px;"><span style="font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--p-gold);">$50</span><span style="font-size: 16px; font-weight: 600;">+500 XP</span><span style="font-size: 12.5px; color: var(--p-muted);"></span></div>
+        <div class="dash-card" style="padding: 26px 20px; display: flex; flex-direction: column; gap: 10px;"><span style="font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--p-gold);">$100</span><span style="font-size: 16px; font-weight: 600;">+1,050 XP</span><span style="font-size: 12.5px; color: var(--p-muted);"></span></div>
+        <div class="dash-card" style="padding: 26px 20px; display: flex; flex-direction: column; gap: 10px;"><span style="font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--p-gold);">$250</span><span style="font-size: 16px; font-weight: 600;">+2,750 XP</span><span style="font-size: 12.5px; color: var(--p-muted);"></span></div>
+        <div class="{{cls.pack}}" style="border-radius: 18px;">
+          <button class="plain dash-card" onClick="{{tapPack}}" style="height: 100%; padding: 26px 20px; display: flex; flex-direction: column; gap: 10px; border: 1.5px solid var(--p-gold-bright); background: linear-gradient(160deg, oklch(27% 0.045 85), oklch(18% 0.02 85) 75%);">
+            <span style="font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--p-gold-bright);">Best value</span>
+            <span style="font-family: var(--font-display); font-size: 48px; font-weight: 700; color: var(--p-gold); line-height: .95;">$500</span>
+            <span style="font-size: 17px; font-weight: 700;">+5,750 XP</span>
+            <span style="font-size: 12.5px; color: var(--p-gold);">{{pv.packLine}}</span>
+          </button>
+          <sc-if value="{{on.pack}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+        </div>
+        <div class="dash-card" style="padding: 26px 20px; display: flex; flex-direction: column; gap: 10px;"><span style="font-family: var(--font-display); font-size: 44px; font-weight: 700; color: var(--p-gold);">$1,000</span><span style="font-size: 16px; font-weight: 600;">+12,000 XP</span><span style="font-size: 12.5px; color: var(--p-muted);"></span></div>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{isCrate}}" hint-placeholder-val="{{false}}">
+    <main style="flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; padding-top: 22px;">
+      <span class="tut-practice">Practice crate</span>
+      <div style="position: relative; width: 100%; height: 560px;">
+        <sc-if value="{{notReveal}}" hint-placeholder-val="{{true}}">
+          <div aria-hidden="true" class="rays-spin" style="position: absolute; left: 50%; top: 270px; width: 1000px; height: 1000px; margin: -500px 0 0 -500px; border-radius: 50%; opacity: .6; background: repeating-conic-gradient(from 0deg, oklch(78% 0.13 86 / .22) 0deg 4deg, transparent 4deg 15deg); -webkit-mask-image: radial-gradient(circle, #000 10%, transparent 52%); mask-image: radial-gradient(circle, #000 10%, transparent 52%);"></div>
+          <div class="{{cls.crate}}" style="position: absolute; left: 50%; top: 60px; width: 380px; height: 380px; margin-left: -190px; border-radius: 40px;">
+            <button class="crate-btn" onClick="{{tapCrate}}" aria-label="Open the crate" style="width: 380px; height: 380px;">
+              <div class="{{crateClass}}" style="width: 380px; height: 380px;">
+                <svg aria-hidden="true" width="380" height="380" viewBox="0 0 240 240" style="overflow: visible;">
+                  <defs><linearGradient id="dtin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: oklch(97% 0.04 90)"></stop><stop offset="1" style="stop-color: var(--p-gold-bright)"></stop></linearGradient></defs>
+                  <g class="{{bodyClass}}">
+                    <polygon points="40,114 120,72 200,114 120,156" fill="url(#dtin)"></polygon>
+                    <polygon points="40,114 120,156 120,226 40,184" style="fill: oklch(70% 0.13 80)"></polygon>
+                    <polygon points="120,156 200,114 200,184 120,226" style="fill: oklch(54% 0.11 72)"></polygon>
+                    <polygon points="56,122.4 64,126.6 64,196.6 56,192.4" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polygon points="96,143.4 104,147.6 104,217.6 96,213.4" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polygon points="136,147.6 144,143.4 144,213.4 136,217.6" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polygon points="176,126.6 184,122.4 184,192.4 176,196.6" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polygon points="120,160 132,172 120,184 108,172" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <circle class="gem-pulse" cx="120" cy="172" r="6" style="fill: oklch(97% 0.03 90)"></circle>
+                  </g>
+                  <g class="{{lidClass}}">
+                    <polygon points="36,96 120,138 120,154 36,112" style="fill: oklch(76% 0.13 84)"></polygon>
+                    <polygon points="120,138 204,96 204,112 120,154" style="fill: oklch(63% 0.12 76)"></polygon>
+                    <polygon points="36,96 120,54 204,96 120,138" style="fill: oklch(90% 0.08 88)"></polygon>
+                    <polygon points="56,86 64,82 148,124 140,128" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polygon points="176,86 184,90 100,132 92,128" style="fill: oklch(24% 0.02 85)"></polygon>
+                    <polyline points="36,112 120,154 204,112" fill="none" style="stroke: var(--p-gold-bright)" class="{{seamClass}}" stroke-opacity=".3" stroke-width="2"></polyline>
+                  </g>
+                </svg>
+              </div>
+            </button>
+            <sc-if value="{{on.crate}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br" style="right: 40px; bottom: 10px;"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{isBurst}}" hint-placeholder-val="{{false}}">
+          <div aria-hidden="true" class="ring-wave" style="position: absolute; left: 50%; top: 270px; width: 220px; height: 220px; margin: -110px 0 0 -110px; border-radius: 50%; border: 5px solid var(--r-legendary); box-shadow: 0 0 60px var(--r-legendary);"></div>
+          <sc-for list="{{particles}}" as="pt" hint-placeholder-count="0"><span aria-hidden="true" class="particle" style="{{pt.style}}"></span></sc-for>
+        </sc-if>
+        <sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+          <div aria-hidden="true" class="rays-fast" style="position: absolute; left: 50%; top: 250px; width: 1200px; height: 1200px; margin: -600px 0 0 -600px; border-radius: 50%; background: repeating-conic-gradient(from 0deg, var(--r-legendary) 0deg 6deg, transparent 6deg 18deg); -webkit-mask-image: radial-gradient(circle, #000 8%, transparent 50%); mask-image: radial-gradient(circle, #000 8%, transparent 50%);"></div>
+          <div class="card-pop" style="position: absolute; left: 50%; top: 30px; width: 400px; margin-left: -200px; padding: 30px 28px; box-sizing: border-box; border-radius: 28px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; background: linear-gradient(165deg, oklch(25% 0.03 85 / .97), oklch(15% 0.016 85 / .97)); border: 1.5px solid var(--r-legendary); box-shadow: 0 0 0 7px oklch(80% 0.14 86 / .16), 0 40px 80px -24px rgba(0,0,0,.85), 0 0 90px -10px var(--r-legendary);">
+            <span style="font-size: 11px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; color: var(--p-ink); background: var(--r-legendary);">Legendary</span>
+            <span class="shimmer-text" style="--rc: var(--r-legendary); font-family: var(--font-display); font-size: 120px; font-weight: 700; line-height: .9;">${{shown}}</span>
+            <span style="font-family: var(--font-display); font-size: 28px; font-weight: 600;">Wallet credit</span>
+            <span style="font-size: 13.5px; color: var(--p-muted);">Practice only. Nothing is added. Real crates use the odds in the app.</span>
+          </div>
+          <div style="position: absolute; left: 50%; top: 470px; width: 340px; margin-left: -170px;">
+            <div class="{{cls.collect}}" style="border-radius: 12px;">
+              <button class="btn-gold" onClick="{{tapCollect}}" style="width: 100%; justify-content: center; padding: 17px 20px; font-size: 13px; cursor: pointer;">Got it (practice)</button>
+              <sc-if value="{{on.collect}}" hint-placeholder-val="{{false}}"><span class="tut-ping"></span><span class="tut-hand hand-br"><svg aria-hidden="true" viewBox="0 0 64 64"><path d="M24 4c3.3 0 6 2.7 6 6v18.5l1.6-.8c2.6-1.2 5.7-.2 7 2.3l.6 1.2 1.7-.8c2.6-1.1 5.6 0 6.8 2.5l.5 1 1.3-.5c3-1.1 6.3 1.1 6.3 4.3V50c0 8.3-6.7 14-15 14h-5.5c-5.1 0-9.6-2.6-12.3-6.9L8.4 39.8c-1.6-2.7-.8-6.1 1.8-7.7 2.5-1.5 5.7-.9 7.5 1.4l.3.4V10c0-3.3 2.7-6 6-6z" fill="#fffaf0" stroke="#1d1a14" stroke-width="3" stroke-linejoin="round"></path></svg></span></sc-if>
+            </div>
+          </div>
+          <div aria-hidden="true" style="position: absolute; inset: 0; pointer-events: none; overflow: hidden;"><sc-for list="{{confetti}}" as="cf" hint-placeholder-count="0"><span class="confetti" style="{{cf.style}}"></span></sc-for></div>
+        </sc-if>
+        <sc-if value="{{isBurst}}" hint-placeholder-val="{{false}}"><div aria-hidden="true" class="flash" style="position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 45%, oklch(99% 0.02 90) 0%, var(--r-legendary) 35%, transparent 75%);"></div></sc-if>
+      </div>
+    </main>
+  </sc-if>
+
+  <sc-if value="{{showCard}}" hint-placeholder-val="{{false}}">
+    <div class="tut-card desk {{card.pos}}" role="status" aria-live="polite">
+      <span class="tut-icon" style="width: 60px; height: 60px;"><svg aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="{{card.icon}}"></path></svg></span>
+      <span class="tut-copy">
+        <span class="tut-steps" aria-label="{{stepLabel}}"><sc-for list="{{dots}}" as="d" hint-placeholder-count="5"><span class="{{d.cls}}"></span></sc-for></span>
+        <span class="tut-big">{{card.big}}</span>
+        <span class="tut-small">{{card.small}}</span>
+      </span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{showSkip}}" hint-placeholder-val="{{false}}"><button class="tut-skip" onClick="{{skip}}" style="top: 116px; right: 24px;">Skip tutorial</button></sc-if>
+  <sc-if value="{{finished}}" hint-placeholder-val="{{false}}"><button class="tut-replay" onClick="{{replay}}" style="top: 116px; right: 24px;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 4v4h4"/></svg>Replay tutorial</button></sc-if>
+
+  <sc-if value="{{levelUp}}" hint-placeholder-val="{{false}}">
+    <div class="tut-level" role="status">
+      <div aria-hidden="true" class="tut-rays" style="width: 1400px; height: 1400px; margin: -700px 0 0 -700px;"></div>
+      <span class="tut-practice" style="position: relative;">Preview · nothing is charged</span>
+      <span class="tut-level-xp" style="position: relative; font-size: 30px;">+5,750 XP</span>
+      <span style="position: relative; font-size: 17px; font-weight: 600; color: var(--p-muted);">This pack would take you to</span>
+      <span class="tut-level-num" style="position: relative; font-size: 180px;">{{pv.level}}</span>
+      <span class="tut-level-rank" style="position: relative; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; padding: 7px 16px; border-radius: 100px; {{pv.rankStyle}}">{{pv.rank}} rank</span>
+      <sc-if value="{{pv.rankUp}}" hint-placeholder-val="{{true}}"><span class="tut-level-rank" style="position: relative; font-size: 15px; font-weight: 600; color: var(--p-gold); margin-top: 6px;">{{pv.unlock}}</span></sc-if>
+      <span class="tut-level-rank" style="position: relative; font-size: 13px; color: var(--p-muted); margin-top: 10px;">You're still Level {{level}}. This was a preview.</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{cheer}}" hint-placeholder-val="{{false}}">
+    <div class="tut-cheer" role="status">
+      <span class="tut-cheer-badge" style="width: 130px; height: 130px;"><svg aria-hidden="true" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+      <span class="tut-cheer-word" style="font-size: 60px;">{{cheerWord}}</span>
+      <span class="tut-cheer-sub" style="font-size: 20px;">{{cheerSub}}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isIntro}}" hint-placeholder-val="{{true}}">
+    <div class="tut-modal">
+      <div class="tut-modal-card" style="max-width: 520px; padding: 40px 36px 30px;">
+        <span class="tut-icon" style="width: 84px; height: 84px; border-radius: 24px;"><svg aria-hidden="true" width="44" height="44" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z"/></svg></span>
+        <h2 class="tut-modal-title" style="font-size: 48px;">Welcome to Sync Rewards</h2>
+        <p class="tut-modal-sub" style="font-size: 17px;">Top up, level up, open crates. Let's try it. It takes 30 seconds.</p>
+        <button class="btn-gold tut-go" onClick="{{start}}">Let's go</button>
+        <button class="tut-skip" onClick="{{skip}}" style="position: static;">Skip for now</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{isDone}}" hint-placeholder-val="{{false}}">
+    <div class="tut-modal">
+      <div class="tut-modal-card" style="max-width: 560px; padding: 40px 36px 30px;">
+        <h2 class="tut-modal-title" style="font-size: 52px;">You're ready!</h2>
+        <p class="tut-modal-sub" style="font-size: 17px;">That's the whole game.</p>
+        <div class="tut-recap">
+          <span class="tut-recap-item" style="font-size: 14px;"><span class="tut-recap-icon" style="width: 60px; height: 60px;"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12h3"/></svg></span>Top up</span>
+          <svg class="tut-recap-arrow" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-top: 22px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span class="tut-recap-item" style="font-size: 14px;"><span class="tut-recap-icon" style="width: 60px; height: 60px;"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>Level up</span>
+          <svg class="tut-recap-arrow" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="margin-top: 22px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          <span class="tut-recap-item" style="font-size: 14px;"><span class="tut-recap-icon" style="width: 60px; height: 60px;"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>Open crates</span>
+        </div>
+        <p class="tut-modal-sub" style="font-size: 13px;">This was practice. Nothing was charged or added.</p>
+        <button class="btn-gold tut-go" onClick="{{finish}}">Start earning</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"memberXp":{"editor":"int","default":11640,"min":0,"section":"Member (demo data)"},"memberCredit":{"editor":"int","default":1164,"min":0,"unit":"$","section":"Member (demo data)"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { step: 0, screen: 'hub', cheer: false, cheerWord: '', cheerSub: '', levelUp: false, phase: 'idle', shown: 0 };
+    this.timers = [];
+  }
+  fx() { return (typeof window !== 'undefined' && window.CrateFX) || null; }
+  member() {
+    var xp = Math.max(0, Math.round(this.props.memberXp ?? 11640)), credit = Math.max(0, Math.round(this.props.memberCredit ?? 1164));
+    var R = [['Bronze', 0], ['Silver', 500], ['Gold', 1500], ['Platinum', 4000], ['Black', 10000]];
+    var UNLOCK = { Silver: 'the Elite Scale course', Gold: 'the VIP Inner Circle course', Platinum: 'quarterly 1:1 strategy calls', Black: "the Founders' mastermind" };
+    var STY = { Bronze: 'color: oklch(66% 0.10 55); border: 1px solid oklch(66% 0.10 55 / .4);', Silver: 'color: var(--silver); border: 1px solid oklch(86% 0.012 85 / .35);', Gold: 'color: var(--p-ink); background: var(--p-gold-bright);', Platinum: 'color: oklch(84% 0.035 220); border: 1px solid oklch(84% 0.035 220 / .45);', Black: 'color: var(--p-gold); background: oklch(10% 0.01 85); border: 1px solid var(--p-gold-deep);' };
+    var fmt = function (n) { return n.toLocaleString('en-AU'); };
+    var rankOf = function (c) { var r = R[0]; R.forEach(function (x) { if (c >= x[1]) r = x; }); return r; };
+    var nextOf = function (c) { for (var i = 0; i < R.length; i++) if (c < R[i][1]) return R[i]; return null; };
+    var rank = rankOf(credit)[0], next = nextOf(credit), level = Math.floor(xp / 1000) + 1, into = xp % 1000;
+    var pvXp = xp + 5750, pvCredit = credit + 500, pvRank = rankOf(pvCredit)[0], pvLevel = Math.floor(pvXp / 1000) + 1;
+    return {
+      level: level, nextLevel: level + 1, xpText: fmt(xp), barPct: Math.round(into / 10), barLabel: fmt(1000 - into) + ' XP to go',
+      ringDash: (into / 1000) * 276.5 + ' 276.5', rank: rank, rankStyle: STY[rank],
+      nextRank: next ? next[0] : 'Top rank',
+      nextRankLine: next ? next[0] + ' in $' + fmt(next[1] - credit) : 'Top rank reached',
+      courseLine: next ? 'Unlocks ' + UNLOCK[next[0]] : 'Every reward unlocked',
+      crateLine: rank === 'Bronze' ? 'Crates start at Silver' : 'Your next crate drops at Level ' + (level + 1),
+      pv: {
+        level: pvLevel, rank: pvRank, rankStyle: STY[pvRank], levels: pvLevel - level,
+        packLine: pvRank !== rank ? 'Would take you to ' + pvRank : 'Would take you to Level ' + pvLevel,
+        rankUp: pvRank !== rank, unlock: pvRank !== rank ? 'Would unlock ' + UNLOCK[pvRank] : ''
+      }
+    };
+  }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  componentWillUnmount() { this.timers.forEach(function (t) { clearTimeout(t); clearInterval(t); }); }
+  cheerThen(word, sub, next) {
+    var self = this, fx = this.fx();
+    if (fx) fx.reveal('common');
+    this.setState({ cheer: true, cheerWord: word, cheerSub: sub });
+    this.later(function () { self.setState(Object.assign({ cheer: false }, next)); }, 900);
+  }
+  tap() { var fx = this.fx(); if (fx) fx.tap(); }
+  start() { this.tap(); this.setState({ step: 1 }); }
+  tapXp() { if (this.state.step !== 1 || this.state.cheer) return; this.tap(); this.cheerThen('Nice!', 'That bar is your XP', { step: 2 }); }
+  tapTopup() { if (this.state.step !== 2) return; this.tap(); this.setState({ screen: 'packs', step: 3 }); }
+  tapPack() {
+    if (this.state.step !== 3) return;
+    var self = this, fx = this.fx();
+    this.tap();
+    this.setState({ levelUp: true });
+    if (fx) { fx.coin(); this.later(function () { fx.reveal('epic'); }, 350); }
+    this.later(function () { self.setState({ levelUp: false, screen: 'crate', step: 4 }); }, 2600);
+  }
+  tapCrate() {
+    if (this.state.step !== 4 || this.state.phase !== 'idle') return;
+    var self = this, fx = this.fx();
+    if (fx) { fx.tap(); fx.shake(1.4); }
+    this.setState({ phase: 'shake' });
+    this.later(function () { self.setState({ phase: 'burst' }); if (fx) fx.burst(); }, 1400);
+    this.later(function () {
+      self.setState({ phase: 'reveal', shown: 0 });
+      if (fx) fx.reveal('legendary');
+      var n = 0;
+      var t = setInterval(function () { n += 2; if (fx && n % 4 === 0) fx.tick(n / 50); self.setState({ shown: Math.min(n, 50) }); if (n >= 50) { clearInterval(t); self.setState({ step: 5 }); } }, 30);
+      self.timers.push(t);
+    }, 2050);
+  }
+  tapCollect() { if (this.state.step !== 5) return; var fx = this.fx(); if (fx) fx.coin(); this.cheerThen('Nice!', "That's how crates work", { step: 6 }); }
+  finish() { this.tap(); this.setState({ step: 7, screen: 'hub', phase: 'idle' }); }
+  skip() { this.timers.forEach(function (t) { clearTimeout(t); clearInterval(t); }); this.setState({ step: 7, screen: 'hub', phase: 'idle', cheer: false, levelUp: false }); }
+  replay() { this.setState({ step: 0, screen: 'hub', phase: 'idle', shown: 0 }); }
+  renderVals() {
+    var self = this, s = this.state, step = s.step;
+    var I = { bolt: 'M13 2L4 14h7l-1 8 9-12h-7z', wallet: 'M3 6h18v13H3zM16 12h3', tag: 'M3 12V4h8l10 10-8 8zM7.5 8.5h.01', box: 'M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8', coin: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v10' };
+    var CARDS = {
+      1: { pos: 'top', icon: I.bolt, big: 'This bar is your XP.', small: 'Click it. Fill it up to level up.' },
+      2: { pos: 'top', icon: I.wallet, big: 'Click Top up & earn XP.', small: 'Every $1 of credit = 10 XP.' },
+      3: { pos: 'bottom', icon: I.tag, big: 'Click the $500 pack.', small: 'See what it would do. Nothing is charged.' },
+      4: { pos: 'bottom', icon: I.box, big: 'You got a crate! Click it.', small: 'Every level gives you one.' },
+      5: { pos: 'bottom', icon: I.coin, big: 'Click Got it.', small: 'You earn real crates as you level up.' }
+    };
+    var c = CARDS[step] || CARDS[1];
+    var on = { xp: step === 1 && !s.cheer, topup: step === 2, pack: step === 3 && !s.levelUp, crate: step === 4 && s.phase === 'idle', collect: step === 5 && !s.cheer };
+    var cls = {};
+    Object.keys(on).forEach(function (k) { cls[k] = 'tut-anchor' + (on[k] ? ' tut-on' : ''); });
+    var dots = [1, 2, 3, 4, 5].map(function (i) { return { cls: 'tut-dot' + (i < step ? ' done' : i === step ? ' now' : '') }; });
+    var m = this.member();
+    var particles = [], pc = ['var(--p-gold-bright)', 'var(--p-gold)', 'var(--r-legendary)', 'oklch(97% 0.03 90)'];
+    for (var i = 0; i < 44; i++) {
+      var a = (i * 360 / 44 + (i % 3) * 6) * Math.PI / 180, d = 220 + (i * 53 % 170), z = 6 + (i * 7 % 11);
+      particles.push({ style: 'left: 50%; top: 270px; width: ' + z + 'px; height: ' + z + 'px; margin: -' + (z / 2) + 'px 0 0 -' + (z / 2) + 'px; background: ' + pc[i % 4] + '; box-shadow: 0 0 12px ' + pc[i % 4] + '; border-radius: 50%; --dx: ' + Math.round(Math.cos(a) * d) + 'px; --dy: ' + Math.round(Math.sin(a) * d * 0.8) + 'px; animation-delay: ' + ((i % 4) * 0.03) + 's;' });
+    }
+    var confetti = [], cc = ['var(--p-gold-bright)', 'var(--p-gold)', 'var(--r-legendary)', 'var(--silver)', 'var(--p-gold-deep)'];
+    for (var j = 0; j < 60; j++) {
+      var w = 7 + (j * 5 % 7), h = j % 3 === 0 ? w : 11 + (j * 3 % 9);
+      confetti.push({ style: 'left: ' + (j * 17 % 100) + '%; width: ' + w + 'px; height: ' + h + 'px; background: ' + cc[j % 5] + '; border-radius: ' + (j % 3 === 0 ? '50%' : '2px') + '; --dur: ' + (3 + (j % 5) * 0.4) + 's; --delay: -' + ((j * 0.31) % 3.4).toFixed(2) + 's; --sway: ' + ((j % 2 ? 1 : -1) * (20 + j % 50)) + 'px; --spin: ' + (360 + (j % 4) * 180) + 'deg;' });
+    }
+    return {
+      level: m.level, nextLevel: m.nextLevel, xpText: m.xpText, barPct: m.barPct, barLabel: m.barLabel, ringDash: m.ringDash,
+      rank: m.rank, rankStyle: m.rankStyle, nextRankLine: m.nextRankLine, courseLine: m.courseLine, crateLine: m.crateLine, pv: m.pv,
+      isHub: s.screen === 'hub', isPacks: s.screen === 'packs', isCrate: s.screen === 'crate',
+      isIntro: step === 0, isDone: step === 6, finished: step === 7,
+      showCard: step >= 1 && step <= 5 && !s.cheer && !s.levelUp && !(step === 4 && s.phase !== 'idle'),
+      showSkip: step >= 1 && step <= 5,
+      card: c, dots: dots, stepLabel: 'Step ' + Math.min(Math.max(step, 1), 5) + ' of 5', on: on, cls: cls,
+      cheer: s.cheer, cheerWord: s.cheerWord, cheerSub: s.cheerSub, levelUp: s.levelUp,
+      notReveal: s.phase !== 'reveal', isBurst: s.phase === 'burst', isReveal: s.phase === 'reveal',
+      crateClass: s.phase === 'idle' ? 'crate-idle' : (s.phase === 'shake' ? 'crate-shake' : ''),
+      lidClass: s.phase === 'burst' ? 'lid-fly' : '', bodyClass: s.phase === 'burst' ? 'body-out' : '', seamClass: s.phase === 'shake' ? 'seam-glow' : '',
+      shown: s.shown, particles: particles, confetti: confetti,
+      start: function () { self.start(); }, skip: function () { self.skip(); }, replay: function () { self.replay(); }, finish: function () { self.finish(); },
+      tapXp: function () { self.tapXp(); }, tapTopup: function () { self.tapTopup(); }, tapPack: function () { self.tapPack(); },
+      tapCrate: function () { self.tapCrate(); }, tapCollect: function () { self.tapCollect(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

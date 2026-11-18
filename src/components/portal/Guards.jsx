@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../lib/useAuth";
-import { useChronosMode } from "../../lib/useChronosMode";
 
 function Loading() {
   return (
@@ -90,20 +89,5 @@ export function RequireAdmin({ children }) {
   if (!session) return <Navigate to="/login" replace />;
   if (!profile) return <Pending />;
   if (profile.role !== "admin") return <Navigate to="/portal" replace />;
-  return children;
-}
-
-// Chronos admin sections: default OFF, admin opts in via the Chronos Mode switch
-// (AdminLayout.jsx). Visibility only — always nested inside RequireAdmin/RequireMember,
-// so a member session can never reach this check with profile.role !== "admin", and setting
-// the localStorage key by hand does nothing without also being an authed admin.
-export function RequireChronos({ children, redirectTo = "/admin" }) {
-  const { session, profile, loading } = useAuth();
-  const { chronosMode } = useChronosMode();
-
-  if (loading) return <Loading />;
-  if (!session) return <Navigate to="/login" replace />;
-  if (!profile) return <Pending />;
-  if (profile.role !== "admin" || !chronosMode) return <Navigate to={redirectTo} replace />;
   return children;
 }

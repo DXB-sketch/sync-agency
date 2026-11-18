@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mobile products, refreshed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="refresh.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&amp;family=Jost:wght@400;500;600;700&amp;display=swap">
+<style>body{margin:0}html,body{overflow:hidden;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}</style>
+</helmet>
+<div class="rf" style="width: 390px; height: 844px; overflow: hidden; display: flex; flex-direction: column;">
+  <header style="height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--line); background: var(--bg-1);">
+    <span class="logo" style="font-size: 20px;">SYNC</span>
+    <a class="btn btn-primary btn-sm" href="#" style="height: 40px; padding: 0 14px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.checkout}}"></path></svg>Checkout<span style="min-width: 20px; height: 20px; padding: 0 5px; border-radius: 10px; background: var(--on-gold); color: var(--gold-strong); font-size: 12px; display: inline-flex; align-items: center; justify-content: center;">1</span></a>
+  </header>
+
+  <main style="flex: 1; min-height: 0; padding: 18px 16px 0; display: flex; flex-direction: column; gap: 12px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 12px;">
+      <div><h1 class="t-h2">Products</h1><p class="t-small" style="margin-top: 4px;">Made a sale? Add it to your order.</p></div>
+      <div style="width: 96px; display: flex; flex-direction: column; gap: 5px;"><span class="t-label" style="text-align: right;">6 of 9 slots</span><div class="bar" style="height: 6px;"><span style="width: 66%;"></span></div></div>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="chip chip-gold" style="height: 36px; padding: 0 14px; border: none;">All 6</button>
+      <button class="chip chip-plain" style="height: 36px; padding: 0 14px; border: none;">Pro 5</button>
+      <button class="chip chip-plain" style="height: 36px; padding: 0 14px; border: none;">Bonus 1</button>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <sc-for list="{{products}}" as="p" hint-placeholder-count="4">
+        <article class="card" style="padding: 12px; display: flex; gap: 12px;">
+          <div aria-hidden="true" style="width: 92px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: {{p.bg}}; color: oklch(100% 0 0 / .25);"><svg class="icon" viewBox="0 0 24 24" style="width: 30px; height: 30px; stroke-width: 1.25;"><path d="{{ic.products}}"></path></svg></div>
+          <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-size: 15px; font-weight: 600;">{{p.name}}</span>
+            <div style="display: flex; align-items: baseline; gap: 6px;"><span class="t-num" style="font-size: 26px; color: var(--gold); line-height: 1;">{{p.profit}}</span><span class="t-small">profit</span></div>
+            <span style="font-size: 13px; color: var(--text-2);">List {{p.list}} → discount {{p.disc}}</span>
+            <sc-if value="{{p.added}}" hint-placeholder-val="{{false}}"><span class="btn btn-secondary btn-sm" style="height: 40px; border-color: var(--gold-deep); color: var(--gold);"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>In your order</span></sc-if>
+            <sc-if value="{{p.notAdded}}" hint-placeholder-val="{{true}}"><button class="btn btn-secondary btn-sm" style="height: 40px;"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add to order</button></sc-if>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </main>
+
+  <nav class="tabbar" aria-label="Portal">
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.home}}"></path></svg>Dashboard<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.rewards}}"></path></svg>Rewards<span class="tab-dot"></span></a>
+    <a class="tab tab-on" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.products}}"></path></svg>Products<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ic.achieve}}"></path></svg>Achieve<span class="tab-dot"></span></a>
+    <a class="tab" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="stroke-width: 2.6;"><path d="{{ic.more}}"></path></svg>More<span class="tab-dot"></span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    var bgs = ['oklch(30% 0.03 60)', 'oklch(27% 0.03 230)', 'oklch(28% 0.04 140)', 'oklch(27% 0.03 20)'];
+    var names = ['Vintage graphic tee', 'Knit beanie', 'Cargo pants', 'Zip hoodie'];
+    var f = function (v) { return '$' + v.toFixed(2); };
+    var products = names.map(function (n, i) {
+      var cost = 18 + i * 4, list = 45 + i * 5, disc = 38 + i * 4;
+      return { name: n, list: '$' + list, disc: '$' + disc, profit: f(disc - cost), added: i === 0, notAdded: i !== 0, bg: 'linear-gradient(140deg, ' + bgs[i] + ', oklch(16% 0.014 85))' };
+    });
+    return { products: products, ic: {
+      home: 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+      rewards: 'M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6zM12 8.5l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.2-2.4 1.2.5-2.6-1.9-1.8 2.6-.4z',
+      products: 'M5 8h14l-1 12H6zM9 8V6a3 3 0 0 1 6 0v2',
+      achieve: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8M10 17h4',
+      more: 'M5 12h.01M12 12h.01M19 12h.01',
+      checkout: 'M3 4h2.5l2 11h10.5l2-8H6.5M9 20h.01M17 20h.01'
+    } };
+  }
+}
+</script>
+</body>
+</html>
